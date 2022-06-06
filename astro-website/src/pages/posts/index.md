@@ -15,12 +15,22 @@ This is so cool!
 
 Do variables work {frontmatter.value * 2}?
 
-```javascript
+```js
 // Example JavaScript
 
 const x = 7;
 function returnSeven() {
   return x;
 }
+
+```
+
+```bash
+alias k='kubectl'
+
+```
+
+```vim
+nnoremap q qq
 
 ```
