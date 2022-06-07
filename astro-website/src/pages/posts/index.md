@@ -9,10 +9,11 @@ value: 128
 description: Just a Hello World Post!
 ---
 
+This is a simple markdown post
+
 <ReactComponent name={frontmatter.name}  client:load />
 
 
-This is a simple markdown post
 
 Do variables work {frontmatter.value * 2}?
 

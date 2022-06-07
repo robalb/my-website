@@ -13,7 +13,9 @@ export default function reactComponent(props){
 
     let variable = "YOO, react!"
     return <>
-        <h1>{props.name}</h1>
+        <p>This is a live react component. The only js in the page.</p>
+        <p>this variable was received at build time: </p>
+        <p>{props.name}</p>
         <h1>{variable} {counter}</h1>
         <button onClick={updateCounter}>++</button>
     </>
