@@ -24,55 +24,26 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 <html lang="en">
 	<head>
 		<BaseHead {title} {description} {permalink} />
-
-		<style>
-			header {
-				width: 100%;
-				height: 100%;
-				background-color: var(--theme-bg-offset);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
-
-			.content {
-				margin-top: 4rem;
-				margin-bottom: 8rem;
-			}
-
-			.content :global(main > * + *) {
-				margin-top: 1rem;
-			}
-
-			.intro {
-				padding-bottom: 4rem;
-				margin-bottom: 2rem;
-				border-bottom: 4px solid var(--theme-divider);
-			}
-
-			.intro > * {
-				margin: 0;
-			}
-
-			.latest {
-				font-size: 2.5rem;
-				font-weight: 700;
-			}
-		</style>
 	</head>
 
 	<body>
 		<BlogHeader />
-		<div class="wrapper">
-			<main class="content">
-				<section class="intro">
-					<h1 class="latest">{title}</h1>
-					<p>{description}</p>
-				</section>
-				<section aria-label="Blog post list">
-					{allPosts.map((p) => <BlogPostPreview post={p} />)}
-				</section>
-			</main>
-		</div>
+		<main>
+			<header>
+				<h1>Hi, I'm Alberto Ventafridda</h1>
+				<p>Lorem ipsum dolom sit amlet conescidir itum</p>
+				<p>It's redundant, but this presentation text about me should link to articles, projects and about me pages
+					in a smooth way</p>
+			</header>
+			<section>
+				<h2>Latest articles</h2>
+				{allPosts.map((p) => <BlogPostPreview post={p} />)}
+			</section>
+			<section>
+				<h2>Latest projects</h2>
+			</section>
+			<footer>
+			</footer>
+		</main>
 	</body>
 </html>
