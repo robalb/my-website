@@ -4,9 +4,39 @@ export interface Props {
 }
 
 const { post } = Astro.props;
+
 ---
 
 <a href={post.url}>
-	<h3>{post.frontmatter.title}</h3>
-	<time>{post.frontmatter.publishDate}</time>
+	<span>{post.frontmatter.title}</span>
+  <div>
+	<time>{"12 Sep"}</time>
+  </div>
 </a>
+
+<style>
+a{
+  grid-gap: 1rem;
+  align-items: center;
+  border: 1px solid transparent;
+  display: grid;
+  grid-template-columns: auto 60px;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding: .4rem 1rem;
+}
+
+span{
+
+}
+
+time{
+  color: var(--dark-font-color);
+  display: block;
+  font-family: var(--code-font-family);
+  font-size: .8rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+</style>
