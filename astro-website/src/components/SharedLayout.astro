@@ -1,0 +1,48 @@
+---
+import Headers from './Headers.astro';
+import BlogHeader from './BlogHeader.astro';
+import '../styles/style.css';
+import '../styles/light-theme.css';
+import '../styles/dark-theme.css';
+
+export interface Props {
+	title: string;
+	description: string;
+	permalink: string;
+    activePage?: string;
+    lang?: string;
+}
+const { title, description, permalink, activePage, lang="en" } = Astro.props;
+
+//theme logic is defined in BlogHeader, with the switch js handler
+---
+<html lang={lang}>
+	<head>
+		<Headers {title} {description} {permalink} />
+	</head>
+
+	<body class="light">
+		<BlogHeader {activePage} />
+		<main>
+            <slot/>
+        </main>
+    </body>
+</html>
+
+
+<style>
+    main {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: var(--page-width);
+        padding: 2rem;
+    }
+    main.large {
+        max-width: var(--page-width-large);
+    }
+    @media screen and (max-width: 800px) {
+        main{
+            padding: 1rem;
+        }
+    }
+</style>

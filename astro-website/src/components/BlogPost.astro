@@ -19,11 +19,24 @@ const { title, author, publishDate, heroImage, alt } = Astro.props;
 			<h1 class="title">{title}</h1>
 			<p>tags here </p>
 		</header>
-		<main>
+		<section>
 			<slot />
-		</main>
+		</section>
 	</div>
 </article>
 
 <style>
+	section, header{
+		padding-top: 2rem;
+		padding-bottom: 2rem;
+	}
+    @media screen and (max-width: 800px) {
+		section, header{
+			padding-top: 1rem;
+			padding-bottom: 1rem;
+		}
+		header{
+			padding-top: 1.5rem;
+		}
+	}
 </style>
