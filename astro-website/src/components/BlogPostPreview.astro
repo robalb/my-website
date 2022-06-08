@@ -7,36 +7,9 @@ const { post } = Astro.props;
 
 ---
 
-<a href={post.url}>
-	<span>{post.frontmatter.title}</span>
+<a href={post.url} class="post">
+	<h3>{post.frontmatter.title}</h3>
   <div>
 	<time>{"12 Sep"}</time>
   </div>
 </a>
-
-<style>
-a{
-  grid-gap: 1rem;
-  align-items: center;
-  border: 1px solid transparent;
-  display: grid;
-  grid-template-columns: auto 60px;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  padding: .4rem 1rem;
-}
-
-span{
-
-}
-
-time{
-  color: var(--dark-font-color);
-  display: block;
-  font-family: var(--code-font-family);
-  font-size: .8rem;
-  font-weight: 400;
-  text-align: center;
-}
-
-</style>

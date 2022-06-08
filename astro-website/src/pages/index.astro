@@ -43,6 +43,7 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 			<span>Latest projects</span>
 			<a href="/projects">View All</a>
 		</h2>
+		{allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 </article>
 	<footer>

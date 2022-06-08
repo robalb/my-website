@@ -22,6 +22,16 @@ const { title, description, permalink, activePage, lang="en" } = Astro.props;
 	</head>
 
 	<body class="light">
+        <script is:inline>
+            //set the page theme based on what's in localstorage
+            //the position of this script is important. it must be the first thing in the
+            //body to avoid a flash of default theme on page load
+            let isLight = window.localStorage.getItem("theme") == "light"
+            if(isLight)
+                document.body.classList.add("light")
+            else
+                document.body.classList.remove("light")
+        </script>
 		<BlogHeader {activePage} />
 		<main>
             <slot/>
