@@ -273,7 +273,6 @@ tbody tr:last-child td:last-of-type {
 } */
 
 /* Top bar */
-
 /*
 .navigation {
   position: fixed;
@@ -400,7 +399,7 @@ tbody tr:last-child td:last-of-type {
 */
 
 /* Hero */
-
+/* 
 .hero {
   padding: 1rem 0;
 }
@@ -451,7 +450,7 @@ tbody tr:last-child td:last-of-type {
 
 .bright {
   color: var(--bright-font-color);
-}
+} */
 
 /* Article */
 

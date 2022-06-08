@@ -1,3 +1,13 @@
+## credits
+
+tania rascia -css & newmoon
+
+astro
+
+https://github.com/Automattic/social-logos
+
+google icons
+
 # Astro Starter Kit: Blog
 
 ```

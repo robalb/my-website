@@ -32,11 +32,17 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 		</div>
 	</section>
 	<section aria-labelledby="latest-articles">
-		<h2 id="latest-articles">Latest articles</h2>
+		<h2 id="latest-articles">
+			<span>Latest articles</span>
+			<a href="/blog">View All</a>
+		</h2>
 		{allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 	<section aria-labelledby="latest-projects">
-		<h2 id="latest-projects">Latest projects</h2>
+		<h2 id="latest-projects">
+			<span>Latest projects</span>
+			<a href="/projects">View All</a>
+		</h2>
 	</section>
 </article>
 	<footer>
@@ -71,6 +77,15 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 	}
 	.socials a:hover svg{
 		fill: var(--font-color);
+	}
+
+	h2{
+		display: flex;
+		justify-content: space-between;
+	}
+	h2 a{
+		font-size: 1rem;
+		align-self: center;
 	}
     @media screen and (max-width: 800px) {
 		h1{
