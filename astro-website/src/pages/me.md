@@ -10,19 +10,24 @@ value: 128
 description: Just a Hello World Post!
 ---
 
-Hello, i'm Alberto
+Hi, I'm Alberto. I'm a computer science student at uniMib, living in the suburbs of Milan.
+In my free time i work on web <a href="/projects">projects</a> i consider interesting and
+play <a href="https://ctftime.org/ctf-wtf/">ctfs</a>, sometimes writing
+<a href="/articles">articles</a> about the challenges i meet.
 
-I'm a developer fascinated by anything related to the digital world, currently
-graviting around the domains of cyber security, web development, ops, and distributed systems.
+I like to learn and experiment with all kind of technologies, 
+and although i'm most confident around javascript and React, i have 
+experience working in a wide range of tech stacks including kubernetes, docker, postgreSQL,
+Flask, FastAPI, Devops pipelines
 
-I'm currently studying cs at uniMib, in Milan. In my free time i play ctfs
- and work on web projects i consider interesting.
+You can check out all the tools and technlogies i use in my <a href="/uses">/uses</a> page
 
-I like to experiment with all kind of technologies, and although i'm most confident around javascript and React, i have 
-experience working in a wide range of technologies and tech stacks, including kubernetes, docker, postgreSQL,
-Flask, FastAPI, Devops and CI/CD pipelines and much more
+## About this blog
 
-You can check out all the tools and technlogies i use in my /use page
+There is a reason this website has a great design: I'ts a fork of
+<a href="https://github.com/taniarascia/taniarascia.com">tania rascia</a>'s blog,
+leveraging her newmoon dark theme.
+I've written a <a href="asdasd">blog post</a> dedicated to the making of this blog. Go check it out!
 
 # uses
 
@@ -35,37 +40,74 @@ In fact, that is what inspired me to write this list
 
 ## my tools
 
-- *vim* - My go to editor
+- <a href="asd">vim</a> - My go to editor
 
-- *tmux* - A terminal multiplexer. Combined with vim, it's how i navigate and organize
+- <a href="asd">tmux</a> - A terminal multiplexer. Combined with vim, it's how i navigate and organize
   multiple terminals and projects.
 
-- *webstorm* - A powerful ide for the web. Sometimes vim is just not the right tool
+- <a href="asd">docker</a> - Together with Docker-compose, it's how i manage most of my local development and testing environments.
 
-- *docker* - Together with Docker-compose, it's how i manage most of my local development and testing environments.
-  As i'm slowly graviting towards *NIX*, docker's role in my dependencies management may change
-
-- *git* - It's how i manage all my projects but also, as a fan of the gitops approach, it's
+- <a href="asd">git</a> - It's how i manage all my projects but also, as a fan of the <a href="asd">gitops</a> approach, it's
  how i manage most of my server infrastructure and desktop environment.
 
-- *ngrok* - A quick way to setup reverse shells (for ctf games, i should punctualize), and test complex environments
+- <a href="asd">webstorm</a> - A powerful ide for the web. Sometimes vim is just not the right tool
 
-- *insomnia* - A good loking tool to test and call apis
+- <a href="asd">ngrok</a> - A quick way to setup reverse shells (for ctf games, i should point out), and test complex environments
 
-- *burp suite* - An efficient tool to test and _break_ apis.
+- <a href="asd">insomnia</a> - A good loking tool to test and call apis
 
-- *keepass* - An ancient password manager
+- <a href="asd">burp suite</a> - An efficient tool to test and _break_ apis.
+
+- <a href="asd">keepass</a> - An ancient password manager
 
 ## Languages
 
-- My main language for frontend development is unsurprisingly Javascript/ES6, and if i'm working on a single-page-app
-  my setup of choice is React, with Redux-toolkit.
-  I've worked with several bundlers in the past, but now i mostly use vite.
+- Frontend development is a world where technologies evolve quickly, and frameworks come and go.
+  Javascript/ES6 and vanilla css however are here to stay, and it's what i have most experience with.
+  I've worked with several js libraries and bundlers in the past, 
+  however the ones i choose to use these days are
+  React with Redux-Toolkit, Vite and astro.build
 
-- In the past i've written backends in Node, Php, and several framework but my favourite language choice remains Python, with
-either FastAPI or Flask
+- I've written backends in Node, Php, and several framework but my favourite language choice remains
+  <a href="asd">Python</a>, with either FastAPI or Flask
 
 Python is also my main scripting language, that i use for task automations and ctf exploits
+
+maybe i should change this whole section
+something like
+
+technical skills
+
+### frontend
+
+- js 
+- react
+- redux etch
+
+### backend
+
+- flask
+- fastapi
+- node
+- php
+
+### database
+
+- postgres
+- mysql
+- redis
+
+### devops and infrastructure
+
+- stuff
+
+### languages
+
+- js
+- c
+- python
+- java
+
 
 ## Devops and infrastructure
 
@@ -78,4 +120,7 @@ Python is also my main scripting language, that i use for task automations and c
 
 ## This blog
 
-I've written a blog post dedicated to the tech stack behind this blog. go check it out! 
+There is a reason this website has a great design: I'ts a fork of
+<a href="https://github.com/taniarascia/taniarascia.com">tania rascia</a>'s blog,
+leveraging her newmoon dark theme.
+I've written a <a href="asdasd">blog post</a> dedicated to the making of this blog. Go check it out!
