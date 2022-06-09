@@ -11,12 +11,18 @@ description: Just a Hello World Post!
 ---
 
 Hello, i'm Alberto
-I'm a Full Stack developer obsessed with cyber security, ops and distributed systems.
 
-Da sempre affascinato dal web, attualmente 'in fissa' con - cybersecurity, ops, distributed systems
+I'm a developer fascinated by anything related to the digital world, currently
+graviting around the domains of cyber security, web development, ops, and distributed systems.
 
-I'm currently studying cs at uniMib, in Milan
-Lorem ipsdf asf sdfsadf asdf asdfas df asdf fasdf asd asdf as dsdfaas dfasdsdf
+I'm currently studying cs at uniMib, in Milan. In my free time i play ctfs
+ and work on web projects i consider interesting.
+
+I like to experiment with all kind of technologies, and although i'm most confident around javascript and React, i have 
+experience working in a wide range of technologies and tech stacks, including kubernetes, docker, postgreSQL,
+Flask, FastAPI, Devops and CI/CD pipelines and much more
+
+You can check out all the tools and technlogies i use in my /use page
 
 # uses
 
@@ -44,10 +50,11 @@ In fact, that is what inspired me to write this list
 
 - *ngrok* - A quick way to setup reverse shells (for ctf games, i should punctualize), and test complex environments
 
-- *insomnia* - I use this tool whenever i'm dealing with documented apis
+- *insomnia* - A good loking tool to test and call apis
 
-- *burp suite* - When i use this tool the apis are rarely documented - tip: check out the foxyProxy browser extension
-  to manage the burp proxy painlessly
+- *burp suite* - An efficient tool to test and _break_ apis.
+
+- *keepass* - An ancient password manager
 
 ## Languages
 
@@ -69,17 +76,6 @@ Python is also my main scripting language, that i use for task automations and c
 - I use Grafana and Prometheus to analyze and monitor my services and projects,
   and Grafana-Loki for log aggregation and management 
 
-## Utilities
+## This blog
 
-- *keepass* - An ancient password manager
-
-- *obsidian* - A note taking app
-
-## Design
-
-- *photoshop* - I've used this software a lot, but i don't have a license anymore so this is
-  not really in my toolbox anymore.
-
-- *gimp* - An open source image editor. I've grown to like it,
-  but i still think about photoshop every time i want to deselect something and instead i duplicate the image.
-
+I've written a blog post dedicated to the tech stack behind this blog. go check it out! 
