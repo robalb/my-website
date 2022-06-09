@@ -21,10 +21,10 @@ const { title, description, permalink, activePage, lang="en" } = Astro.props;
 		<Headers {title} {description} {permalink} />
 	</head>
 
-	<body class="light">
+	<body>
         <script is:inline>
             //set the page theme based on what's in localstorage
-            //the position of this script is important. it must be the first thing in the
+            //the position of this script is important. It must be the first thing in the
             //body to avoid a flash of default theme on page load
             let isLight = window.localStorage.getItem("theme") == "light"
             if(isLight)

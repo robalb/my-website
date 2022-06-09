@@ -61,6 +61,8 @@
 a:focus-visible,
 button:focus-visible {
   outline: 3px solid var(--primary);
+  border-radius: 8px;
+  border-bottom-color: transparent;
 }
 
 body {
