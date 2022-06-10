@@ -5,11 +5,11 @@ import BlogPost from '../components/BlogPost.astro';
 const { content } = Astro.props;
 const {
 	title, description, permalink,
-	subtitle, lang="en", publishDate, author, tags, heroImage, alt
+	subtitle, lang="en"
 	} = content;
 ---
 <SharedLayout {title} {description} {permalink} {lang}>
-	<BlogPost {title} {subtitle} {author} {tags} {heroImage} {publishDate} {alt}>
+	<BlogPost {title} {subtitle}>
 		<slot />
 	</BlogPost>
 </SharedLayout>

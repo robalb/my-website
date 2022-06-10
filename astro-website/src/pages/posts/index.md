@@ -8,6 +8,7 @@ name: robalb
 author: Alberto Ventafridda
 value: 128
 description: Just a Hello World Post!
+tags: ["writeup", "web"]
 ---
 
 This is a simple markdown post

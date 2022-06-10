@@ -2,22 +2,50 @@
 
 export interface Props {
 	title: string;
-	author: string;
-	publishDate: string;
-	heroImage: string;
-	alt: string;
+	subtitle?: string;
+	author?: string;
+	tags?: string[];
+	publishDate?: string;
+	heroImage?: string;
+	alt?: string;
 }
 
-const { title, author, publishDate, heroImage, alt } = Astro.props;
+const { title, subtitle, author, tags, publishDate, heroImage, alt } = Astro.props;
 ---
 
 <article>
 	<div>
 		<header>
-			{heroImage && <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} alt={alt} />}
-			<p>Written by {author} on <time>{publishDate}</time></p>
-			<h1 class="title">{title}</h1>
-			<p>tags here </p>
+			{
+				heroImage && alt &&
+				<img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} alt={alt} />
+			}
+			{
+				publishDate &&
+				<div class="post-details">
+					Written 
+					{
+						author &&
+						<> by <a href="/me">{author}</a> </>
+					}
+					on <time>{publishDate}</time>
+				</div>
+			}
+			<h1>{title}</h1>
+			{
+				subtitle &&
+				<p class="description">{subtitle}</p>
+			}
+			{
+				tags && 
+				<div class="post-meta">
+					<div class="tags">
+						{
+							tags.map(t => (<a href={"/tags/" + t} >{t}</a>))
+						}
+					</div>
+				</div>
+			}
 		</header>
 		<section>
 			<slot />

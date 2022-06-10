@@ -1,13 +1,10 @@
 ---
 # This is not a blogpost, this is the /me page
 setup: |
-  import Layout from '../layouts/BlogPost.astro'
+  import Layout from '../layouts/MdPage.astro'
 title: About Me
-publishDate: Sep 13, 2022
-name: robalb
-author: Alberto Ventafridda
-value: 128
-description: Just a Hello World Post!
+subtitle: short description about me
+description: short description about me
 ---
 
 Hi, I'm Alberto. I'm a computer science student at uniMib, living in the suburbs of Milan.
