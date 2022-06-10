@@ -3,7 +3,7 @@ setup: |
   import Layout from '../../layouts/BlogPost.astro'
   import ReactComponent from '../../components/ReactComponent.jsx'
 title: Hello world!
-publishDate: Sep 12, 2022
+publishDate: Sep 12, 2020
 name: robalb
 author: Alberto Ventafridda
 value: 128

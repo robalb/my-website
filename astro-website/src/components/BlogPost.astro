@@ -11,6 +11,9 @@ export interface Props {
 }
 
 const { title, subtitle, author, tags, publishDate, heroImage, alt } = Astro.props;
+
+const options = { year: 'numeric', month: 'short', day: 'numeric' };
+const readableDate = new Intl.DateTimeFormat('en-US', options).format(new Date(publishDate));
 ---
 
 <article>
@@ -21,14 +24,14 @@ const { title, subtitle, author, tags, publishDate, heroImage, alt } = Astro.pro
 				<img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} alt={alt} />
 			}
 			{
-				publishDate &&
+				readableDate &&
 				<div class="post-details">
 					Written 
 					{
 						author &&
 						<> by <a href="/me">{author}</a> </>
 					}
-					on <time>{publishDate}</time>
+					on <time>{readableDate}</time>
 				</div>
 			}
 			<h1>{title}</h1>
