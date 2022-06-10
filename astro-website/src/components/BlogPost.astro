@@ -13,7 +13,7 @@ export interface Props {
 const { title, subtitle, author, tags, publishDate, heroImage, alt } = Astro.props;
 
 const options = { year: 'numeric', month: 'short', day: 'numeric' };
-const readableDate = new Intl.DateTimeFormat('en-US', options).format(new Date(publishDate));
+const readableDate = publishDate && new Intl.DateTimeFormat('en-US', options).format(new Date(publishDate));
 ---
 
 <article>
