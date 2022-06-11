@@ -12,7 +12,7 @@ tags: ["writeup", "web"]
 ---
 
 This is a simple markdown post
-It's been a while since I've written anything due to some personal concerns that I might write about later, but don't worry, I'm still around and I'm still coding. Recently, I went to Texas and bought a three-row diatonic button accordion. Diatonic accordions are popular for a lot of different types of folk music, which is generally learned by ear. This is good for me, because I don't really know how to read music anyway.
+Lorem ipsum
 
 <ReactComponent name={frontmatter.name}  client:load />
 
