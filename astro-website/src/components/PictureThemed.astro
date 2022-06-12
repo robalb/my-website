@@ -1,0 +1,40 @@
+---
+export interface Props {
+	alt: string;
+	src: string;
+  width?: integer;
+}
+const { alt, src, width=600 } = Astro.props;
+
+const baseDark = (await import(`../assets/posts/${src}-dark.png`)).default
+const baseLight = (await import(`../assets/posts/${src}-light.png`)).default
+const webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default
+const webpLight = (await import(`../assets/posts/${src}-light.webp`)).default
+
+---
+<!--
+ * This component allows you to integrate two pngs: ...-dark.png and ...-light.png
+ * and two webp: ...-dark.webp and ...-light.webp
+ * into a markdown file.
+ * The images must be two pngs and two webp
+ * the filename should start with the name of the destination file followed by a dash,
+ * and end in -dark.png and -light.png respectively
+ * for example, the hero images for the article how-to-make-pasta.md
+ * could be how-to-make-pasta-hero-dark.png and how-to-make-pasta-hero-light.png
+ * usage:
+ * ---
+ * setup: |
+ *   import Picture from '../../components/PictureThemed.astro'
+ * ---
+ * <Picture src="filename-without-extension" alt="yolo swagz" />
+ -->
+
+<picture >
+  <source srcset={webpDark}   type="image/webp" />
+  <img src={baseDark} width={width} style="margin: 0 auto;" class="dark" role="presentation" alt={alt} />
+</picture>
+
+<picture >
+  <source srcset={webpLight}  type="image/webp" />
+  <img src={baseLight} width={width} style="margin: 0 auto;" class="light" role="presentation" alt={alt} />
+</picture>

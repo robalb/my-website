@@ -1,0 +1,28 @@
+---
+export interface Props {
+	alt: string;
+	src: string;
+    width?: integer;
+}
+const { alt, src, width=600 } = Astro.props;
+
+const base = (await import(`../assets/posts/${src}.png`)).default
+
+---
+<!--
+ * This component allows you to integrate a simple png located in assets/posts/
+ * into a markdown file.
+ * The image must be a png
+ * the filename should start with the name of the destination file followed by a dash.
+ * for example, the hero image for the article how-to-make-pasta.md
+ * could be called how-to-make-pasta-hero.png
+ * usage:
+ * ---
+ * setup: |
+ *   import Picture from '../../components/Picture.astro'
+ * ---
+ * <Picture src="filename-without-extension" alt="yolo swagz" />
+ -->
+
+
+<img src={base} width={width} style="margin: 0 auto;" alt={alt} />
