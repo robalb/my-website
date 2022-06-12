@@ -58,7 +58,7 @@ pre[class*='language-'] {
 }
 
 /* Inline code */
-:not(pre) > code[class*='language-'] {
+:not(pre) > code {
   -webkit-font-smoothing: subpixel-antialiased;
   padding: 2px 3px;
   background: var(--inline-code-background-color) !important;

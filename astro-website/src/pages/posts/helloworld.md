@@ -9,7 +9,7 @@ description: My first, inaugural article. In here, i'll illustrate the technolog
 
 After only five years since the purchase of the domain, this website is now finally alive.
 In this first, inaugural post I'll give you
-an overview of the technologies i used to make this website, and where i stole the design from
+an overview of the technologies i used to make it, and where i stole the design from
 
 ## The tech stack
 
