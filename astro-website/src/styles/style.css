@@ -575,6 +575,10 @@ img.dark{
     display: none;
 }
 
+article pre[class*="language-"] {
+  overflow-x: auto;
+}
+
 
 article h2 {
   font-size: 2rem;
