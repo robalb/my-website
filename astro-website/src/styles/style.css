@@ -78,6 +78,19 @@ body {
 }
 
 /* checked until here */
+/* light-dark-image hack */
+img.light{
+    display: none;
+}
+img.dark{
+    display: block;
+}
+.light img.light{
+    display: block;
+}
+.light img.dark{
+    display: none;
+}
 
 p,
 ol,

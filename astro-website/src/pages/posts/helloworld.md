@@ -1,6 +1,8 @@
 ---
 setup: |
   import Layout from '../../layouts/BlogPost.astro'
+  import a from '../../assets/posts/helloworld-generic-dark.png'
+  import b from '../../assets/posts/helloworld-generic.png'
 title: Hello world!
 subtitle: An overview of the technologies i used to make this website, and where i stole the design from
 publishDate: 2022-06-10
@@ -31,7 +33,12 @@ relevant kubernetes manifest files in the repository, and commits the changes.
 - Finally, argoCD running on my k3s cluster recognizes the changes in the kubernetes manifests, and automatically start a
 sync process.
 
-This whole process is, of course, a huge overkill, and the fact that you are reading this and not a service:unavailable
+<img src={a} style="width: 30rem; height:auto; margin: 0 auto;" class="dark"/>
+<img src={b} style="width: 30rem; height:auto; margin: 0 auto;" class="light"/>
+
+<br/>
+
+This whole process is, of course, a huge overkill, and the fact that right now you are reading this and not a service:unavailable
 page is the result of a chain of multiple miracles
 
 
