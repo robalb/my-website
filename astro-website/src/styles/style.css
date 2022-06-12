@@ -77,21 +77,6 @@ body {
   transition: color 1.5s;
 }
 
-/* checked until here */
-/* light-dark-image hack */
-img.light{
-    display: none;
-}
-img.dark{
-    display: block;
-}
-.light img.light{
-    display: block;
-}
-.light img.dark{
-    display: none;
-}
-
 p,
 ol,
 ul,
@@ -568,10 +553,28 @@ article li a:hover {
   border-bottom: none;
 }
 
+/* article images. responsive, but fith fixed height. and with dark-light support*/
 article img {
   display: block;
+  min-height: 300px;
+  width: auto;
   max-width: 100%;
+  object-fit: contain; 
 }
+/* light-dark-image hack */
+img.light{
+    display: none;
+}
+img.dark{
+    display: block;
+}
+.light img.light{
+    display: block;
+}
+.light img.dark{
+    display: none;
+}
+
 
 article h2 {
   font-size: 2rem;
