@@ -22,7 +22,7 @@ Do variables work {frontmatter.value * 2}?
 
 [this is a link](https://asdasd.as)
 
-asd a ```js sdf ```
+asd a ``js> sdf ``
 sd asd asda sdasd asd asdasdasd asd adsads ads 
 
 ## and now for something different
