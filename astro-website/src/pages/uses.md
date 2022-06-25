@@ -21,7 +21,7 @@ description: /uses - A list of software and tools i use day-to-day for my work
 
 - <a href="https://www.jetbrains.com/webstorm/">webstorm</a> - A powerful ide for the web. Sometimes vim is just not the right tool
 
-- <a href="https://ngrok.com/">ngrok</a> - A quick way to setup reverse shells (for ctf games, i should point out), and test complex environments
+- <a href="https://ngrok.com/">ngrok</a> - A quick way to setup reverse shells and test complex environments locally.
 
 - <a href="https://insomnia.rest/">insomnia</a> - A good loking tool to test and call apis
 

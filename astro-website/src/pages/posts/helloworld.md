@@ -7,9 +7,8 @@ publishDate: 2022-06-10
 description: My first, inaugural article. In here, i'll illustrate the technologies i used to make this website, and where i stole the design from
 ---
 
-After only five years since the purchase of the domain, this website is now finally alive.
-In this first, inaugural post I'll give you
-an overview of the technologies i used to make it, and where i stole the design from
+
+In this article I'll give you a brief overview of the technologies i used to make this website, and where i stole the design from
 
 ## The tech stack
 
@@ -37,7 +36,7 @@ sync process.
 
 <br/>
 
-This whole process is, of course, a huge overkill, and the fact that right now you are reading this and not a 404
+Hosting a static blog on Kubernetes is, of course, a huge overkill and the fact that right now you are reading this and not a 404
 page is the result of a chain of multiple miracles
 
 ## Why astro?

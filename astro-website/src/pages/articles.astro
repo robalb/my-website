@@ -4,8 +4,8 @@ import BlogPostPreview from '../components/BlogPostPreview.astro';
 import SharedLayout from '../components/SharedLayout.astro';
 
 let title = 'Articles';
-let subtitle = 'asd asd'
-let description = "Hi, I'm Alberto. I'm a cs student at UniMib, working on projects that span the topics of cyber security, web development and distributed systems"
+let subtitle = 'A collection of articles, ctf writeups and random thoughts'
+let description = 'A collection of articles, ctf writeups and random thoughts'
 let permalink = 'https://halb.it/';
 
 // Data Fetching: List all Markdown posts in the repo.
@@ -28,10 +28,6 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
     </section>
 	<section aria-labelledby="latest-articles">
 		<h2 id="latest-articles"> 2022 </h2>
-		{allPosts.map((p) => <BlogPostPreview post={p} />)}
-	</section>
-	<section aria-labelledby="latest-projects">
-		<h2 id="latest-projects"> 2021 </h2>
 		{allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 </article>
