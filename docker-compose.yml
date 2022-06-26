@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  #Web service
+  nginx:
+    build: 
+      context: .
+    ports:
+      - 5000:80
