@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: halb-temp-nginx
+  name: halb-nginx
 spec:
   selector:
     matchLabels:
-      app: halb-temp-nginx
+      app: halb-nginx
   replicas: 1
   template:
     metadata:
       labels:
-        app: halb-temp-nginx
+        app: halb-nginx
     spec:
       containers:
-      - name: halb-temp-nginx
+      - name: halb-nginx
         image: ghcr.io/robalb/my-website:sha-b061ef2
         ports:
         - containerPort: 80
