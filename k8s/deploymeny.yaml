@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: halb-temp-nginx
-        image: nginx
+        image: ghcr.io/robalb/my-website:sha-b061ef2
         ports:
         - containerPort: 80
