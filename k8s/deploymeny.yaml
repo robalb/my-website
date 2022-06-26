@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: halb-temp-nginx
+spec:
+  selector:
+    matchLabels:
+      app: halb-temp-nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: halb-temp-nginx
+    spec:
+      containers:
+      - name: halb-temp-nginx
+        image: nginx
+        ports:
+        - containerPort: 80

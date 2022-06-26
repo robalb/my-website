@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: halb-temp-nginx
+spec:
+  rules:
+  - host: "halb.it"
+    http:
+      paths:
+      # Path-based routing settings:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: halb-temp-nginx
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - "halb.it"
+    secretName: halb-cert  #name of the tls secret. Make sure this is defined first
+
