@@ -5,11 +5,16 @@ export interface Props {
 
 const { post } = Astro.props;
 
+const publishDate = post.frontmatter.publishDate
+
+const options = { month: 'short', day: 'numeric' };
+const readableDate = publishDate && new Intl.DateTimeFormat('en-US', options).format(new Date(publishDate));
+
 ---
 
 <a href={post.url} class="post">
 	<h3>{post.frontmatter.title}</h3>
   <div>
-	<time>{"12 Sep"}</time>
+	<time>{readableDate}</time>
   </div>
 </a>

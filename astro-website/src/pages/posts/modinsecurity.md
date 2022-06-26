@@ -3,8 +3,9 @@ setup: |
   import Layout from '../../layouts/BlogPost.astro'
   import Picture from '../../components/Picture.astro'
 title: Mod_insecurity ctf writeup - cyberchallenge 2019
-publishDate: 2022-06-10
+publishDate: 2022-06-25
 description: This is an old writeup for the web challenge mod_insecurity in the 2019 CyberChallenge ctf
+tags: ['writeup', 'web']
 ---
 
 This was one of the web challenges for the cyberchallenge ctf that took place in Italy in 2019.
@@ -117,8 +118,8 @@ We have our sql injection.
 > A quick google search reveals the
 >  [lua library](https://github.com/openresty/lua-resty-mysql/blob/master/lib/resty/mysql.lua)
 >  used to write the challenge,
-> and a quick glance at the [code](https://github.com/openresty/lua-resty-mysql/blob/908521368e95a302d06430ed1772e3fdd1e86216/lib/resty/mysql.lua#L1267) shows that the error cannot be exploited, it's just
-> an issue with multi query statements. But this confirms that modinsecurity
+> and a quick glance at the [code](https://github.com/openresty/lua-resty-mysql/blob/908521368e95a302d06430ed1772e3fdd1e86216/lib/resty/mysql.lua#L1267) shows that it's just
+> an issue with multi query statements. The error cannot be exploited but it confirms that modinsecurity
 > is indeed a nginx plugin
 
 ## Exploiting the sql injection
@@ -215,7 +216,7 @@ def binsearch(binTest):
 ```
 
 Yes, this is a lot of boilerplate code, and yes this is painful to read.
-But it's stuff i wrote long ago, and hey it works
+But it's stuff i wrote long ago, and hey it works. You'll see why this is useful in the next paragraph
 
 ### Getting the tables
 
@@ -226,7 +227,45 @@ This is normally done with this query
 SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE = 'BASE TABLE'
 ```
 
-Which can be modified to work with the binary search decorator in this way:
+whose output normally looks like this:
+
+| TABLE_NAME |
+|------------|
+| "table1"     |
+| "table2"     |
+
+Now, since we can only get the ouptut to yes/no questions, and this table is
+*clearly* not a yes/no question, we need to apply some modifications.
+
+Let's start by adding group_concat:
+
+```sql
+SELECT group_concat(TABLE_NAME) FROM information_schema.tables WHERE TABLE_TYPE = 'BASE TABLE'
+``` 
+
+This functions concatenates all the rows in a query
+result into a single string, separating each value with a comma
+
+
+| TABLE_NAME |
+|------------|
+| "table1,table2"     |
+
+Cool. Now we want to select a single letter from that string. We can use the SUBSTRING function for that:
+the second argument specifies at what index we want to select the character. In this specific example
+it's set to 2, so the second character in the string is returned (careful, indexes start at 1)
+
+```sql
+SELECT SUBSTRING(group_concat(TABLE_NAME), 2, 1) FROM information_schema.tables WHERE TABLE_TYPE = 'BASE TABLE'
+``` 
+
+| TABLE_NAME |
+|------------|
+| "a" |
+
+Now we need to execute this query for every single letter in the string, comparing the returned
+character against the ascii charset in a binary search. This is where the boilerplate code i wrote
+gets useful
 
 ```python
 from boilerplate import S, query, binsearch
@@ -244,7 +283,7 @@ get_all_tables()
 
 ```
 
-When executed, this outputs:
+When executed, this outputs the name of the tables in the database:
 
 ```text
 Logs, Settings
