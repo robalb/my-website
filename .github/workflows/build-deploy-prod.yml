@@ -70,7 +70,7 @@ jobs:
         with:
           valueFile: 'k8s/deployment.yaml'
           propertyPath: 'spec.template.spec.containers[0].image'
-          value: ghcr.io/robalb/morsechat:sha-${{ github.sha }}
+          value: ghcr.io/robalb/my-website:sha-${{ github.sha }}
           updateFile: true
           commitChange: false
 
