@@ -4,8 +4,9 @@ setup: |
   import Picture from '../../components/Picture.astro'
 title: Mod_insecurity ctf writeup - cyberchallenge 2019
 publishDate: 2022-06-25
-description: This is an old writeup for the web challenge mod_insecurity in the 2019 CyberChallenge ctf
+description: This was one of the web challenges for the cyberchallenge ctf that took place in Italy in 2019.
 tags: ['writeup', 'web']
+permalink: https://halb.it/posts/modinsecurity/
 ---
 
 This was one of the web challenges for the cyberchallenge ctf that took place in Italy in 2019.

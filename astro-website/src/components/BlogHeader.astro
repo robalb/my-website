@@ -5,7 +5,7 @@ export interface Props {
 const { activePage } = Astro.props;
 
 const navStyles = {
-	blog: "",
+	articles: "",
 	projects: "",
 	me: ""
 }
@@ -19,9 +19,9 @@ if(activePage)
 			Alberto Ventafridda
 		</a>
 		<nav>
-			<a href="/articles" class={navStyles.blog}>Articles</a>
+			<a href="/articles" class={navStyles.articles}>Articles</a>
 			<a href="/projects" class={navStyles.projects}>Projects</a>
-			<a href="/me" class{navStyles.me}>About Me</a>
+			<a href="/me" class={navStyles.me}>About Me</a>
 		</nav>
 		<nav class="right">
 			<button id="theme-switch" aria-label="Toggle theme">

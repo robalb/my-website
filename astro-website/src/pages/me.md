@@ -3,7 +3,9 @@
 setup: |
   import Layout from '../layouts/MdPage.astro'
 title: About Me
-description: Hi, I'm Alberto. I'm a cs student at UniMib, working on projects that span the topics of cyber security, web development and distributed systems
+description: Developer. Passionate about cyber security, web development and distributed systems
+permalink: https://halb.it/me/
+activePage: me
 ---
 
  

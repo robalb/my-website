@@ -4,7 +4,8 @@ setup: |
   import Picture from '../../components/PictureThemed.astro'
 title: I made a website!
 publishDate: 2022-06-10
-description: My first, inaugural article. In here, i'll illustrate the technologies i used to make this website, and where i stole the design from
+description: In this article i'll give you a brief overview of the technologies i used to make this website, and where i stole the design from
+permalink: https://halb.it/posts/i-made-a-website/
 ---
 
 

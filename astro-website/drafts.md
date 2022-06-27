@@ -23,6 +23,8 @@ scrivo articoli sulle sfide che incontro.
 
 cs student at uniMib and amateur violin player. [Passionate about] cyber security, web development and distributed sistems.
 
+Developer, hacker. Passionate about cyber security, web development and distributed sistems. This is my personal blog
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 ^ max length
 

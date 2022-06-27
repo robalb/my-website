@@ -4,7 +4,8 @@ setup: |
   import Layout from '../layouts/MdPage.astro'
 title: /uses
 subtitle: software and tools i use day-to-day for my work
-description: /uses - A list of software and tools i use day-to-day for my work
+description: software and tools i use day-to-day for my work
+permalink: https://halb.it/uses/
 ---
 
 ## My tools
@@ -27,7 +28,7 @@ description: /uses - A list of software and tools i use day-to-day for my work
 
 - <a href="https://portswigger.net/burp">burp suite</a> - An efficient tool to test and _break_ apis.
 
-
+<!--
 ## Technical skills
 
 ### frontend
@@ -54,6 +55,8 @@ description: /uses - A list of software and tools i use day-to-day for my work
 - On kubernetes, i like to use ArgoCD with a gitops approach
 - I use Grafana and Prometheus to analyze and monitor my services and projects,
   and a Grafana-Loki stack for log aggregation and management
+
+-->
 
 ## This blog
 

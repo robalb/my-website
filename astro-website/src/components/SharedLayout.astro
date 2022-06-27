@@ -6,19 +6,20 @@ import '../styles/light-theme.css';
 import '../styles/dark-theme.css';
 
 export interface Props {
-	title: string;
-	description: string;
-	permalink: string;
+	title?: string;
+	description?: string;
+	permalink?: string;
     activePage?: string;
     lang?: string;
+    isBlog?: boolean;
 }
-const { title, description, permalink, activePage, lang="en" } = Astro.props;
+const { title, description, permalink, activePage, lang="en", isBlog=false } = Astro.props;
 
 //theme logic is defined in BlogHeader, with the switch js handler
 ---
 <html lang={lang}>
 	<head>
-		<Headers {title} {description} {permalink} />
+		<Headers {title} {description} {permalink} {isBlog}/>
 	</head>
 
 	<body>

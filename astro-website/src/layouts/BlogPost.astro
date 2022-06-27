@@ -7,8 +7,9 @@ const {
 	title, description, permalink,
 	subtitle, lang="en", publishDate, author, tags, heroImage, alt
 	} = content;
+const isBlog = true
 ---
-<SharedLayout {title} {description} {permalink} {lang}>
+<SharedLayout {title} {description} {permalink} {lang} {isBlog}>
 	<BlogPost {title} {subtitle} {author} {tags} {heroImage} {publishDate} {alt}>
 		<slot />
 	</BlogPost>

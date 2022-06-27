@@ -6,13 +6,14 @@ import SharedLayout from '../components/SharedLayout.astro';
 let title = 'Articles';
 let subtitle = 'A collection of articles, ctf writeups and random thoughts'
 let description = 'A collection of articles, ctf writeups and random thoughts'
-let permalink = 'https://halb.it/';
+let permalink = 'https://halb.it/articles/';
+let activePage = 'articles';
 
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = await Astro.glob('./posts/*.md');
 allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
 ---
-<SharedLayout {title} {description} {permalink} >
+<SharedLayout {title} {description} {permalink} {activePage} >
 	<article >
     <header>
         <h1>{title}</h1>
