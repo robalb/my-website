@@ -13,9 +13,9 @@ spec:
         app: halb-nginx
     spec:
       containers:
-      - name: halb-nginx
-        image: ghcr.io/robalb/my-website:sha-b061ef2be92144988ba12cb26b5906d13da6270e
-        ports:
-        - containerPort: 80
+        - name: halb-nginx
+          image: ghcr.io/robalb/morsechat:sha-5aa2746f953327f4c8b844f039caefb2d980bdef
+          ports:
+            - containerPort: 80
       imagePullSecrets:
-      - name: regcred
+        - name: regcred
