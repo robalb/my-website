@@ -2,7 +2,7 @@
 ## TODO
 
 - self-host google fonts
-- write third person description, put it as default
+x- write third person description, put it as default
   in headers
 
 - pipeline: add autocommit (bonus: debug autocommit in morse)
