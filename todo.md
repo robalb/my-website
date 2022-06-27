@@ -1,14 +1,13 @@
 
 ## TODO
 
-- self-host google fonts
+x- self-host google fonts
 x- write third person description, put it as default
   in headers
+x- fix headers not sent in 404 (add always directive)
 
+- header on small devices
 - pipeline: add autocommit (bonus: debug autocommit in morse)
-
-- fix headers not sent in 404 (add always directive)
-
 - rich content https://search.google.com/test/rich-results
 
 
