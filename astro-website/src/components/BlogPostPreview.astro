@@ -12,7 +12,7 @@ const readableDate = publishDate && new Intl.DateTimeFormat('en-US', options).fo
 
 ---
 
-<a href={post.url} class="post">
+<a href={post.url + "/"} class="post">
 	<h3>{post.frontmatter.title}</h3>
   <div>
 	<time>{readableDate}</time>

@@ -7,9 +7,10 @@ x- write third person description, put it as default
 x- fix headers not sent in 404 (add always directive)
 
 x- header on small devices
-- pipeline: add autocommit (bonus: debug autocommit in morse)
+x- pipeline: add autocommit (bonus: debug autocommit in morse)
 - rich content https://search.google.com/test/rich-results
-
+- sync theme in all open pages
+- projects page
 
 ## headers, titles, third person descritption
 

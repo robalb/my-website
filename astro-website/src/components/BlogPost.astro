@@ -44,7 +44,7 @@ const readableDate = publishDate && new Intl.DateTimeFormat('en-US', options).fo
 				<div class="post-meta">
 					<div class="tags">
 						{
-							tags.map(t => (<a href={"/tags/" + t} >{t}</a>))
+							tags.map(t => (<a href={"/articles/#" + t} >{t}</a>))
 						}
 					</div>
 				</div>
