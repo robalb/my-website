@@ -41,3 +41,4 @@ og:type: article
 title, og:title, twitter:title: [article title]
 description, og:description, twitter:description: [article description (exact copy of article subtitle if exists)]
 
+

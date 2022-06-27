@@ -16,9 +16,9 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 		<h1>Hi, I'm Alberto.</h1>
 		<p>
 			 I'm a computer science student at UniMib, living in the suburbs of Milan.<br/>
-			I like to work on <a href="/projects" >projects</a> that span
+			I like to work on <a href="/projects/" >projects</a> that span
 			the topics of cyber security, web development
-			and distributed systems, sometimes writing <a href="articles" >articles</a> about the challenges i meet.
+			and distributed systems, sometimes writing <a href="articles/" >articles</a> about the challenges i meet.
 		</p>
 		<div class="socials">
 			<a href="https://github.com/robalb/" title="github">
@@ -35,14 +35,14 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 	<section aria-labelledby="latest-articles">
 		<h2 id="latest-articles">
 			<span>Latest articles</span>
-			<a href="/articles">View All</a>
+			<a href="/articles/">View All</a>
 		</h2>
 		{allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 	<section aria-labelledby="latest-projects">
 		<h2 id="latest-projects">
 			<span>Latest projects</span>
-			<a href="/projects">View All</a>
+			<a href="/projects/">View All</a>
 		</h2>
 		{allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
