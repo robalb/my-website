@@ -60,7 +60,18 @@ function toggleTheme(){
 	}
 }
 
+function syncTheme(e){
+	if(e.key === "theme"){
+		let isLight = e.newValue == "light"
+		if(isLight)
+			document.body.classList.add("light")
+		else
+			document.body.classList.remove("light")
+	}
+}
+
 runWhenReady(function main(){
+	window.addEventListener('storage', syncTheme)
 	const switchDomRef = document.getElementById("theme-switch")
 	switchDomRef.addEventListener("click", toggleTheme)
 })
