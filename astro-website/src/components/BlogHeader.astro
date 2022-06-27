@@ -21,7 +21,7 @@ if(activePage)
 		<nav>
 			<a href="/articles/" class={navStyles.articles}>Articles</a>
 			<a href="/projects/" class={navStyles.projects}>Projects</a>
-			<a href="/me/" class={navStyles.me}>About Me</a>
+			<a href="/me/" class={navStyles.me} style="white-space: nowrap;">About Me</a>
 		</nav>
 		<nav class="right">
 			<button id="theme-switch" aria-label="Toggle theme">
@@ -179,6 +179,9 @@ body.light button .dark{
 	}
 	nav.right{
 		flex-basis: auto;
+	}
+	.header-container {
+		padding: 0.5rem .5rem;
 	}
 }
 </style>

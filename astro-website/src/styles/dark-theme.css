@@ -67,6 +67,7 @@ pre[class*='language-'] {
   font-size: 0.95rem !important;
   white-space: pre-wrap;
   border-radius: 6px;
+  overflow-wrap: break-word;
 }
 
 article a:hover code {
