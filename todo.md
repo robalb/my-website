@@ -1,16 +1,13 @@
 
 ## TODO
 
-x- self-host google fonts
-x- write third person description, put it as default
-  in headers
-x- fix headers not sent in 404 (add always directive)
-
-x- header on small devices
-x- pipeline: add autocommit (bonus: debug autocommit in morse)
 - rich content https://search.google.com/test/rich-results
-- sync theme in all open pages
 - projects page
+- rename /me in /about
+- better third person description
+- tag system: add tags in html of each blogpostentry,
+  use them to filter at runtime
+- analitics https://grafana.com/grafana/dashboards/13865
 
 ## headers, titles, third person descritption
 

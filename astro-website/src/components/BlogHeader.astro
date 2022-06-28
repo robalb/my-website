@@ -7,7 +7,7 @@ const { activePage } = Astro.props;
 const navStyles = {
 	articles: "",
 	projects: "",
-	me: ""
+	about: ""
 }
 if(activePage)
 	navStyles[activePage] = "active"
@@ -21,7 +21,7 @@ if(activePage)
 		<nav>
 			<a href="/articles/" class={navStyles.articles}>Articles</a>
 			<a href="/projects/" class={navStyles.projects}>Projects</a>
-			<a href="/me/" class={navStyles.me} style="white-space: nowrap;">About Me</a>
+			<a href="/about/" class={navStyles.about} style="white-space: nowrap;">About</a>
 		</nav>
 		<nav class="right">
 			<button id="theme-switch" aria-label="Toggle theme">
