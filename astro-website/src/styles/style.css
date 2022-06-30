@@ -83,6 +83,18 @@
   --code-font-family: Menlo, 'Roboto Mono', Courier New, monospace;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; /* added line */
+  border: 0;
+}
+
 *,
 *::before,
 *::after {
@@ -558,7 +570,7 @@ article .description {
   background: var(--reverse);
 }
 
-.tags a:hover {
+.tags a:hover, .tags a[aria-checked="true"] {
   background: var(--reverse);
   border: 1px solid var(--primary);
   color: var(--primary);

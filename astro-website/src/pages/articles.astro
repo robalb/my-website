@@ -12,6 +12,16 @@ let activePage = 'articles';
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = await Astro.glob('./posts/*.md');
 allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
+//extract all the tags from the posts
+let allTags = []
+allPosts.forEach(({frontmatter}) => {
+  if(Array.isArray(frontmatter.tags)){
+    allTags.push(...frontmatter.tags)
+  }
+})
+// allTags.push(...(Array(20).fill("test")))
+//sometimes i enjoy writing obscure oneliners of code
+//let allTags = allPosts.reduce( (a,c) => [...a, ...(c.frontmatter.tags || [])], [])
 ---
 <SharedLayout {title} {description} {permalink} {activePage} >
 	<article >
@@ -20,81 +30,80 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
         <p class="description">{subtitle}</p>
     </header>
 	<section>
-        <div class="search-bar">
-            <input id="search" type="search" class="search-input" placeholder="Begin typing to search..." value="a">
-            <button id="theme-switch" aria-label="Toggle theme">
-                <svg xmlns="http://www.w3.org/2000/svg" height="40" width="40"><path d="M32.833 34.292 22.125 23.583Q20.875 24.667 19.229 25.25Q17.583 25.833 15.833 25.833Q11.583 25.833 8.625 22.896Q5.667 19.958 5.667 15.75Q5.667 11.5 8.625 8.562Q11.583 5.625 15.792 5.625Q20 5.625 22.958 8.562Q25.917 11.5 25.917 15.75Q25.917 17.5 25.312 19.146Q24.708 20.792 23.625 22.083L34.333 32.75ZM15.792 23.75Q19.167 23.75 21.479 21.417Q23.792 19.083 23.792 15.75Q23.792 12.375 21.479 10.042Q19.167 7.708 15.792 7.708Q12.458 7.708 10.104 10.042Q7.75 12.375 7.75 15.75Q7.75 19.083 10.104 21.417Q12.458 23.75 15.792 23.75Z"/></svg>
-            </button>
-        </div>
-    </section>
-	<section aria-labelledby="latest-articles">
-		<h2 id="latest-articles"> 2022 </h2>
-		{allPosts.map((p) => <BlogPostPreview post={p} />)}
+    <div class="tags" aria-controls="latest-articles" role="radiogroup" aria-labelledby="filter-label">
+        <p id="filter-label" class="visually-hidden">Filter by tags</p>
+        {allTags.map(t => <a href={"#" + t} id={t} role="radio">{t}</a>)}
+    </div>
+  </section>
+	<section aria-labelledby="latest-articles-title" id="latest-articles" aria-live="polite">
+      <h2 id="latest-articles-title"> 2022 </h2>
+      {allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 </article>
 	<footer>
 	</footer>
 </SharedLayout>
 
+<script>
+ "use strict";
+
+ let lastHash;
+
+  function runWhenReady(fn) {
+    if (document.readyState != 'loading'){
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
+  runWhenReady(updateFilterState)
+  window.addEventListener('hashchange', updateFilterState);
+
+  function updateFilterState(){
+    const hash = new URL(document.URL).hash
+    console.log(hash)
+    //clear lastHash
+    if(lastHash){
+      let el = document.getElementById(lastHash)
+      if(el){
+        el.href = "#" + lastHash
+        el.classList.remove("active")
+        el.removeAttribute("aria-checked", true)
+      }
+    }
+    //valid hash
+    if(hash.match(/[a-z]/i)){
+      let h = hash.substring(1)
+      let el = document.getElementById(h)
+      if(el){
+        el.href = "#"
+        el.classList.add("active")
+        el.setAttribute("aria-checked", true)
+        lastHash = h
+      }
+    }
+  }
+</script>
+
 <style>
 	header{
 		padding-bottom: 3rem;
 	}
 
-
-button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: none;
-  background: transparent;
-  color: var(--font-color);
-  padding: .5rem;
-  cursor: pointer;
-  line-height: 0;
-  font-weight: 500;
-}
-
-button:hover svg{
-    stroke: var(--bright-font-color);;
-    fill: var(--bright-font-color);;
-}
-
-button:focus {
-  outline: none;
-}
-
-button:focus-visible {
-  outline: 3px solid var(--primary);
-}
-
-button span {
-  font-size: 0.9rem;
-}
-
-/* show light icon when theme is light */
-body button svg{
-    stroke: var(--dark-font-color);;
-    fill: var(--dark-font-color);;
-}
-/* body.light button svg{
-    stroke: var(--bright-font-color);;
-    fill: var(--bright-font-color);;
-} */
+  .tags p{
+    margin-bottom: 0;
+  }
 
 
 	h2{
 		display: flex;
 		justify-content: space-between;
-        margin-top: 2.5rem;
-        border-bottom: 1px solid var(--light-border-color);
+    margin-top: 2.5rem;
+    border-bottom: 1px solid var(--light-border-color);
 	}
-    @media screen and (max-width: 800px) {
-		section{
-			/* padding-top: 1rem;
-			padding-bottom: 2rem; */
-		}
-	}
+
+  @media screen and (max-width: 800px) {
+  }
 </style>
 

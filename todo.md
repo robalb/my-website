@@ -3,11 +3,12 @@
 
 - rich content https://search.google.com/test/rich-results
 - projects page
-- rename /me in /about
+x - rename /me in /about
 - better third person description
 - tag system: add tags in html of each blogpostentry,
   use them to filter at runtime
 - analitics https://grafana.com/grafana/dashboards/13865
+- add strict transport security header, feature policy header
 
 ## headers, titles, third person descritption
 
