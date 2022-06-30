@@ -10,11 +10,37 @@ const publishDate = post.frontmatter.publishDate
 const options = { month: 'short', day: 'numeric' };
 const readableDate = publishDate && new Intl.DateTimeFormat('en-US', options).format(new Date(publishDate));
 
+let tagAtttributes = {}
+if(Array.isArray(post.frontmatter.tags)){
+	post.frontmatter.tags.forEach(t => {
+		tagAtttributes = {
+			...tagAtttributes,
+			['data-tag-' + t]: "true"
+		}
+	})
+}
+
 ---
 
-<a href={post.url + "/"} class="post">
+<a href={post.url + "/"} class="post" {...tagAtttributes}>
 	<h3>{post.frontmatter.title}</h3>
   <div>
 	<time>{readableDate}</time>
   </div>
 </a>
+
+<style>
+
+  a *{
+	/* transition: all .5s; */
+  }
+  a[aria-hidden="true"]{
+	display: none;
+    color: var(--dark-font-color);
+    text-decoration: line-through;
+  }
+  a[aria-hidden="true"] *{
+	color: var(--dark-font-color);
+  }
+
+</style>

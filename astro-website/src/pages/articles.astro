@@ -30,13 +30,14 @@ allPosts.forEach(({frontmatter}) => {
         <p class="description">{subtitle}</p>
     </header>
 	<section>
-    <div class="tags" aria-controls="latest-articles" role="radiogroup" aria-labelledby="filter-label">
+    <div class="tags" aria-controls="all-articles" role="radiogroup" aria-labelledby="filter-label">
         <p id="filter-label" class="visually-hidden">Filter by tags</p>
         {allTags.map(t => <a href={"#" + t} id={t} role="radio">{t}</a>)}
     </div>
   </section>
-	<section aria-labelledby="latest-articles-title" id="latest-articles" aria-live="polite">
-      <h2 id="latest-articles-title"> 2022 </h2>
+	<section aria-labelledby="all-articles-title" id="all-articles" >
+      <p id="all-articles-title" class="visually-hidden">All articles, filtered by tag</p>
+      <h2> 2022 </h2>
       {allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 </article>
@@ -68,7 +69,6 @@ allPosts.forEach(({frontmatter}) => {
       let el = document.getElementById(lastHash)
       if(el){
         el.href = "#" + lastHash
-        el.classList.remove("active")
         el.removeAttribute("aria-checked", true)
       }
     }
@@ -78,11 +78,30 @@ allPosts.forEach(({frontmatter}) => {
       let el = document.getElementById(h)
       if(el){
         el.href = "#"
-        el.classList.add("active")
         el.setAttribute("aria-checked", true)
         lastHash = h
       }
+      applyFilter(h)
     }
+    //invalid hash / no hash selected
+    else{
+      applyFilter("")
+    }
+  }
+
+  //add / remove hidden class from links based on their data-hash attribute
+  function applyFilter(tag){
+    let attribute = "data-tag-" + tag
+    const articlesContainerDOM = document.getElementById("all-articles")
+    const allArticlesDOM = articlesContainerDOM.querySelectorAll(".post")
+
+    allArticlesDOM.forEach(node => {
+        //show if there is no filter tag, or the current node has the tag we are filtering by
+        if(!tag || node.hasAttribute(attribute))
+          node.removeAttribute("aria-hidden")
+        else
+          node.setAttribute("aria-hidden", true)
+      })
   }
 </script>
 
@@ -94,7 +113,6 @@ allPosts.forEach(({frontmatter}) => {
   .tags p{
     margin-bottom: 0;
   }
-
 
 	h2{
 		display: flex;
