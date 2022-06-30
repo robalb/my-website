@@ -121,7 +121,12 @@ allPosts.forEach(({frontmatter}) => {
     border-bottom: 1px solid var(--light-border-color);
 	}
 
-  @media screen and (max-width: 800px) {
+
+  /* Disable hover on these tags, so that they can behave as radio selects */
+  .tags a:hover:not([aria-checked="true"]) {
+    border: 1px solid var(--light-border-color);
+    color: var(--bright-font-color);
+    background: var(--reverse);
   }
 </style>
 

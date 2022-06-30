@@ -1,14 +1,10 @@
 
 ## TODO
 
-- rich content https://search.google.com/test/rich-results
 - projects page
-x - rename /me in /about
+- rich content https://search.google.com/test/rich-results
 - better third person description
-x- tag system: add tags in html of each blogpostentry,
-  use them to filter at runtime
 - analitics https://grafana.com/grafana/dashboards/13865
-- add strict transport security header, feature policy header
 
 ## headers, titles, third person descritption
 
