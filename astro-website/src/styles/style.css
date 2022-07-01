@@ -599,7 +599,7 @@ article li a:hover {
 /* article images. responsive, but fith fixed height. and with dark-light support*/
 article img {
   display: block;
-  min-height: 300px;
+  /* min-height: 300px; */
   width: auto;
   max-width: 100%;
   object-fit: contain; 
