@@ -62,7 +62,10 @@ allPosts.forEach(({frontmatter}) => {
   window.addEventListener('hashchange', updateFilterState);
 
   function updateFilterState(){
-    const hash = new URL(document.URL).hash
+    let hash = new URL(document.URL).hash
+    //remove the # at the beginning of the hash
+    if(hash && hash.length > 0)
+      hash = hash.substring(1)
     console.log(hash)
     //clear lastHash
     if(lastHash){
@@ -73,18 +76,18 @@ allPosts.forEach(({frontmatter}) => {
       }
     }
     //valid hash
-    if(hash.match(/[a-z]/i)){
-      let h = hash.substring(1)
-      let el = document.getElementById(h)
+    if(isValidTag(hash)){
+      let el = document.getElementById(hash)
       if(el){
         el.href = "#"
         el.setAttribute("aria-checked", true)
-        lastHash = h
+        lastHash = hash
       }
-      applyFilter(h)
+      applyFilter(hash)
     }
     //invalid hash / no hash selected
     else{
+      history.replaceState(null, null, ' ');
       applyFilter("")
     }
   }
@@ -102,6 +105,10 @@ allPosts.forEach(({frontmatter}) => {
         else
           node.setAttribute("aria-hidden", true)
       })
+  }
+
+  function isValidTag(tag){
+    return document.querySelector(`[data-tag-${tag}]`) != undefined
   }
 </script>
 

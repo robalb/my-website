@@ -1,0 +1,25 @@
+---
+// Component Imports
+import SharedLayout from '../components/SharedLayout.astro';
+
+let title = 'Projects';
+let description = 'A selection of projects'
+let permalink = 'https://halb.it/projects/';
+let activePage = 'projects';
+
+
+let isLarge = true
+---
+<SharedLayout {title} {description} {permalink} {activePage} {isLarge} >
+	<article >
+        <header>
+            <h1>Projects</h1>
+            <p class="description">A selection of open-source projects from my <a href="https://github.com/robalb">github</a> profile</p>
+        </header>
+        <section class="projects">
+
+        </section>
+    </article>
+	<footer>
+	</footer>
+</SharedLayout>

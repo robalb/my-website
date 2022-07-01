@@ -24,5 +24,6 @@ You can check out all the tools and technlogies i use in my <a href="/uses/">/us
 
 There is a reason this website has a great design: I'ts a fork of
 <a href="https://github.com/taniarascia/taniarascia.com">tania rascia</a>'s blog,
-leveraging her newmoon dark theme.
-I've written a <a href="/posts/i-made-a-website/">blog post</a> dedicated to the making of this blog. Go check it out!
+and uses her newmoon dark theme for the code snippets.
+I've written a <a href="/posts/i-made-a-website/">blog post</a> about the technical details of this
+blog. Go check it out!

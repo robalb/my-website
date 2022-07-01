@@ -12,8 +12,9 @@ export interface Props {
     activePage?: string;
     lang?: string;
     isBlog?: boolean;
+    isLarge?: boolean;
 }
-const { title, description, permalink, activePage, lang="en", isBlog=false } = Astro.props;
+const { title, description, permalink, activePage, lang="en", isBlog=false, isLarge=false } = Astro.props;
 
 //theme logic is defined in BlogHeader, with the switch js handler
 ---
@@ -34,7 +35,7 @@ const { title, description, permalink, activePage, lang="en", isBlog=false } = A
                 document.body.classList.remove("light")
         </script>
 		<BlogHeader {activePage} />
-		<main>
+		<main class={isLarge && 'large'}>
             <slot/>
         </main>
     </body>
