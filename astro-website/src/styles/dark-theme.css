@@ -7,6 +7,7 @@
 :root {
   --code-font-color: #b3b9c5;
   --code-background-color: #373c47;
+  --code-background-color: #20232a;
   --string: #92d192;
   --variable: #f2777a;
   --property: #abb2bf;
@@ -68,6 +69,7 @@ pre[class*='language-'] {
   white-space: pre-wrap;
   border-radius: 6px;
   overflow-wrap: break-word;
+  font-family: var(--code-font-family);
 }
 
 article a:hover code {

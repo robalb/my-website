@@ -33,6 +33,7 @@
   --yellow: #e59e32;
   --button-color: var(--primary);
   --button-font-color: white;
+  --code-background-color: #373c47;
 }
 
 .light p,
