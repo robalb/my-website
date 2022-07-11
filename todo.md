@@ -3,7 +3,6 @@
 
 - projects page
 - rich content https://search.google.com/test/rich-results
-- better third person description
 - analitics https://grafana.com/grafana/dashboards/13865
 - https redirect in k8s middleware
 
