@@ -60,8 +60,9 @@ permalink: https://halb.it/uses/
 
 ## This blog
 
-There is a reason this website has a great design: I'ts a fork of
-<a href="https://github.com/taniarascia/taniarascia.com">tania rascia</a>'s blog,
-and uses her newmoon dark theme for the code snippets.
-I've written a <a href="/posts/i-made-a-website/">blog post</a> about the technical details of this
-blog. Go check it out!
+The design of this website is a fork of
+<a href="https://github.com/taniarascia/taniarascia.com">Tania Rascia</a>'s
+blog and uses her newmoon dark theme for
+ the code snippets. Check out the
+<a href="/posts/i-made-a-website/">blog post</a>
+ I've written about its technical details

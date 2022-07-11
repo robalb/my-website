@@ -55,3 +55,10 @@ I’m a developer fascinated by anything related to the digital world, currently
 Browse around to see my projects
 
 Hi, I’m Alberto. I’m a computer science student at uniMib, living in the suburbs of Milan. In my free time i work on web projects i consider interesting and play ctfs , sometimes writing articles about the challenges i meet.
+
+
+grammar correction
+
+Hi, I'm Alberto.
+I'm a computer science student at uniMib, living in Milan, Italy.
+I like to work on projects that span the topics of cyber security, web development, and distributed systems, occasionally writing about the challenges I encounter.

@@ -9,21 +9,29 @@ activePage: about
 ---
 
  
-Hi, I'm Alberto. I'm a computer science student at uniMib, living in the suburbs of Milan.<br/>
- I like to work on <a href="/projects/" >projects</a> that span
-the topics of cyber security, web development
-and distributed systems, sometimes writing <a href="/articles/" >articles</a> about the challenges i meet.
+I'm a computer science student at UniMib, living in Milan, Italy.<br/>
+I like to work on <a href="/projects/" >projects</a> that span
+the topics of cyber security, web development,
+and distributed systems.
 
-I like to learn and experiment with all kind of technologies and tech stacks;<br/>
-My technical skills include modern Full Stack development technologies,
-API design and development, postgreSQL, Kubernetes, Docker, CI/CD pipelines
+This website is my personal blog,
+where I write about any topic that I find interesting and where I host my web-based projects.
 
-You can check out all the tools and technlogies i use in my <a href="/uses/">/uses</a> page
+## skills
+
+check out my [LinkedIn](https://www.linkedin.com/in/alberto-ventafridda/) profile.
+I also keep [a list](/uses/) of the tools and hardware I use, inspired by https://uses.tech/ and https://usesthis.com/
+
+## contacts
+
+feel free to write me on <a href="https://twitter.com/albertCoolwind">Twitter</a>, or via mail at
+[my name] @ [my surname] .it
 
 ## About this blog
 
-There is a reason this website has a great design: I'ts a fork of
-<a href="https://github.com/taniarascia/taniarascia.com">tania rascia</a>'s blog,
-and uses her newmoon dark theme for the code snippets.
-I've written a <a href="/posts/i-made-a-website/">blog post</a> about the technical details of this
-blog. Go check it out!
+The design of this website is a fork of
+<a href="https://github.com/taniarascia/taniarascia.com">Tania Rascia</a>'s
+blog and uses her newmoon dark theme for
+ the code snippets. Check out the
+<a href="/posts/i-made-a-website/">blog post</a>
+ I've written about its technical details
