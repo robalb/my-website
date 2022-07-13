@@ -1,0 +1,45 @@
+---
+export interface Props {
+	post: any;
+}
+
+const { post } = Astro.props;
+
+let href = "/";
+if(post.frontmatter.source)
+	href = post.frontmatter.source
+else if(post.frontmatter.demo)
+	href = post.frontmatter.demo + "/"
+
+---
+
+<a href={href} class="post" >
+	<h3>{post.frontmatter.title}</h3>
+  <div>
+	github
+  </div>
+</a>
+
+<style>
+
+  a *{
+	/* transition: all .5s; */
+  }
+  a[aria-hidden="true"]{
+	display: none;
+    color: var(--dark-font-color);
+    text-decoration: line-through;
+  }
+  a[aria-hidden="true"] *{
+	color: var(--dark-font-color);
+  }
+  a div{
+	display: block;
+text-align: center;
+font-family: var(--code-font-family);
+font-size: 0.8rem;
+font-weight: 400;
+color: var(--dark-font-color);
+  }
+
+</style>

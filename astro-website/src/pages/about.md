@@ -19,12 +19,12 @@ where I occasionally write about any topic that I find interesting and where I h
 
 ## skills
 
-check out my [LinkedIn](https://www.linkedin.com/in/alberto-ventafridda/) profile.
+Check out my [LinkedIn](https://www.linkedin.com/in/alberto-ventafridda/) profile.
 I also keep [a list](/uses/) of the tools and hardware I use, inspired by https://uses.tech/ and https://usesthis.com/
 
 ## contacts
 
-feel free to write me on <a href="https://twitter.com/albertCoolwind">Twitter</a>, or via mail at
+Feel free to write me on <a href="https://twitter.com/albertCoolwind">Twitter</a>, or via mail at
 [my name] @ [my surname] .it
 
 ## About this blog

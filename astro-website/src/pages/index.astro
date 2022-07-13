@@ -1,14 +1,21 @@
 ---
 // Component Imports
 import BlogPostPreview from '../components/BlogPostPreview.astro';
+import ProjectPreview from '../components/ProjectPreview.astro';
 import SharedLayout from '../components/SharedLayout.astro';
 
 let description = "Developer. Passionate about cyber security, web development and distributed systems"
 let permalink = 'https://halb.it';
 
 // Data Fetching: List all Markdown posts in the repo.
+//TODO: fetch only the last 10 posts
 let allPosts = await Astro.glob('./posts/*.md');
 allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
+
+
+//TODO: fetch only the last 10 projects
+let allProjects = await Astro.glob('./projects/*.md');
+allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf() - new Date(b.frontmatter.order).valueOf());
 ---
 <SharedLayout {description} {permalink} >
 	<article>
@@ -44,7 +51,7 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 			<span>Latest projects</span>
 			<a href="/projects/">View All</a>
 		</h2>
-		{allPosts.map((p) => <BlogPostPreview post={p} />)}
+		{allProjects.map((p) => <ProjectPreview post={p} />)}
 	</section>
 </article>
 	<footer>
