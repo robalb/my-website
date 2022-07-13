@@ -2,10 +2,10 @@
 setup: |
   import Layout from '../../layouts/BlogPost.astro'
   import Picture from '../../components/PictureThemed.astro'
-title: I made a website!
+title: Making my personal website
 publishDate: 2022-06-10
 description: In this article i'll give you a brief overview of the technologies i used to make this website, and where i stole the design from
-permalink: https://halb.it/posts/i-made-a-website/
+permalink: https://halb.it/posts/my-website/
 ---
 
 

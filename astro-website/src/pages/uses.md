@@ -64,5 +64,5 @@ The design of this website is a fork of
 <a href="https://github.com/taniarascia/taniarascia.com">Tania Rascia</a>'s
 blog and uses her newmoon dark theme for
  the code snippets. Check out the
-<a href="/posts/i-made-a-website/">blog post</a>
+<a href="/posts/my-website/">blog post</a>
  I've written about its technical details

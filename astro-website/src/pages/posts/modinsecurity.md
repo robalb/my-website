@@ -9,10 +9,8 @@ tags: ['writeup', 'web']
 permalink: https://halb.it/posts/modinsecurity/
 ---
 
-This was one of the web challenges for the cyberchallenge ctf that took place in Italy in 2019.
-I had a lot of fun solving it, and at the time i also drafted a writeup for it
-but i never got around publishing it until now
-
+This was one of the web challenges for the cyberchallenge CTF that took place in Italy in 2019.
+I had a lot of fun solving it, and now that I have a personal blog I'm happy to finally share the writeup I wrote for it at the time.
 
 ## the challenge
 

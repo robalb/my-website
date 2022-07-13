@@ -7,6 +7,8 @@ let description = 'A selection of projects'
 let permalink = 'https://halb.it/projects/';
 let activePage = 'projects';
 
+let allProjects = await Astro.glob('./projects/*.md');
+allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf() - new Date(b.frontmatter.order).valueOf());
 
 let isLarge = true
 ---
@@ -18,21 +20,22 @@ let isLarge = true
         </header>
         <section class="projects">
 
-            <!--
-
+		{allProjects.map((p) => 
             <div class="project">
-                <h2>Project</h2>
-                <img src="" alt="">
-                <div class="links tags">
-                    <a href="">Write-up</a>
-                    <a href="https://github.com/robalb/" target="_blank" rel="noreferrer">Source</a>
-                    <a href="" target="_blank" rel="noreferrer">Demo</a>
+                <div>
+                    <h2>{p.frontmatter.title}</h2>
+                    <p class="description">{p.frontmatter.description}</p>
                 </div>
-                <p class="description">Short and concise description about the project</p>
+                <div class="links tags">
+                    <a href={p.frontmatter.source} target="_blank" rel="noreferrer">Source</a>
+                    {p.frontmatter.writeup && <a href={p.frontmatter.writeup}>Write-up</a>}
+                    {p.frontmatter.demo && <a href={p.frontmatter.demo} target="_blank" rel="noreferrer">Demo</a>}
+                </div>
             </div>
-             -->
+        )}
 
         </section>
+
     </article>
 	<footer>
 	</footer>
@@ -41,5 +44,9 @@ let isLarge = true
 <style>
     .projects{
         margin-top: 4rem;
+    }
+    .tags{
+        margin:0;
+        justify-content: left;
     }
 </style>
