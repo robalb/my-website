@@ -17,15 +17,12 @@ and distributed systems.
 This website is my personal blog,
 where I occasionally write about any topic that I find interesting and where I host my web-based projects.
 
-## skills
-
-Check out my [LinkedIn](https://www.linkedin.com/in/alberto-ventafridda/) profile.
-I also keep [a list](/uses/) of the tools and hardware I use, inspired by https://uses.tech/ and https://usesthis.com/
+> Interested in the software and tools i use everyday? Check out my [/uses](/uses/) page
 
 ## contacts
 
-Feel free to write me on <a href="https://twitter.com/albertCoolwind">Twitter</a>, or via mail at
-[my name] @ [my surname] .it
+Feel free to contact me on <a href="https://twitter.com/albertCoolwind">Twitter</a>.
+I'm also on [LinkedIn](https://www.linkedin.com/in/alberto-ventafridda/) and [Github](https://github.com/robalb)
 
 ## About this blog
 
