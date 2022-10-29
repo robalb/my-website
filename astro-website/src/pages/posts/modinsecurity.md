@@ -45,8 +45,8 @@ After a couple of attempts with burp, i managed to trigger the waf by entering
 The challenge didn't provide any backend code, so it was time to formulate
 an hypothesis on how the backend works.
 
-I created a simple python script to automate the form submission, so that all the
-tests could be easily documented and reproduced just by changing the `q` variable
+First, I created a simple python script to automate the form submission, so that all the
+tests could be easily reproduced and documented with git
 
 
 ```python
@@ -66,34 +66,7 @@ x = requests.post(url, data = myobj)
 print(x.text)
 ```
 
-After some trial and error, i managed to find a working hypothesis
-
-```python
-# only specific form fields are logged when they are detected as dangerous
-# when a string is logged, ' is replaced with \'
-# could be something like
-# INSERT INTO log '$query', 'asd'
-
-# WORKS! this triggers the waf AND a real mysql error.
-q="\\' -- ' or 1=1 "
-#therefore the query cannot be
-#INSERT INTO log 'asdasd', '$data'
-#INSERT INTO log 'asdasd', '\\' -- ' or 1=1 '
-
-#The idea now is to find a query at the sx of --
-#that won't trigger an sql error
-q="\\') -- ' or 1=1 "
-#this doesn't throw an sql error, therefore the query is probably
-#INSERT INTO logs (asd, asdsd) VALUES (213, '$ata')
-#INSERT INTO logs (asd, asdsd) VALUES (213, '\\') -- ' or 1=1 ')
-
-q="\\',12) -- ' or 1=1 "
-#this payload confirms the hypothesis, since sql returns a new error code:
-# 1136 (column count doesnt match value count)
-# this fits the theory that the query is
-#INSERT INTO logs (asd, asdsd) VALUES (213, '$ata')
-#INSERT INTO logs (asd, asdsd) VALUES (213, '\\',12) -- ' or 1=1 ')
-```
+Then after some trial and error, i managed to find a working hypothesis:
 
 The waf has a blacklist of dangerous words, that is tested against each form input.
 When an input matches the blacklist (it can be something as simple as ` --' or 1`)
@@ -108,8 +81,8 @@ The logging process is the following:
 INSERT INTO logs (col1, col2) VALUES (timestampprobably, '$data')
 ```
 
-where $data is replaced with the actual forminput data, without a prepared statement.
-We have our sql injection.
+where $data is replaced with the actual forminput data, without a prepared statement. I don't even
+have to say that this is the sql injection we were looking for.
 
 > Fun fact, not really relevant: inserting a semicolon in the query payload
 > caused an interesting runtime error: 
@@ -233,8 +206,7 @@ whose output normally looks like this:
 | "table1"     |
 | "table2"     |
 
-Now, since we can only get the ouptut to yes/no questions, and this table is
-*clearly* not a yes/no question, we need to apply some modifications.
+Now, since we can only get a binary answer from our query, and this table is *clearly* not a binary answer, we need to apply some modifications.
 
 Let's start by adding group_concat:
 
