@@ -2,6 +2,7 @@
 # This is not a blogpost, this is the /uses page
 setup: |
   import Layout from '../layouts/MdPage.astro'
+  import Picture from '../components/PictureThemed.astro'
 title: /uses
 subtitle: software and tools i use regularly
 description: software and tools i use regularly
@@ -12,8 +13,12 @@ This page is inspired by two awesome projects: https://uses.tech/ and https://us
 
 ## My hardware
 
-My main hardware is a thinkpad7480s, at home connected to a docking station with a bigger screen. <br />
-I'm not really a hardware person, this is why all my self-hosted software and all my projects are currently running on a self-managed kubernetes cluster in the cloud
+My main hardware is a thinkpad7480s running Ubuntu, which connects to a docking station with a bigger screen when I'm at my desk. <br />
+
+<Picture src="uses" height={350} alt="A picture of a wooden desk, with a wite wall in the background. At the center of the desk there is a 24' screen, that is connected to a thinkpad covered in stickers. It's difficult to describe how cool the stickers look like. They are mostly black and white, with brown tones. They look extremely cool. At the corners of the image you can see the leaves and some branches of an indoor plant. On the screen you can see gnome, with a terminal and wireshark opened on a coloured background" />
+<br />
+
+I'm not really a hardware person, this is why I prefer to keep all my self-hosted software and all my projects on a kubernetes cluster in the cloud
 
 ## My tools
 
