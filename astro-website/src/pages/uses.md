@@ -2,23 +2,36 @@
 # This is not a blogpost, this is the /uses page
 setup: |
   import Layout from '../layouts/MdPage.astro'
+  import Picture from '../components/PictureThemed.astro'
 title: /uses
-subtitle: software and tools i use day-to-day for my work
-description: software and tools i use day-to-day for my work
+subtitle: software and tools i use regularly
+description: software and tools i use regularly
 permalink: https://halb.it/uses/
 ---
 
+This page is inspired by two awesome projects: https://uses.tech/ and https://usesthis.com/. Check them out to see what other people are using
+
+## My hardware
+
+My main hardware is a thinkpad7480s running Ubuntu, which connects to a docking station with a bigger screen when I'm at my desk. <br />
+
+<Picture src="uses" height={350} alt="A picture of a wooden desk, with a wite wall in the background. At the center of the desk there is a 24' screen, that is connected to a thinkpad covered in stickers. It's difficult to describe how cool the stickers look like. They are mostly black and white, with brown tones. They look extremely cool. At the corners of the image you can see the leaves and some branches of an indoor plant. On the screen you can see gnome, with a terminal and wireshark opened on a coloured background" />
+<br />
+
+I'm not really a hardware person, this is why I prefer to keep all my self-hosted software and all my projects on a kubernetes cluster in the cloud
+
 ## My tools
 
-- <a href="https://www.vim.org/">vim</a> - My go to editor
+- <a href="https://neovim.io/">neovim</a> - My main editor
 
 - <a href="https://github.com/tmux/tmux/wiki">tmux</a> - A terminal multiplexer. Combined with vim, it's how i navigate and organize
   multiple terminals and projects.
 
 - <a href="https://www.docker.com/">docker</a> - Together with Docker-compose, it's how i manage most of my local development and testing environments.
 
-- <a href="https://git-scm.com/">git</a> - It's how i manage all my projects but also, as a fan of the <a href="https://www.redhat.com/it/topics/devops/what-is-gitops">gitops</a> approach, it's
- how i manage most of my server infrastructure and desktop environment.
+- <a href="https://git-scm.com/">git</a> - It's how i manage all my projects, my
+  <a href="https://github.com/robalb/workstation"> desktop environments</a>, and my server infrastructure as a fan of 
+  the <a href="https://www.redhat.com/it/topics/devops/what-is-gitops">gitops</a> approach.
 
 - <a href="https://www.jetbrains.com/webstorm/">webstorm</a> - A powerful ide for the web. Sometimes vim is just not the right tool
 
