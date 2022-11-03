@@ -42,14 +42,14 @@ allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf()
 	<section aria-labelledby="latest-articles">
 		<h2 id="latest-articles">
 			<span>Latest articles</span>
-			<a href="/articles/">View All</a>
+			<a href="/articles/">View All <span class="visually-hidden">articles</span></a>
 		</h2>
 		{allPosts.map((p) => <BlogPostPreview post={p} />)}
 	</section>
 	<section aria-labelledby="latest-projects">
 		<h2 id="latest-projects">
 			<span>Latest projects</span>
-			<a href="/projects/">View All</a>
+			<a href="/projects/">View All <span class="visually-hidden">projects</span></a>
 		</h2>
 		{allProjects.map((p) => <ProjectPreview post={p} />)}
 	</section>
