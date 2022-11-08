@@ -2,7 +2,7 @@
 
 Sorce code for my personal website, [halb.it](https://halb.it)
 
-The design is a fork of [Tania Rascia's blog](https://github.com/taniarascia/taniarascia.com), released under MIT license.
+The design is a fork of [Tania Rascia's blog](https://github.com/taniarascia/taniarascia.com), which is released under MIT license.
 
 Blog articles and images are copyrighted material.
 
