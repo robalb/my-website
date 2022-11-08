@@ -3,6 +3,7 @@
 import BlogPostPreview from '../components/BlogPostPreview.astro';
 import ProjectPreview from '../components/ProjectPreview.astro';
 import SharedLayout from '../components/SharedLayout.astro';
+import Guestbook from '../components/Guestbook.astro';
 
 let description = "Developer. Passionate about cyber security, web development and distributed systems"
 let permalink = 'https://halb.it';
@@ -54,8 +55,9 @@ allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf()
 		{allProjects.map((p) => <ProjectPreview post={p} />)}
 	</section>
 </article>
-	<footer>
-	</footer>
+<footer>
+      <Guestbook />
+</footer>
 </SharedLayout>
 
 <style>

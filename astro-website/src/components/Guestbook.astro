@@ -1,0 +1,55 @@
+---
+/**
+* This component is still a work in progress.
+*/
+
+//add guestbook component
+const enabled = false;
+//add a dangerous amount of random html elements
+const perfcheats = false;
+
+---
+
+{ enabled && <>
+  <h2>Guestbook</h2>
+  <table>
+    <tr>
+      <th>Entries</th>
+    </tr>
+    <tr>
+      <td>There are no entries yet</td>
+    </tr>
+  </table>
+  <form action="/" method="GET">
+    <label for="geditor">Favourite editor</label><br>
+    <select name="geditor" id="geditor">
+      <option value="1">Vim</option>
+      <option value="2">Nvim</option>
+      <option value="3">Emacs</option>
+      <option value="4">Other</option>
+    </select><br>
+    <label for="gname">Username</label><br>
+    <input type="text" id="gname" name="gname" ><br>
+    <input type="submit" aria-roledescription="Submit" value="Submit">
+  </form> 
+</> }
+
+{ perfcheats && <>
+  <div role="progressbar" id="title" title="Title"></div>
+  <div id="pass4"
+    tabindex="-1"
+    role="slider"
+    aria-label="Choose a value"
+    aria-valuemin="1"
+    aria-valuemax="7"
+    aria-valuenow="2"></div>
+  <div role="link" id="divlink" title="Title"></div>
+  <dl role="presentation" class="visually-hidden">
+  <dt>Vim</dt>
+  <dd>an editor</dd>
+  <div>
+  <dt>Emacs</dt>
+   <dd>also an editor</dd>
+  </div>
+  </dl>
+</> }
