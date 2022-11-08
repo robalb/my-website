@@ -1,4 +1,8 @@
 ---
+//import web fonts we want to preload
+import interFontRegular from '../assets/fonts/inter-v11-latin-regular.woff2'
+import interFont600 from '../assets/fonts/inter-v11-latin-600.woff2'
+
 export interface Props {
 	title: string;
 	description: string;
@@ -45,6 +49,6 @@ const type = isBlog ? "article" : "website"
 <meta property="twitter:description" content={description} />
 
 <!-- Fonts -->
-<link rel="preload" href="../assets/fonts/inter-v11-latin-regular.woff2" as="font" type="font/woff2" >
-<link rel="preload" href="../assets/fonts/inter-v11-latin-600.woff2" as="font" type="font/woff2" >
+<link rel="preload" href={interFontRegular} as="font" type="font/woff2" >
+<link rel="preload" href={interFont600} as="font" type="font/woff2" >
 
