@@ -103,24 +103,29 @@ can be sent with this function call
 
 There are also special commands that are expressed in NAF notation but that have a special meaning:
 
-(in all these commands we use Fx, x>= 16)
+```
+(in all these commands Fx is any integer >= 16)
+
 N0*A0*Fx = C (Camac Clear)
 N0*A1*Fx = Z (Camac Initialize)
 N0*A2*Fx = C + Inhibit off
 N0*A3*Fx = Z + Inhibit On
 N27*A0*Fx = Inhibit On
 N27*A1*Fx = Inhibit Off
+```
 
 example:
 
-    cc32_write_word (handle, 0, 0, 16, 0);  //camac clear (C)
-    cc32_write_word (handle, 0, 1, 16, 0);  //camac initialize (Z)
-    cc32_write_word (handle, 27, 0, 16, 0); //set inhibit (I on)
-    cc32_write_word (handle, 27, 1, 16, 0); //reset inhibit (I off)
+```cpp
+cc32_write_word (handle, 0, 0, 16, 0);  //camac clear (C)
+cc32_write_word (handle, 0, 1, 16, 0);  //camac initialize (Z)
+cc32_write_word (handle, 27, 0, 16, 0); //set inhibit (I on)
+cc32_write_word (handle, 27, 1, 16, 0); //reset inhibit (I off)
+```
 
 All these commands are described in details in a table in section 3.3 of the 
-[hardware manual](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf),
-A simplified and more readable documentation is available at section 7.3 of the 
+[PCI-CC32 hardware manual](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf),
+A simplified and more readable documentation is available in section 7.3 of the 
 [library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
 
 
