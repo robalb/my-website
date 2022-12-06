@@ -41,7 +41,7 @@ As we mentioned, a CRATE CONTROLLER can issue a CAMAC COMMAND.
 These commands are often expressed in the following notation:
 
 ```
-    N()  A()  F() [optional data]
+    N()  A()  F()
 ```
 
 - N is the station number, an integer in the range 1-24.
@@ -50,16 +50,17 @@ These commands are often expressed in the following notation:
 - F is the function code to be performed at the selected module and subadress.
   If you want to know the function codes supported by a module you will have to read its documentation.
 
-In response a module will generate an X (command accepted)
+In response to a command a module will generate an X (command accepted)
 and Q (response) signals. For simplicity, you can see X and Q as two boolean variables.
 
-Up to 24 bits of additional data can be transferred between the CRATE CONTROLLER
-and the selected module when a NAF command is sent.<br/>
-You must read the documentation of a module to know the function codes that it supports, but in general:
-- Function codes in the range 0-7 are read commands:
-  they can return additional data other than Q and X
-- Function codes in the range 16-23 are write commands:
-  they accept additional data other than N, A, F, that will be sent to the module
+NAF commands are usually divided into two categories: **READ** commands and **WRITE** commands.<br>
+You must read the documentation of a module to know the function codes that it supports, which ones
+are READ and which ones are WRITE, but in general:
+- Function codes in the range 0-7 are READ commands:
+  they can return additional data other than Q and X. In other words: The crate controller will receive some data from the selected module
+- Function codes in the range 16-23 are WRITE commands:
+  they accept up to 24 bits of additional data other than N, A, F.
+  In other words: The crate controller will send some data to the selected module
 
 
 ### The Look At Me signal
@@ -111,17 +112,16 @@ In practical terms this can be done with the following code
 
 
 ```c
-//the file libcc32.h must be in the same folder of this program
 #include "libcc32.h"
 
 //the device file where your CAMAC CRATE can be accessed
 #define DEVICE_NAME "/dev/cc32_1"
 
-//define the special variable that will store the connection to the CAMAC CRATE
+//define the special variable that will store the connection to the CAMAC crate
 CC32_HANDLE handle;
 
 int main(int argc, char *argv){
-  //open the connection to the crate
+  //open a connection to the crate and "store" it in the handle variable
   error = cc32_open(DEVICE_NAME, &handle);
   //close the program with an error if the connection to the crate failed
   if(error){
@@ -148,51 +148,115 @@ Once you have an open connection to the crate, you can use the functions defined
 NAF commands.<br>
 The library makes a distinction between two types of commands:
 
-- write commands: they are composed of N, A, F, and the additional data that you want to write into the selected module
-- read commands: they are composed of N, A, F, and they return some data from the selected module
+- **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br>
+  You can use write commands even for commands that don't expect any data: just set the data parameter to 0 or any value. the module will simply ignore it.
+  ```c
+  /**
+  * Write 16 bits to an adress made out of N,A,F
+  *
+  * CC32_HANDLE handle:  The variable where the 
+  *                      current CAMAC CRATE connection is stored
+  * unsigned int N:  station N
+  * unsigned int A:  sub-address A
+  * unsigned int F:  function F
+  * unsigned short data: 16 bit of data that will be sent to the selected module
+  */
+  cc32_write_word(handle, N, A, F, data);
+  ```
+- **READ** commands: they are composed of N, A, F, and they return some data from the selected module
+  ```c
+  /**
+  * Read 24 bits from an adress made out of N,A,F and get the result Q and X
+  *
+  * CC32_HANDLE handle:  The variable where the 
+  *                      current CAMAC CRATE connection is stored
+  * unsigned int N:  station N
+  * unsigned int A:  sub-address A
+  * unsigned int F:  function F
+  * char *Q:         Q response
+  * char *X:         X response
+  *
+  * return: unsigned long (32 bits of data, of which only the first 24 are used)
+  *         Note: This number will never be negative
+  */
+  __u32 data = cc32_read_long_qx(handle, N, A, F, &Q, &X);
+  ```
 
-Keep in mind that if you want to send a NAF command to a module that doesn't expect any data you can use a write command, and set the data to 0 or any value. The module will simply ignore it.
 
-Here is a list of all the functions provided by the library:
+There are more functions other than `cc32_write_word` and `cc32_read_long_qx` that you can use.
+They are documented at page 19-21, section 7.1 of [this pdf](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
 
-
+We all know that a code example is worth a thousand words so here is an example of code
+that connects to a CAMAC CRATE, writes data to a module and reads data from a module.
 
 ```c
+#include "libcc32.h"
 
-/* read only a word - 16 bits - from a address made out of N,A,F */
-__u16 cc32_read_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+//the device file where your CAMAC CRATE can be accessed
+#define DEVICE_NAME "/dev/cc32_1"
 
-/* read only a word - 16 bits - from a address made out of N,A,F, get Q and X */
-__u16 cc32_read_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+//MODULE_A is a module in the CAMAC station 2
+#define MODULE_A 2
+//MODULE_B is a module in the CAMAC station 3
+#define MODULE_B 3
 
-/* read a long - 32 bits - from a address made out of N,A,F and get the result Q and X */
-__u32 cc32_read_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+//define the special variable that will store the connection to the CAMAC crate
+CC32_HANDLE handle;
 
-/* read a long - 32 bits - from a address made out of N,A,F get Q and X */
-__u32 cc32_read_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+int main(int argc, char *argv){
+  //open a connection to the crate and "store" it in the handle variable
+  error = cc32_open(DEVICE_NAME, &handle);
+  //close the program with an error if the connection to the crate failed
+  if(error){
+    fprintf(stderr, "%s", strerror(error));
+    exit(1);
+  }
 
-/* read a long - 32 bits - without any interpretaion */
-__u32 cc32_read_long_all(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+  /**
+  * Send a NAF command to MODULE_A
+  *
+  * handle:          the connection to the CAMAC crate
+  * station N:       MODULE_A
+  * substation A:    0
+  * function code F: 9
+  * data: 0
+  */
+  cc32_write_word(handle, MODULE_A, 0, 9, 0);
 
-/* write a word - 16 bits - to a destination made out of N,A,F */
-void  cc32_write_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData);
+  //A variable to store the 24 bit of data that the read function will return
+  long int data;
 
-/* write a word - 16 bits - to a destination made out of N,A,F, get Q and X */
-void  cc32_write_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData, int *Q, int *X);
+  int Q;
+  int X;
 
-/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F */
-void  cc32_write_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData);
+  /**
+  * Send a NAF command to MODULE_B
+  *
+  * handle:          the connection to the CAMAC crate
+  * station N:       MODULE_B
+  * substation A:    0
+  * function code F: 2
+  * Q: the variable where the Q response will be stored
+  * X: the variable where the X response will be stored
+  *
+  * return: 24 bits of data
+  */
+  data = cc32_read_long_qx(handle, MODULE_B, 0, 2, &Q, &X);
 
-/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F, get Q and X */
-void  cc32_write_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData, int *Q, int *X);
+  //if the command was successful, print the returned data
+  if(Q == 1 && X== 1){
+    printf("Data received: %ld ", data);
+  }
+  else{
+    printf("command failed! ");
+  }
+
+  //close the connection to the crate
+  cc32_close(&handle); 
+}
+
+
 ```
-
-
-example: This made-up NAF command: N4*A1*F16
-can be sent with this function call
-
-    cc32_write_word (handle, 4, 1, 16, 0);  //call function 16 on module 4, subaddress 1
-
 
 #### special commands
 
@@ -200,13 +264,12 @@ The CC-32 CAMAC CONTROLLER supports special commands
 that are expressed in NAF notation but that are not destined to a real module, and instead have a special meaning.
 The most important ones are:
 
-- (in all these commands Fx is any integer >= 16)
-- `N0*A0*Fx`  (Camac Clear)
-- `N0*A1*Fx`  (Camac Initialize)
-- `N0*A2*Fx`  (Camac Clear + Inhibit off)
-- `N0*A3*Fx`  (Camac Initialize + Inhibit On)
-- `N27*A0*Fx`  (Inhibit On)
-- `N27*A1*Fx`  (Inhibit Off)
+- `N0*A0*F16`  (Camac Clear)
+- `N0*A1*F16`  (Camac Initialize)
+- `N0*A2*F16`  (Camac Clear + Inhibit off)
+- `N0*A3*F16`  (Camac Initialize + Inhibit On)
+- `N27*A0*F16`  (Inhibit On)
+- `N27*A1*F16`  (Inhibit Off)
 
 
 You can use them in the same way you issue normal NAF commands:
@@ -237,8 +300,8 @@ more details I suggest to read the [camac eur4600 standard](https://core.ac.uk/d
 and the [PCI-CC32 hardware manual](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf)
 
 The best documentation for the libcc32 library I could find is in section 7.3 of the 
-[PCI-CC32 library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
+[PCI-CC32 library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf), although
+the description of the `cc32_read_long*` functions is slightly misleading and outdated.
 
-The source code for the kernel drivers and other useful resources can be found with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa)
-
+The source code for the kernel drivers and other useful resources can be found with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa). In particular, you may be interested in the [implementation](https://f9pc00.ijs.si/f9daqsvn/filedetails.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2Flib%2Flibcc32.c&peg=156) of the `cc32_read_long*` functions
 
