@@ -4,7 +4,7 @@ setup: |
   import Picture from '../../components/Picture.astro'
 title: A simple guide to CAMAC systems with the PCI-CC32 controller
 subtitle: 
-publishDate: 2022-06-25
+publishDate: 2022-12-6
 description: CAMAC systems with wiener cc32 controller, a simple guide for nuclear physicists with a deadline
 tags: ['CAMAC', 'physics', 'hardware']
 permalink: https://halb.it/posts/camac-cc32/
@@ -88,33 +88,128 @@ As always, the way a module reacts to Z, I, or C commands is described in its do
 
 ### controlling a CAMAC crate with a C program
 
-You have learned that a camac controller can send NAF commands to a specific module,
-or Initialize, Inhibit and Clear commands to all modules at the same time.
-also you learned that a camac controller can receive L (Look at me) signals from the modules.
+> We are going to assume that the libcc32 library and kernel driver are already correcly installed on your computer. In other words: Someone already installed everything, you only need to figure out how things work. This is common in most lab setups.
 
-You can perform all these operations from a C program by importing the pcicc32 library.
+If your computer is setup correctly, you should be able to import the `libcc32.h` in a c program.
 
-Using the library, you can send NAF commands to the CRATE.
+Let's see how you can use this library to interact with a CAMAC CRATE
 
-example: This made-up NAF command: N4*A1*F9 
+
+#### connecting to the crate
+
+In Linux everything is a file. Following this philosophy, even a CAMAC CRATE when it's connected to the computer is a file.<br>
+It is a special file, usually called cc32_1, and it's located in the `/dev` folder. If you have multiple crates connected to your computer, you will have multiple files in the `/dev` folder. You can find them by writing in
+a terminal the command `ls /dev`
+
+If you ever wrote a c program that reads from a file these concepts will be very familiar to you:
+Normally, when you want to interact with a file you must open a connection to it and store it in a special FILE variable, also
+referred to as FILE handle.
+
+Similarly, if we want to interact with a crate we must open a connection to it and store it in a special CC32_HANDLE variable.
+
+In practical terms this can be done with the following code
+
+
+```c
+//the file libcc32.h must be in the same folder of this program
+#include "libcc32.h"
+
+//the device file where your CAMAC CRATE can be accessed
+#define DEVICE_NAME "/dev/cc32_1"
+
+//define the special variable that will store the connection to the CAMAC CRATE
+CC32_HANDLE handle;
+
+int main(int argc, char *argv){
+  //open the connection to the crate
+  error = cc32_open(DEVICE_NAME, &handle);
+  //close the program with an error if the connection to the crate failed
+  if(error){
+    fprintf(stderr, "%s", strerror(error));
+    exit(1);
+  }
+
+  /*
+   *
+   * put the rest of the code here
+   *
+   */
+
+  //close the connection to the crate
+  cc32_close(&handle); 
+}
+
+
+```
+
+#### NAF commands
+
+Once you have an open connection to the crate, you can use the functions defined in the library to issue
+NAF commands.<br>
+The library makes a distinction between two types of commands:
+
+- write commands: they are composed of N, A, F, and the additional data that you want to write into the selected module
+- read commands: they are composed of N, A, F, and they return some data from the selected module
+
+Keep in mind that if you want to send a NAF command to a module that doesn't expect any data you can use a write command, and set the data to 0 or any value. The module will simply ignore it.
+
+Here is a list of all the functions provided by the library:
+
+
+
+```c
+
+/* read only a word - 16 bits - from a address made out of N,A,F */
+__u16 cc32_read_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* read only a word - 16 bits - from a address made out of N,A,F, get Q and X */
+__u16 cc32_read_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+
+/* read a long - 32 bits - from a address made out of N,A,F and get the result Q and X */
+__u32 cc32_read_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* read a long - 32 bits - from a address made out of N,A,F get Q and X */
+__u32 cc32_read_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+
+/* read a long - 32 bits - without any interpretaion */
+__u32 cc32_read_long_all(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* write a word - 16 bits - to a destination made out of N,A,F */
+void  cc32_write_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData);
+
+/* write a word - 16 bits - to a destination made out of N,A,F, get Q and X */
+void  cc32_write_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData, int *Q, int *X);
+
+/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F */
+void  cc32_write_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData);
+
+/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F, get Q and X */
+void  cc32_write_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData, int *Q, int *X);
+```
+
+
+example: This made-up NAF command: N4*A1*F16
 can be sent with this function call
 
-    cc32_write_word (handle, 4, 1, 9, 0);  //call function 9 on module 4, subaddress 1
+    cc32_write_word (handle, 4, 1, 16, 0);  //call function 16 on module 4, subaddress 1
 
-There are also special commands that are expressed in NAF notation but that have a special meaning:
 
-```
-(in all these commands Fx is any integer >= 16)
+#### special commands
 
-N0*A0*Fx = C (Camac Clear)
-N0*A1*Fx = Z (Camac Initialize)
-N0*A2*Fx = C + Inhibit off
-N0*A3*Fx = Z + Inhibit On
-N27*A0*Fx = Inhibit On
-N27*A1*Fx = Inhibit Off
-```
+The CC-32 CAMAC CONTROLLER supports special commands 
+that are expressed in NAF notation but that are not destined to a real module, and instead have a special meaning.
+The most important ones are:
 
-example:
+- (in all these commands Fx is any integer >= 16)
+- `N0*A0*Fx`  (Camac Clear)
+- `N0*A1*Fx`  (Camac Initialize)
+- `N0*A2*Fx`  (Camac Clear + Inhibit off)
+- `N0*A3*Fx`  (Camac Initialize + Inhibit On)
+- `N27*A0*Fx`  (Inhibit On)
+- `N27*A1*Fx`  (Inhibit Off)
+
+
+You can use them in the same way you issue normal NAF commands:
 
 ```cpp
 cc32_write_word (handle, 0, 0, 16, 0);  //camac clear (C)
@@ -134,5 +229,16 @@ A simplified and more readable documentation is available in section 7.3 of the
 The only way to know the correct NAF commands to send to a module is to read the module documentation.
 Here is an example
 
+### Further reading
+
+In this article I tried to abstract away any reference to the low-level hardware operations, in the spirit of
+keeping things as simple as possible. If you want
+more details I suggest to read the [camac eur4600 standard](https://core.ac.uk/download/pdf/132578818.pdf)
+and the [PCI-CC32 hardware manual](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf)
+
+The best documentation for the libcc32 library I could find is in section 7.3 of the 
+[PCI-CC32 library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
+
+The source code for the kernel drivers and other useful resources can be found with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa)
 
 
