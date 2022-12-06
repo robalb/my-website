@@ -176,7 +176,7 @@ The library makes a distinction between two types of commands:
   * char *Q:         Q response
   * char *X:         X response
   *
-  * return: unsigned long (32 bits of data, of which only the first 24 are used)
+  * return: unsigned long (32 bits, of which only the first 24 will contain data)
   *         Note: This number will never be negative
   */
   __u32 data = cc32_read_long_qx(handle, N, A, F, &Q, &X);
@@ -214,15 +214,15 @@ int main(int argc, char *argv){
   /**
   * Send a NAF command to MODULE_A
   *
-  * handle:          the connection to the CAMAC crate
-  * station N:       MODULE_A
-  * substation A:    0
-  * function code F: 9
-  * data: 0
+  * handle:     the connection to the CAMAC crate     
+  * MODULE_A:   the station number N                  
+  * 0:          the substation number A               
+  * 9:          the function code F                   
+  * 0:  the data sent to the module, in this case it's just the number 0
   */
   cc32_write_word(handle, MODULE_A, 0, 9, 0);
 
-  //A variable to store the 24 bit of data that the read function will return
+  //A variable to store the 32 bit of data that the read function will return
   long int data;
 
   int Q;
@@ -231,14 +231,14 @@ int main(int argc, char *argv){
   /**
   * Send a NAF command to MODULE_B
   *
-  * handle:          the connection to the CAMAC crate
-  * station N:       MODULE_B
-  * substation A:    0
-  * function code F: 2
-  * Q: the variable where the Q response will be stored
-  * X: the variable where the X response will be stored
+  * handle:     the connection to the CAMAC crate     
+  * MODULE_B:   the station number N                  
+  * 0:          the substation number A               
+  * 2:          the function code F                   
+  * Q:  the variable where the Q response will be stored
+  * X:  the variable where the X response will be stored
   *
-  * return: 24 bits of data
+  * return 32 bits of data
   */
   data = cc32_read_long_qx(handle, MODULE_B, 0, 2, &Q, &X);
 
