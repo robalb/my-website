@@ -21,16 +21,21 @@ const perfcheats = false;
     </tr>
   </table>
   <form action="/" method="GET">
-    <label for="geditor">Favourite editor</label><br>
-    <select name="geditor" id="geditor">
-      <option value="1">Vim</option>
-      <option value="2">Nvim</option>
-      <option value="3">Emacs</option>
-      <option value="4">Other</option>
-    </select><br>
-    <label for="gname">Username</label><br>
-    <input type="text" id="gname" name="gname" ><br>
-    <input type="submit" aria-roledescription="Submit" value="Submit">
+    <div>
+      <label for="geditor">Your editor</label><br>
+      <select name="geditor" id="geditor">
+        <option value="1">Vim</option>
+        <option value="2">Nvim</option>
+        <option value="3">Emacs</option>
+        <option value="4">Other</option>
+      </select>
+    </div>
+    <div>
+      <label for="gname">Username</label><br>
+      <input type="text" id="gname" name="gname" >
+    </div>
+                    <div><br>
+    <input type="submit" aria-roledescription="Submit" value="Submit"></div>
   </form> 
 </> }
 
@@ -53,3 +58,23 @@ const perfcheats = false;
   </div>
   </dl>
 </> }
+
+<style>
+form {
+  display: flex;
+  flex-wrap: wrap;
+}
+form input, form select{
+  padding: .5rem;
+  font-size: 1rem;
+  margin: 5px;
+}
+
+body:not(.light) form input, body:not(.light) form select{
+  color: white;
+  background-color: var(--navbar-color, transparent);
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+
+</style>
