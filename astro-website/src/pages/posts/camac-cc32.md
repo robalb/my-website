@@ -183,8 +183,7 @@ The library makes a distinction between two types of commands:
   ```
 
 
-There are more functions other than `cc32_write_word` and `cc32_read_long_qx` that you can use.
-They are documented at page 19-21, section 7.1 of [this pdf](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
+There are more functions other than `cc32_write_word` and `cc32_read_long_qx` that you can use, even though these are the most common ones. They are all documented in the next section
 
 We all know that a code example is worth a thousand words so here is an example of code
 that connects to a CAMAC CRATE, writes data to a module and reads data from a module.
@@ -287,10 +286,73 @@ A simplified and more readable documentation is available in section 7.3 of the
 [library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
 
 
-### Reading documentation
+### Complete library documentation
 
-The only way to know the correct NAF commands to send to a module is to read the module documentation.
-Here is an example
+This is the documentation for all the functions in the `libcc32` library, updated to revision `0.9`.
+You can find a copy of it's source code with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa)
+
+> Warning: This sections is still a work in progress. Right now it's not very useful as it's just a list of all the declarations in the library header file with some added notes
+
+#### Initialize and close functions
+
+```c
+/* open a path to a device. E.g. "/dev/pcicc32_1" */
+int   cc32_open(char *cszPath, CC32_HANDLE *handle);
+
+/* close the opened path */
+int   cc32_close(CC32_HANDLE handle); 
+```
+
+#### Read and Write functions
+
+```c
+/* read only a word - 16 bits - from a address made out of N,A,F */
+__u16 cc32_read_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* read only a word - 16 bits - from a address made out of N,A,F, get Q and X */
+__u16 cc32_read_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+
+/* read a long - 32 bits - from a address made out of N,A,F */
+__u32 cc32_read_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* read a long - 32 bits - from a address made out of N,A,F get Q and X */
+__u32 cc32_read_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+
+/* read a long - 32 bits - without any interpretaion */
+__u32 cc32_read_long_all(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+```
+
+```c
+/* write a word - 16 bits - to a destination made out of N,A,F */
+void  cc32_write_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData);
+
+/* write a word - 16 bits - to a destination made out of N,A,F, get Q and X */
+void  cc32_write_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData, int *Q, int *X);
+
+/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F */
+void  cc32_write_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData);
+
+/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F, get Q and X */
+void  cc32_write_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData, int *Q, int *X);
+```
+
+#### other functions
+
+```c
+/* poll the state of the timeout line and the LAM state. The timeout line is cleared if it was set */
+int   cc32_poll_event(CC32_HANDLE handle, int *nTimeout, int *nLam);
+
+/* control interrupts caused by timeouts or LAMs */
+int   cc32_interrupt_disable(CC32_HANDLE handle);
+int   cc32_interrupt_enable(CC32_HANDLE handle);
+
+/* same as cc32_poll_event(), but wait for a state change of timeout or LAMs. */
+int   cc32_wait_event(CC32_HANDLE handle, int *nTimeout, int *nLam);
+
+/* switch cc32 autoread on or off - return the last switch state */
+int   cc32_autoread_on(CC32_HANDLE handle);
+int   cc32_autoread_off(CC32_HANDLE handle);
+```
 
 ### Further reading
 
