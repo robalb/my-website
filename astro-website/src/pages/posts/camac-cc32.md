@@ -27,8 +27,8 @@ from ARW Elektroniks Which connects to a Linux computer.
 
 <Picture src="camac-crate" height={490} alt="A bright red web page showing an error message: Your request have been blocked! We detected an attept to attack this website.  mod_insecurity online protection™ blocked your request.  Your request have been logged. Logged requests: 17265 " />
 
-Highlighted in this picture: A CAMAC CRATE in the wild. Station 12, 16, and 21 are occupied by some modules.
-Station 24-25 is occupied by the CRATE CONTROLLER. You can see the cable that connects it to the computer.
+_Highlighted in this picture: A CAMAC CRATE in the wild. Station 12, 16, and 21 are occupied by some modules.
+Station 24-25 is occupied by the CRATE CONTROLLER. You can see the cable that connects it to the computer._
 <br/>
 
 
@@ -45,36 +45,20 @@ These commands are often expressed in the following notation:
 ```
 
 - N is the station number, an integer in the range 1-24.
-  For example N(2) will select the station in position 2. (station and module are synonims)
+  For example N(2) will select the station in position 2. (station and module are synonyms)
 - A is a subaddress, an integer in the range 0-15. For example if we are talking to a module that has 8 different registries, we can specify the first register with A(0), the second register with A(1) and so on.
 - F is the function code to be performed at the selected module and subadress.
   If you want to know the function codes supported by a module you will have to read its documentation.
 
-------------
-OG
-In response to a command a module will generate an X (command accepted)
-and Q (response) signals. For simplicity, you can see X and Q as two boolean variables.
-
-NAF commands are usually divided into two categories: **READ** commands and **WRITE** commands.<br>
-You must read the documentation of a module to know the function codes that it supports, which ones
-are READ and which ones are WRITE, but in general:
-- Function codes in the range 0-7 are READ commands:
-  they can return additional data other than Q and X. In other words: The crate controller will receive some data from the selected module
-- Function codes in the range 16-23 are WRITE commands:
-  they accept up to 24 bits of additional data other than N, A, F.
-  In other words: The crate controller will send some data to the selected module
-
--------------
-Rewrite this paragraph, taken from a technical article, to be clearer and more engaging: ”…”
 When a crate controller issues a command, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal.
 For simplicity, you can see X and Q as two boolean variables.
 
-NAF commands are typically divided into two categories: READ commands and WRITE commands. You can find out which function codes a module supports by reading its documentation, but in general:
+NAF commands are typically divided into two categories: **READ** commands and **WRITE** commands.<br>
+You can find out which function codes a module supports by reading its documentation, but in general:
 
 - Function codes in the range 0-7 are READ commands. These commands can return additional data other than Q and X. This means that when a READ command is executed, the crate controller will receive data from the selected module.
 - Function codes in the range 16-23 are WRITE commands. These commands accept up to 24 bits of additional data other than N, A, and F. This means that when a WRITE command is executed, the crate controller will send data to the selected module.
 
--------------
 
 ### The Look At Me signal
 
@@ -111,32 +95,16 @@ Let's see how you can use this library to interact with a CAMAC CRATE
 
 #### connecting to the crate
 
--------------
-OG
-In Linux everything is a file. Following this philosophy, even a CAMAC CRATE when it's connected to the computer is a file.<br>
-It is a special file, usually called cc32_1, and it's located in the `/dev` folder. If you have multiple crates connected to your computer, you will have multiple files in the `/dev` folder. You can find them by writing in
-a terminal the command `ls /dev`
+In Linux everything is represented as a file. That's right, even the internet is a file! You shouldn't be surprised that this includes CAMAC crates.<br>
+When a crate is connected to the computer it appears as a special file in the `/dev` folder, usually called cc32_1.
+If you have multiple crates connected to your computer, you will see multiple files in the `/dev` folder.
+You can find them by running the command `ls /dev` in a terminal.
 
--------------
-Rewrite this paragraph, taken from a technical article, to be clearer and more engaging:
-"..."
-In Linux, everything can be represented as a file, and this includes CAMAC crates. When a crate is connected to a computer, it appears as a special file called cc32_1 in the /dev folder. If you have multiple crates connected to your computer, you will see multiple files in the /dev folder. You can view these files by opening a terminal and running the command ls /dev. This will show you a list of all the files in the /dev folder, including any CAMAC crate files that are present.
-
-------------
-OG
 If you've ever written a C program that reads from a file these concepts will be very familiar to you:
-Normally, when you want to interact with a file you must open a connection to it and store it in a special FILE variable, also
+Normally, when you want to interact with a file you need to open a connection to it and store it in a special FILE variable, also
 referred to as FILE handle.
 
-Similarly, if you want to interact with a crate you must open a connection to it and store it in a special CC32_HANDLE variable.
-
------------
-Rewrite this paragraph, taken from a technical article, to be clearer and more engaging:
-"..."
-
-If you've ever written a C program that reads from a file, you're probably already familiar with the concept of opening a connection to a file and storing it in a special variable called a "FILE handle." The same idea applies when working with a CAMAC crate: to interact with a crate, you need to open a connection to it and store it in a special CC32_HANDLE variable.
-
------------
+Similarly, if you want to interact with a crate you need to open a connection to it and store it in a special CC32_HANDLE variable.
 
 In practical terms this can be done with the following code
 
@@ -174,9 +142,7 @@ int main(int argc, char *argv){
 
 #### NAF commands
 
-Once you have an open connection to the crate, you can use the functions defined in the library to issue
-NAF commands.<br>
-The library makes a distinction between two types of commands:
+Once you have an open connection to the crate, you can use the functions defined in the library to execute two type of commands:
 
 - **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br>
   You can use write commands even for commands that don't expect any data: just set the data parameter to 0 or any value. the module will simply ignore it.
@@ -323,7 +289,6 @@ A simplified and more readable documentation is available in section 7.3 of the
 ### Complete library documentation
 
 This is the documentation for all the functions in the `libcc32` library, updated to revision `0.9`.
-You can find a copy of it's source code with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa)
 
 > Warning: This sections is still a work in progress. Right now it's not very useful as it's just a list of all the declarations in the library header file with some added notes
 
