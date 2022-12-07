@@ -88,8 +88,7 @@ As always, the way a module reacts to Z, I, or C commands is described in its do
 
 > We are going to assume that the libcc32 library and kernel driver are already correcly installed on your computer. In other words: Someone already installed everything, you only need to figure out how things work. This is common in most lab setups.
 
-If your computer is setup correctly, you should be able to import the `libcc32.h` in a c program.
-
+If your computer is setup correctly, you should be able to import the `libcc32.h` in a c program.<br>
 Let's see how you can use this library to interact with a CAMAC CRATE
 
 
@@ -140,7 +139,7 @@ int main(int argc, char *argv){
 
 ```
 
-#### NAF commands
+#### Read and Write commands
 
 Once you have an open connection to the crate, you can use the functions defined in the library to execute two type of commands:
 
@@ -293,6 +292,8 @@ This is the documentation for all the functions in the `libcc32` library, update
 > Warning: This sections is still a work in progress. Right now it's not very useful as it's just a list of all the declarations in the library header file with some added notes
 
 #### Initialize and close functions
+
+
 
 ```c
 /* open a path to a device. E.g. "/dev/pcicc32_1" */
