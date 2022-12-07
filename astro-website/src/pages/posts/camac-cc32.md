@@ -50,15 +50,9 @@ These commands are often expressed in the following notation:
 - F is the function code to be performed at the selected module and subadress.
   If you want to know the function codes supported by a module you will have to read its documentation.
 
-When a crate controller issues a command, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal.
-For simplicity, you can see X and Q as two boolean variables.
-
-NAF commands are typically divided into two categories: **READ** commands and **WRITE** commands.<br>
-You can find out which function codes a module supports by reading its documentation, but in general:
-
-- Function codes in the range 0-7 are READ commands. These commands can return additional data other than Q and X. This means that when a READ command is executed, the crate controller will receive data from the selected module.
-- Function codes in the range 16-23 are WRITE commands. These commands accept up to 24 bits of additional data other than N, A, and F. This means that when a WRITE command is executed, the crate controller will send data to the selected module.
-
+When a command is issued, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal, whose meaning depends on the function code of the command.
+You can see X and Q as two boolean variables.<br>
+Additionally, up to 24 bits of data can be transferred with each command
 
 ### The Look At Me signal
 
@@ -144,7 +138,7 @@ int main(int argc, char *argv){
 Once you have an open connection to the crate, you can use the functions defined in the library to execute two type of commands:
 
 - **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br>
-  You can use write commands even for commands that don't expect any data: just set the data parameter to 0 or any value. the module will simply ignore it.
+  You can use write commands even for commands that don't expect any data: just set the data parameter to 0, it will be ignored.
   ```c
   /**
   * Write 16 bits to an adress made out of N,A,F
@@ -367,3 +361,69 @@ the description of the `cc32_read_long*` functions is slightly misleading and ou
 
 The source code for the kernel drivers and other useful resources can be found with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa). In particular, you may be interested in the [implementation](https://f9pc00.ijs.si/f9daqsvn/filedetails.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2Flib%2Flibcc32.c&peg=156) of the `cc32_read_long*` functions
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+# int cc32_open(char *cszPath, CC32_HANDLE *handle)
+
+This function is used to open a connection to a CAMAC crate. The crate appears in the file system as a special file in the /dev folder, usually named cc32_1. If multiple crates are connected to the computer, multiple files will be present in the /dev folder.
+
+The cszPath parameter is a string that specifies the path to the crate's file in the file system, for example /dev/cc32_1.
+
+The handle parameter is a pointer to a CC32_HANDLE variable where the connection to the crate will be stored. This handle must be passed as an argument to most other functions in the libcc32 library in order to specify which crate to communicate with.
+
+This function returns an integer error code, or 0 if the operation was successful.
+
+# int cc32_close(CC32_HANDLE handle)
+
+This function is used to close a connection to a CAMAC crate. The handle parameter is the CC32_HANDLE variable that was returned by a previous call to the cc32_open function and contains the connection to the crate.
+
+This function returns an integer error code, or 0 if the operation was successful.
+
+
+#cc32_read_word
+
+This function is used to read a 16-bit word from a CAMAC address made up of the components N, A, and F.
+
+The function takes the following arguments:
+
+    CC32_HANDLE handle: The variable where the current CAMAC CRATE connection is stored
+    unsigned int N: The station number N
+    unsigned int A: The sub-address A
+    unsigned int F: The function code F
+
+The function returns the value read from the CAMAC address as an unsigned 16-bit integer.
+
+#cc32_read_word_qx
+
+This function is used to read a 16-bit word from a CAMAC address made up of the components N, A, and F, and also retrieve the Q and X responses.
+
+The function takes the following arguments:
+
+    CC32_HANDLE handle: The variable where the current CAMAC CRATE connection is stored
+    unsigned int N: The station number N
+    unsigned int A: The sub-address A
+    unsigned int F: The function code F
+    int *Q: A pointer to the variable that will store the Q response. The Q response can be 0 or 1.
+    int *X: A pointer to the variable that will store the X response. The X response can be 0 or 1.
+
+The function returns the value read from the CAMAC address as an unsigned 16-bit integer. The Q and X responses are stored in the variables pointed to by Q and X, respectively.
+
+```
