@@ -50,6 +50,8 @@ These commands are often expressed in the following notation:
 - F is the function code to be performed at the selected module and subadress.
   If you want to know the function codes supported by a module you will have to read its documentation.
 
+------------
+OG
 In response to a command a module will generate an X (command accepted)
 and Q (response) signals. For simplicity, you can see X and Q as two boolean variables.
 
@@ -62,6 +64,17 @@ are READ and which ones are WRITE, but in general:
   they accept up to 24 bits of additional data other than N, A, F.
   In other words: The crate controller will send some data to the selected module
 
+-------------
+Rewrite this paragraph, taken from a technical article, to be clearer and more engaging: ”…”
+When a crate controller issues a command, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal.
+For simplicity, you can see X and Q as two boolean variables.
+
+NAF commands are typically divided into two categories: READ commands and WRITE commands. You can find out which function codes a module supports by reading its documentation, but in general:
+
+- Function codes in the range 0-7 are READ commands. These commands can return additional data other than Q and X. This means that when a READ command is executed, the crate controller will receive data from the selected module.
+- Function codes in the range 16-23 are WRITE commands. These commands accept up to 24 bits of additional data other than N, A, and F. This means that when a WRITE command is executed, the crate controller will send data to the selected module.
+
+-------------
 
 ### The Look At Me signal
 
@@ -98,15 +111,32 @@ Let's see how you can use this library to interact with a CAMAC CRATE
 
 #### connecting to the crate
 
+-------------
+OG
 In Linux everything is a file. Following this philosophy, even a CAMAC CRATE when it's connected to the computer is a file.<br>
 It is a special file, usually called cc32_1, and it's located in the `/dev` folder. If you have multiple crates connected to your computer, you will have multiple files in the `/dev` folder. You can find them by writing in
 a terminal the command `ls /dev`
 
-If you ever wrote a c program that reads from a file these concepts will be very familiar to you:
+-------------
+Rewrite this paragraph, taken from a technical article, to be clearer and more engaging:
+"..."
+In Linux, everything can be represented as a file, and this includes CAMAC crates. When a crate is connected to a computer, it appears as a special file called cc32_1 in the /dev folder. If you have multiple crates connected to your computer, you will see multiple files in the /dev folder. You can view these files by opening a terminal and running the command ls /dev. This will show you a list of all the files in the /dev folder, including any CAMAC crate files that are present.
+
+------------
+OG
+If you've ever written a C program that reads from a file these concepts will be very familiar to you:
 Normally, when you want to interact with a file you must open a connection to it and store it in a special FILE variable, also
 referred to as FILE handle.
 
-Similarly, if we want to interact with a crate we must open a connection to it and store it in a special CC32_HANDLE variable.
+Similarly, if you want to interact with a crate you must open a connection to it and store it in a special CC32_HANDLE variable.
+
+-----------
+Rewrite this paragraph, taken from a technical article, to be clearer and more engaging:
+"..."
+
+If you've ever written a C program that reads from a file, you're probably already familiar with the concept of opening a connection to a file and storing it in a special variable called a "FILE handle." The same idea applies when working with a CAMAC crate: to interact with a crate, you need to open a connection to it and store it in a special CC32_HANDLE variable.
+
+-----------
 
 In practical terms this can be done with the following code
 
@@ -166,20 +196,24 @@ The library makes a distinction between two types of commands:
 - **READ** commands: they are composed of N, A, F, and they return some data from the selected module
   ```c
   /**
-  * Read 24 bits from an adress made out of N,A,F and get the result Q and X
+  * Read 24 bits from an adress made out of N,A,F and get the Q and X responses
   *
   * CC32_HANDLE handle:  The variable where the 
   *                      current CAMAC CRATE connection is stored
   * unsigned int N:  station N
   * unsigned int A:  sub-address A
   * unsigned int F:  function F
-  * char *Q:         Q response
-  * char *X:         X response
+  * int *Q:         pointer to the variable that will store the Q response.
+  *                 The Q response can be 0 or 1
+  * int *X:         pointer to the variable that will store the X response.
+  *                 The X response can be 0 or 1
   *
   * return: unsigned long (32 bits, of which only the first 24 will contain data)
   *         Note: This number will never be negative
+  * 
+  * This function was successfull only if the Q and X responses are both equal 1
   */
-  __u32 data = cc32_read_long_qx(handle, N, A, F, &Q, &X);
+  unsigned long data = cc32_read_long_qx(handle, N, A, F, &Q, &X);
   ```
 
 
