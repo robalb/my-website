@@ -50,15 +50,9 @@ These commands are often expressed in the following notation:
 - F is the function code to be performed at the selected module and subadress.
   If you want to know the function codes supported by a module you will have to read its documentation.
 
-When a crate controller issues a command, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal.
-For simplicity, you can see X and Q as two boolean variables.
-
-NAF commands are typically divided into two categories: **READ** commands and **WRITE** commands.<br>
-You can find out which function codes a module supports by reading its documentation, but in general:
-
-- Function codes in the range 0-7 are READ commands. These commands can return additional data other than Q and X. This means that when a READ command is executed, the crate controller will receive data from the selected module.
-- Function codes in the range 16-23 are WRITE commands. These commands accept up to 24 bits of additional data other than N, A, and F. This means that when a WRITE command is executed, the crate controller will send data to the selected module.
-
+When a command is issued, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal, whose meaning depends on the function code of the command.
+You can see X and Q as two boolean variables.<br>
+Additionally, up to 24 bits of data can be transferred with each command
 
 ### The Look At Me signal
 
@@ -144,7 +138,7 @@ int main(int argc, char *argv){
 Once you have an open connection to the crate, you can use the functions defined in the library to execute two type of commands:
 
 - **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br>
-  You can use write commands even for commands that don't expect any data: just set the data parameter to 0 or any value. the module will simply ignore it.
+  Use write commands for all function codes >= 16, even if they don't expect any data: just set the data parameter to 0, it will be ignored.
   ```c
   /**
   * Write 16 bits to an adress made out of N,A,F
@@ -158,7 +152,8 @@ Once you have an open connection to the crate, you can use the functions defined
   */
   cc32_write_word(handle, N, A, F, data);
   ```
-- **READ** commands: they are composed of N, A, F, and they return some data from the selected module
+- **READ** commands: they are composed of N, A, F, and they return some data from the selected module<br>
+  Use read commands for all function codes < 16, even if they don't return any data
   ```c
   /**
   * Read 24 bits from an adress made out of N,A,F and get the Q and X responses
@@ -182,10 +177,10 @@ Once you have an open connection to the crate, you can use the functions defined
   ```
 
 
-There are more functions other than `cc32_write_word` and `cc32_read_long_qx` that you can use, even though these are the most common ones. They are all documented in the next section
+The complete list of read and write functions is documented at the [end](#complete-library-documentation) of this article.
 
 We all know that a code example is worth a thousand words so here is an example of code
-that connects to a CAMAC CRATE, writes data to a module and reads data from a module.
+that connects to a CAMAC CRATE, sends commands to a module and reads data from a module.
 
 ```c
 #include "libcc32.h"
@@ -210,16 +205,31 @@ int main(int argc, char *argv){
     exit(1);
   }
 
-  /**
-  * Send a NAF command to MODULE_A
-  *
-  * handle:     the connection to the CAMAC crate     
-  * MODULE_A:   the station number N                  
-  * 0:          the substation number A               
-  * 9:          the function code F                   
-  * 0:  the data sent to the module, in this case it's just the number 0
+  /*
+   Send a command to MODULE_A
+   the function code for this command is >= 16 so we must use the write function,
+   even when we don't want to write any data
+  
+   handle:     the connection to the CAMAC crate     
+   MODULE_A:   the station number N                  
+   0:          the substation number A               
+   24:          the function code F                   
+   0:  the data sent to the module, in this case it's just the number 0
   */
-  cc32_write_word(handle, MODULE_A, 0, 9, 0);
+  cc32_write_word(handle, MODULE_A, 0, 24, 0);
+
+  /*
+   Send a command to MODULE_A
+   the function code for this command is < 16 so we must use the read function,
+   even when we don't want to read any data.
+  
+   handle:     the connection to the CAMAC crate     
+   MODULE_A:   the station number N                  
+   0:          the substation number A               
+   10:          the function code F                   
+  */
+  cc32_read_word(handle, MODULE_A, 0, 10, 0);
+
 
   //A variable to store the 32 bit of data that the read function will return
   long int data;
@@ -227,17 +237,17 @@ int main(int argc, char *argv){
   int Q;
   int X;
 
-  /**
-  * Send a NAF command to MODULE_B
-  *
-  * handle:     the connection to the CAMAC crate     
-  * MODULE_B:   the station number N                  
-  * 0:          the substation number A               
-  * 2:          the function code F                   
-  * Q:  the variable where the Q response will be stored
-  * X:  the variable where the X response will be stored
-  *
-  * return 32 bits of data
+  /*
+   Read data from MODULE_B
+  
+   handle:     the connection to the CAMAC crate     
+   MODULE_B:   the station number N                  
+   0:          the substation number A               
+   2:          the function code F                   
+   Q:  the variable where the Q response will be stored
+   X:  the variable where the X response will be stored
+  
+   return 32 bits of data
   */
   data = cc32_read_long_qx(handle, MODULE_B, 0, 2, &Q, &X);
 
@@ -289,54 +299,285 @@ A simplified and more readable documentation is available in section 7.3 of the
 
 This is the documentation for all the functions in the `libcc32` library, updated to revision `0.9`.
 
-> Warning: This sections is still a work in progress. Right now it's not very useful as it's just a list of all the declarations in the library header file with some added notes
 
 #### Initialize and close functions
 
-
-
 ```c
-/* open a path to a device. E.g. "/dev/pcicc32_1" */
-int   cc32_open(char *cszPath, CC32_HANDLE *handle);
+/* Open a connection to a CAMAC crate
 
-/* close the opened path */
-int   cc32_close(CC32_HANDLE handle); 
+This function is used to open a connection to a CAMAC crate.
+The crate appears in the file system as a special file in the /dev folder,
+usually named cc32_1.
+
+Args:
+  filePath: a string that specifies the path to the crate's file in
+            the file system, for example "/dev/cc32_1".
+  handle: a pointer to a CC32_HANDLE variable where the connection
+          to the crate will be stored. This handle must be passed 
+          as an argument to most other functions in the libcc32 library
+          in order to specify which crate to communicate with.
+
+Returns:
+  An integer error code, or 0 if the operation was successful.
+
+*/
+int  cc32_open(char *filePath, CC32_HANDLE *handle);
+
+/* Close a connection to a CAMAC crate
+
+This function is used to close a connection to a CAMAC crate.
+
+Args:
+  handle: the CC32_HANDLE variable that was returned by a previous call
+          to the cc32_open function and contains the connection to the crate.
+
+Returns:
+  An integer error code, or 0 if the operation was successful.
+
+*/
+int  cc32_close(CC32_HANDLE handle); 
 ```
 
-#### Read and Write functions
+#### Read functions
 
 ```c
-/* read only a word - 16 bits - from a address made out of N,A,F */
-__u16 cc32_read_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+/* read 16 bits from an address made out of N,A,F
 
-/* read only a word - 16 bits - from a address made out of N,A,F, get Q and X */
-__u16 cc32_read_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+This function is used to read 16 bits from a CAMAC
+address made up of the components N, A, and F.
 
-/* read a long - 32 bits - from a address made out of N,A,F */
-__u32 cc32_read_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+Note that a CAMAC module can return up to 24 bits of data. 
+Check the documentation of the module you are reading to make sure that
+it will not return more than 16 bits, otherwise values bigger than 2^16
+will be truncated
 
-/* read a long - 32 bits - from a address made out of N,A,F get Q and X */
-__u32 cc32_read_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
 
-/* read a long - 32 bits - without any interpretaion */
+Returns:
+  The function returns the value read from the CAMAC address as an unsigned
+  16-bit integer.
+
+  This function may fail at reading data. 
+  If you want to know the success status use the function cc32_read_word_qx
+  This function was successfull only if the Q and X responses are both equal 1
+
+*/
+unsigned int cc32_read_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* read 16 bits from an address made out of N,A,F
+
+This function is used to read 16 bits from a CAMAC
+address made up of the components N, A, and F.
+It returns 16 bits of data, as well as the Q and X responses to the command.
+
+Note that a CAMAC module can return up to 24 bits of data. 
+Check the documentation of the module you are reading to make sure that
+it will not return more than 16 bits, otherwise values bigger than 2^16
+will be truncated
+
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
+  Q: pointer to the variable that will store the Q response.
+     The Q response can be 0 or 1
+  X: pointer to the variable that will store the X response.
+     The X response can be 0 or 1
+
+Returns:
+  The function returns the value read from the CAMAC address as an unsigned
+  16-bit integer
+
+  This function may fail at reading data. 
+  This function was successfull only if the Q and X responses are both equal 1
+*/
+unsigned int cc32_read_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+
+/* read 32 bits from an address made out of N,A,F
+
+This function is used to read 32 bits from a CAMAC
+address made up of the components N, A, and F.
+
+Note that a CAMAC module can return only up to 24 bits of data, but
+this function returns a 32 bit value.
+This means that only the first 24 bits of the returned value will contain data.
+
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
+
+Returns:
+  The function returns the value read from the CAMAC address as an unsigned
+  long (32 bits, of which only the first 24 will contain data)
+  Note: This number will never be negative
+
+  This function may fail at reading data. 
+  If you want to know the success status use the function cc32_read_long_qx
+*/
+unsigned long cc32_read_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
+
+/* read 32 bits from an address made out of N,A,F and get the Q and X responses
+
+This function is used to read 32 bits from a CAMAC
+address made up of the components N, A, and F.
+It returns 32 bits of data, as well as the Q and X responses to the command.
+
+Note that a CAMAC module can return only up to 24 bits of data, but
+this function returns a 32 bit value.
+This means that only the first 24 bits of the returned value will contain data.
+
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
+  Q: pointer to the variable that will store the Q response.
+     The Q response can be 0 or 1
+  X: pointer to the variable that will store the X response.
+     The X response can be 0 or 1
+
+Returns:
+  The function returns the value read from the CAMAC address as an unsigned
+  long (32 bits, of which only the first 24 will contain data)
+  Note: This number will never be negative
+
+  This function may fail at reading data. 
+  This function was successfull only if the Q and X responses are both equal 1
+
+*/
+unsigned long cc32_read_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
+
+
+/* read 24 bits from an address made out of N,A,F and return an unfiltered response
+
+You probably don't need this function.
+Check out cc32_read_long_qx as an alternative
+
+This function is used to read 24 bits from a CAMAC
+address made up of the components N, A, and F.
+WARNING: The 32-bit word returned is NOT the data read from the module,
+it is the 32-bit DATAWAY content as described in 
+section 3.3 of the PCI-CC32 hardware manual
+
+-----------------------------------------
+| D31 | D30 | D29 ... D24 | D23 ... D00 |
+-----------------------------------------
+| Q   | X   | 0           | R23 ... R00 |
+-----------------------------------------
+
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
+
+Returns:
+  The function returns 32 bit of unsigned DATAWAY data in the format described above
+
+*/
 __u32 cc32_read_long_all(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
 ```
 
+#### Write functions
+
 ```c
-/* write a word - 16 bits - to a destination made out of N,A,F */
-void  cc32_write_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData);
+/* write 16 bits to an address made out of N,A,F
 
-/* write a word - 16 bits - to a destination made out of N,A,F, get Q and X */
-void  cc32_write_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 uwData, int *Q, int *X);
+This function is used to write 16 bits to a CAMAC
+address made up of the components N, A, and F.
 
-/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F */
+Note that a CAMAC module can accept up to 24 bits of data,
+but with this function you can only send values that are less than 2^16
+
+If you want to know the X and Q responses to the command use
+the function cc32_write_word_qx
+
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
+  data: the unsigned short that will be sent to the selected module
+*/
+void  cc32_write_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 data);
+
+/* write 16 bits to an address made out of N,A,F and get the Q and X responses
+
+This function is used to write 16 bits to a CAMAC
+address made up of the components N, A, and F.
+It returns the Q and X responses to the command.
+
+Note that a CAMAC module can accept up to 24 bits of data,
+but with this function you can only send values that are less than 2^16
+
+
+Args:
+  handle: The special CC32_HANDLE variable where the current
+          CAMAC CRATE connection is stored
+  N: The station number N
+  A: The sub-address A
+  F: The function code F
+  data: the unsigned short that will be sent to the selected module
+  Q: pointer to the variable that will store the Q response.
+     The Q response can be 0 or 1
+  X: pointer to the variable that will store the X response.
+     The X response can be 0 or 1
+
+*/
+void  cc32_write_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 data, int *Q, int *X);
+
+/* write 32 bits UNFILTERED to an address made out of N,A,F
+
+You probably don't need this function.
+Check out cc32_write_word as an alternative
+
+WARNING: The 32-bit data is NOT what it will be sent to the selected module,
+it is the 32-bit DATAWAY content as described in 
+section 3.3 of the PCI-CC32 hardware manual
+
+-----------------------------------------
+| D31 | D30 | D29 ... D24 | D23 ... D00 |
+-----------------------------------------
+| Q   | X   | 0           | R23 ... R00 |
+-----------------------------------------
+*/
 void  cc32_write_long(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData);
 
-/* write a long - 32 bits - uninterpreted to a destination made out of N,A,F, get Q and X */
+/* write 32-bits UNFILTERED to an address made out of N,A,F and get the Q and X responses
+
+You probably don't need this function.
+Check out cc32_write_word_qx as an alternative
+
+WARNING: The 32-bit data is NOT what it will be sent to the selected module,
+it is the 32-bit DATAWAY content as described in 
+section 3.3 of the PCI-CC32 hardware manual.
+
+-----------------------------------------
+| D31 | D30 | D29 ... D24 | D23 ... D00 |
+-----------------------------------------
+| Q   | X   | 0           | R23 ... R00 |
+-----------------------------------------
+
+*/
 void  cc32_write_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u32 ulData, int *Q, int *X);
 ```
 
 #### other functions
+
+> Warning: This sections is still a work in progress. Right now it's not very useful as it's just a list of all the declarations in the library header file with some added notes
 
 ```c
 /* poll the state of the timeout line and the LAM state. The timeout line is cleared if it was set */
