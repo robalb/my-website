@@ -141,14 +141,15 @@ Once you have an open connection to the crate, you can use the functions defined
   Use write commands for all function codes >= 16, even if they don't expect any data: just set the data parameter to 0, it will be ignored.
   ```c
   /**
-  * Write 16 bits to an adress made out of N,A,F
-  *
-  * CC32_HANDLE handle:  The variable where the 
-  *                      current CAMAC CRATE connection is stored
-  * unsigned int N:  station N
-  * unsigned int A:  sub-address A
-  * unsigned int F:  function F
-  * unsigned short data: 16 bit of data that will be sent to the selected module
+   Write 16 bits to an adress made out of N,A,F
+  
+  ARGS:
+   CC32_HANDLE handle:  The variable where the 
+                        current CAMAC CRATE connection is stored
+   unsigned int N:  station N
+   unsigned int A:  sub-address A
+   unsigned int F:  function F, must be >= 16
+   unsigned short data: 16 bit of data that will be sent to the selected module
   */
   cc32_write_word(handle, N, A, F, data);
   ```
@@ -156,22 +157,25 @@ Once you have an open connection to the crate, you can use the functions defined
   Use read commands for all function codes < 16, even if they don't return any data
   ```c
   /**
-  * Read 24 bits from an adress made out of N,A,F and get the Q and X responses
-  *
-  * CC32_HANDLE handle:  The variable where the 
-  *                      current CAMAC CRATE connection is stored
-  * unsigned int N:  station N
-  * unsigned int A:  sub-address A
-  * unsigned int F:  function F
-  * int *Q:         pointer to the variable that will store the Q response.
-  *                 The Q response can be 0 or 1
-  * int *X:         pointer to the variable that will store the X response.
-  *                 The X response can be 0 or 1
-  *
-  * return: unsigned long (32 bits, of which only the first 24 will contain data)
-  *         Note: This number will never be negative
-  * 
-  * This function was successfull only if the Q and X responses are both equal 1
+   Read 24 bits from an adress made out of N,A,F and get the Q and X responses
+  
+  ARGS:
+   CC32_HANDLE handle:  The variable where the 
+                        current CAMAC CRATE connection is stored
+   unsigned int N:  station N
+   unsigned int A:  sub-address A
+   unsigned int F:  function F, must be < 16
+   int *Q:         pointer to the variable that will store the Q response.
+                   The Q response can be 0 or 1
+   int *X:         pointer to the variable that will store the X response.
+                   The X response can be 0 or 1
+  
+  RETURNS:
+   unsigned long (32 bits, of which only the first 24 will contain data)
+   Note: This number will never be negative
+   
+   This function may fail at reading data
+   The reading was successfull only if the Q and X responses are both equal 1
   */
   unsigned long data = cc32_read_long_qx(handle, N, A, F, &Q, &X);
   ```
@@ -356,7 +360,7 @@ Args:
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be < 16
 
 Returns:
   The function returns the value read from the CAMAC address as an unsigned
@@ -364,8 +368,6 @@ Returns:
 
   This function may fail at reading data. 
   If you want to know the success status use the function cc32_read_word_qx
-  This function was successfull only if the Q and X responses are both equal 1
-
 */
 unsigned int cc32_read_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F);
 
@@ -385,7 +387,7 @@ Args:
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be < 16
   Q: pointer to the variable that will store the Q response.
      The Q response can be 0 or 1
   X: pointer to the variable that will store the X response.
@@ -396,7 +398,7 @@ Returns:
   16-bit integer
 
   This function may fail at reading data. 
-  This function was successfull only if the Q and X responses are both equal 1
+  The reading was successfull only if the Q and X responses are both equal 1
 */
 unsigned int cc32_read_word_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
 
@@ -414,7 +416,7 @@ Args:
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be < 16
 
 Returns:
   The function returns the value read from the CAMAC address as an unsigned
@@ -441,7 +443,7 @@ Args:
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be < 16
   Q: pointer to the variable that will store the Q response.
      The Q response can be 0 or 1
   X: pointer to the variable that will store the X response.
@@ -453,7 +455,7 @@ Returns:
   Note: This number will never be negative
 
   This function may fail at reading data. 
-  This function was successfull only if the Q and X responses are both equal 1
+  The reading was successfull only if the Q and X responses are both equal 1
 
 */
 unsigned long cc32_read_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, int *Q, int *X);
@@ -481,7 +483,7 @@ Args:
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be < 16
 
 Returns:
   The function returns 32 bit of unsigned DATAWAY data in the format described above
@@ -498,9 +500,10 @@ __u32 cc32_read_long_all(CC32_HANDLE handle, unsigned int N, unsigned int A, uns
 This function is used to write 16 bits to a CAMAC
 address made up of the components N, A, and F.
 
-Note that a CAMAC module can accept up to 24 bits of data,
-but with this function you can only send values that are less than 2^16
+Note that with this function you can only send 16 bit of data:
+values bigger than 2^16 will be truncated
 
+This function may fail at writing data.
 If you want to know the X and Q responses to the command use
 the function cc32_write_word_qx
 
@@ -509,7 +512,7 @@ Args:
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be >= 16
   data: the unsigned short that will be sent to the selected module
 */
 void  cc32_write_word(CC32_HANDLE handle, unsigned int N, unsigned int A, unsigned int F, __u16 data);
@@ -520,16 +523,18 @@ This function is used to write 16 bits to a CAMAC
 address made up of the components N, A, and F.
 It returns the Q and X responses to the command.
 
-Note that a CAMAC module can accept up to 24 bits of data,
-but with this function you can only send values that are less than 2^16
+Note that with this function you can only send 16 bit of data:
+values bigger than 2^16 will be truncated
 
+This function may fail at writing data. 
+The writing was successfull only if the Q and X responses are both equal 1
 
 Args:
   handle: The special CC32_HANDLE variable where the current
           CAMAC CRATE connection is stored
   N: The station number N
   A: The sub-address A
-  F: The function code F
+  F: The function code F, must be >= 16
   data: the unsigned short that will be sent to the selected module
   Q: pointer to the variable that will store the Q response.
      The Q response can be 0 or 1
