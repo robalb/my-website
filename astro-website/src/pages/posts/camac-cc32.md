@@ -22,7 +22,7 @@ station 25, the rightmost station, is reserved for a **CRATE CONTROLLER** whose
 purpose is to issue **CAMAC COMMANDS** to the modules and transfer information between a computer and the modules.
 
 In this article we are going to focus on a specific CRATE CONTROLLER: the
-[PCI-CC32](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf)
+[PCI-CC32](https://manualzz.com/doc/o/a55u3/manual-cc32-controller)
 from ARW Elektroniks Which connects to a Linux computer.
 
 <Picture src="camac-crate" height={490} alt="A bright red web page showing an error message: Your request have been blocked! We detected an attept to attack this website.  mod_insecurity online protection™ blocked your request.  Your request have been logged. Logged requests: 17265 " />
@@ -35,7 +35,7 @@ Station 24-25 is occupied by the CRATE CONTROLLER. You can see the cable that co
 Some modules just draw power from the crate, and have all of their data inputs and outputs on the front plate.<br/>
 Other modules also take inputs or CAMAC COMMANDS from the CRATE CONTROLLER connected to the computer. We are interested in these modules since ultimately our goal is to control them with the computer.
 
-### what is a CAMAC command ?
+### What is a CAMAC command ?
 
 As we mentioned, a CRATE CONTROLLER can issue a CAMAC COMMAND.
 These commands are often expressed in the following notation:
@@ -64,7 +64,7 @@ to enable, disable, or reset them.
 You don't have to worry too much about these signals for now, just know that they exist.
 
 
-### special commands
+### Special commands
 
 A CAMAC CONTROLLER can also issue special
 commands that are sent to all the CAMAC modules simultaneously:
@@ -78,7 +78,7 @@ commands that are sent to all the CAMAC modules simultaneously:
 As always, the way a module reacts to Z, I, or C commands is described in its documentation. Often Z and C have the same effect on a module
 
 
-### controlling a CAMAC crate with a C program
+### Controlling a CAMAC crate with a C program
 
 > We are going to assume that the libcc32 library and kernel driver are already correcly installed on your computer. In other words: Someone already installed everything, you only need to figure out how things work. This is common in most lab setups.
 
@@ -270,7 +270,7 @@ int main(int argc, char *argv){
 
 ```
 
-#### special commands
+#### Special commands
 
 The CC-32 CAMAC CONTROLLER supports special commands 
 that are expressed in NAF notation but that are not destined to a real module, and instead have a special meaning.
@@ -294,9 +294,7 @@ cc32_write_word (handle, 27, 1, 16, 0); //reset inhibit (I off)
 ```
 
 All these commands are described in details in a table in section 3.3 of the 
-[PCI-CC32 hardware manual](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf),
-A simplified and more readable documentation is available in section 7.3 of the 
-[library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf)
+[PCI-CC32 hardware manual](https://manualzz.com/doc/o/a55u3/manual-cc32-controller)
 
 
 ### Complete library documentation
@@ -585,7 +583,17 @@ void  cc32_write_long_qx(CC32_HANDLE handle, unsigned int N, unsigned int A, uns
 > Warning: This sections is still a work in progress. Right now it's not very useful as it's just a list of all the declarations in the library header file with some added notes
 
 ```c
-/* poll the state of the timeout line and the LAM state. The timeout line is cleared if it was set */
+/* poll the state of the timeout line and the LAM state. The timeout line is cleared if it was set
+
+Read the hardware manual, section 3.8, 3.9, 3.10, 3.11
+
+EXAMPLE USAGE
+Enable all LAMs cc32_write_word (handle, 28, 1, 16, 0xFFFF);
+Reset LAM-FF cc32_write_word (handle, 28, 0, 16, 0);
+int nTimeout, nLam;
+Poll LAM cc32_poll_event (handle, *nTimeout, *nLam)
+
+*/
 int   cc32_poll_event(CC32_HANDLE handle, int *nTimeout, int *nLam);
 
 /* control interrupts caused by timeouts or LAMs */
@@ -604,12 +612,15 @@ int   cc32_autoread_off(CC32_HANDLE handle);
 
 In this article I tried to abstract away any reference to the low-level hardware operations, in the spirit of
 keeping things as simple as possible. If you want
-more details I suggest to read the [camac eur4600 standard](https://core.ac.uk/download/pdf/132578818.pdf)
-and the [PCI-CC32 hardware manual](http://www.chem.ucla.edu/~craigim/pdfmanuals/manuals/Man-PciCc32-A1.pdf)
+more details I suggest to read the 
+[PCI-CC32 hardware manual](https://manualzz.com/doc/o/a55u3/manual-cc32-controller)
+and the 
+[camac eur4600 standard](https://core.ac.uk/download/pdf/132578818.pdf).
 
-The best documentation for the libcc32 library I could find is in section 7.3 of the 
-[PCI-CC32 library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf), although
-the description of the `cc32_read_long*` functions is slightly misleading and outdated.
+The libcc32 library is documented in section 7.3 of the 
+[PCI-CC32 library documentation](http://mu2e.phy.duke.edu/cw/CAMAC/Wiener/CD36/PciCamac/Pcicc32W95NT-A1.pdf), although it is slightly misleading and outdated.
+It is also mentioned in the [PCI-CC32 linux driver manual](https://www.c-ad.bnl.gov/kinyip/AGS-CNI/pcicc32.pdf)
 
-The source code for the kernel drivers and other useful resources can be found with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa). In particular, you may be interested in the [implementation](https://f9pc00.ijs.si/f9daqsvn/filedetails.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2Flib%2Flibcc32.c&peg=156) of the `cc32_read_long*` functions
+
+The source code for the kernel drivers and other useful resources can be found with a quick [Google search](https://f9pc00.ijs.si/f9daqsvn/listing.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2F&rev=156&peg=156#ab8dbd44c7da7a2381c0b651938865afa). In particular, you may be interested in the [library source code](https://f9pc00.ijs.si/f9daqsvn/filedetails.php?repname=f9daq&path=%2Fdrivers%2Fpcicc32-linux%2Flib%2Flibcc32.c&peg=156)
 
