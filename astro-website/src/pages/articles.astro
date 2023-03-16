@@ -1,6 +1,6 @@
 ---
 // Component Imports
-import BlogPostPreview from '../components/BlogPostPreview.astro';
+import BlogPostPreviewGroup from '../components/BlogPostPreviewGroup.astro';
 import SharedLayout from '../components/SharedLayout.astro';
 
 let title = 'Articles';
@@ -12,16 +12,23 @@ let activePage = 'articles';
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = await Astro.glob('./posts/*.md');
 allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
-//extract all the tags from the posts
-let allTags = []
+
+let allTags = new Set()
+let allYears = new Set()
+
 allPosts.forEach(({frontmatter}) => {
-  if(Array.isArray(frontmatter.tags)){
-    allTags.push(...frontmatter.tags)
-  }
+  //extract all the tags
+  frontmatter.tags?.forEach(t => allTags.add(t))
+  //extract all the years
+  const year = new Date(frontmatter.publishDate).getFullYear();
+  allYears.add(year)
 })
-// allTags.push(...(Array(20).fill("test")))
-//sometimes i enjoy writing obscure oneliners of code
-//let allTags = allPosts.reduce( (a,c) => [...a, ...(c.frontmatter.tags || [])], [])
+
+const yearGroupFilter = function(year: number){
+  return ({frontmatter}) => 
+    new Date(frontmatter.publishDate).getFullYear() == year;
+}
+
 ---
 <SharedLayout {title} {description} {permalink} {activePage} >
 	<article >
@@ -32,13 +39,19 @@ allPosts.forEach(({frontmatter}) => {
 	<section>
     <div class="tags" aria-controls="all-articles" role="radiogroup" aria-labelledby="filter-label">
         <p id="filter-label" class="visually-hidden">Filter by tags</p>
-        {allTags.map(t => <a href={"#" + t} id={t} role="radio">{t}</a>)}
+        {
+          Array.from(allTags).map((t: string) => 
+          <a href={"#" + t} id={t} role="radio">{t}</a>)
+        }
     </div>
   </section>
 	<section aria-labelledby="all-articles-title" id="all-articles" >
       <p id="all-articles-title" class="visually-hidden">All articles, filtered by tag</p>
-      <h2> 2022 </h2>
-      {allPosts.map((p) => <BlogPostPreview post={p} />)}
+      {
+        Array.from(allYears).map((y: number) => 
+          <BlogPostPreviewGroup year={y} posts={allPosts.filter(yearGroupFilter(y))} />
+        )
+      }
 	</section>
 </article>
 	<footer>

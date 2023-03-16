@@ -1,0 +1,13 @@
+---
+export interface Props {
+  year: number;
+	posts: any;
+}
+import BlogPostPreview from './BlogPostPreview.astro';
+
+const { year, posts } = Astro.props;
+---
+
+<h2>{year}</h2>
+{posts.map((p) => <BlogPostPreview post={p} />)}
+

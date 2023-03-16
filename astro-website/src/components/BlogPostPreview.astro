@@ -32,12 +32,15 @@ if(Array.isArray(post.frontmatter.tags)){
 <style>
 
   a *{
-	/* transition: all .5s; */
+	 transition: all .5s;
   }
   a[aria-hidden="true"]{
-	display: none;
-    color: var(--dark-font-color);
+    /*
+    */
+    display: none;
     text-decoration: line-through;
+    color: var(--dark-font-color);
+    opacity: .2;
   }
   a[aria-hidden="true"] *{
 	color: var(--dark-font-color);
