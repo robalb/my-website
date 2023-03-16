@@ -32,17 +32,14 @@ Station 24-25 is occupied by the CRATE CONTROLLER. You can see the cable that co
 <br/>
 
 
-Some modules just draw power from the crate, and have all of their data inputs and outputs on the front plate.<br/>
-Other modules also take inputs or CAMAC COMMANDS from the CRATE CONTROLLER connected to the computer. We are interested in these modules since ultimately our goal is to control them with the computer.
 
 ### What is a CAMAC command ?
 
 As we mentioned, a CRATE CONTROLLER can issue a CAMAC COMMAND.
-These commands are often expressed in the following notation:
+These commands are expressed with three integer numbers: N, A, F.
 
-```
-    N()  A()  F()
-```
+Depending on the manual, the notation used will be different. for example, this is a command written in the cc-32 manual `N30*A2*F2`
+And this is the same command in another manual `N(30) • A(2) • F(2)`
 
 - N is the station number, an integer in the range 1-24.
   For example N(2) will select the station in position 2. (station and module are synonyms)
@@ -80,10 +77,7 @@ As always, the way a module reacts to Z, I, or C commands is described in its do
 
 ### Controlling a CAMAC crate with a C program
 
-> We are going to assume that the libcc32 library and kernel driver are already correcly installed on your computer. In other words: Someone already installed everything, you only need to figure out how things work. This is common in most lab setups.
-
-If your computer is setup correctly, you should be able to import the `libcc32.h` in a c program.<br>
-Let's see how you can use this library to interact with a CAMAC CRATE
+> We are going to assume that the libcc32 library and driver are already correcly installed on your computer. In other words: Someone already installed everything, you only need to figure out how things work. This is common in most lab setups.
 
 
 #### connecting to the crate
