@@ -786,5 +786,40 @@ function addFox(layer, x, y, isVertical=true){
 }
 
 
-window.Game = Game
-window.games = games
+  document.addEventListener('DOMContentLoaded', function() {
+    main()
+  }, false);
+  function main(){
+
+    let selected = 0
+    const game = new Game();
+
+    function setGame(selected){
+      let g = games[selected]
+      game.initGame(
+        g.frogs, g.foxes, g.rocks
+      )
+      document.getElementById("level-txt").innerText = " " + g.name
+    }
+
+    setGame(selected)
+
+
+    document.getElementById("restart-bt").addEventListener("click", c => {
+      setGame(selected)
+    })
+
+    document.getElementById("previous-bt").addEventListener("click", c => {
+      selected --;
+      if(selected < 0)
+      selected = games.length -1;
+      setGame(selected)
+    })
+
+    document.getElementById("next-bt").addEventListener("click", c => {
+      selected ++;
+      if(selected == games.length)
+      selected = 0;
+      setGame(selected)
+    })
+  }
