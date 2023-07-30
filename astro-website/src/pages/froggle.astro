@@ -1,0 +1,18 @@
+---
+// Component Imports
+import SharedLayout from '../components/SharedLayout.astro';
+import Froggle from '../components/froggle/Froggle.astro';
+
+let title = 'Froggle';
+let description = 'The only daily puzzle where you get to move frogs'
+let permalink = 'https://halb.it/froggle/';
+---
+<SharedLayout {title} {description} {permalink}>
+	<article >
+    <header>
+      <h1>Froggle</h1>
+        <Froggle />
+    </header>
+</article>
+</SharedLayout>
+

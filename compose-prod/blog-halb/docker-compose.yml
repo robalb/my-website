@@ -24,12 +24,12 @@ services:
     expose:
       - '8080'
     environment:
-      GOATCOUNTER_DOMAIN: stats.halb.it
+      GOATCOUNTER_DOMAIN: analytics.halb.it
       GOATCOUNTER_EMAIL: ${GOAT_EMAIL}
       GOATCOUNTER_PASSWORD: ${GOAT_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.goat.rule=Host(`stats.halb.it`)
+      - traefik.http.routers.goat.rule=Host(`analytics.halb.it`)
       - traefik.http.routers.goat.entrypoints=websecure
       - traefik.http.routers.goat.tls=true
       - traefik.http.routers.goat.tls.certresolver=myresolver
