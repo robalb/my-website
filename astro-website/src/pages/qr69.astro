@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script data-goatcounter="https://analytics.halb.it/count"
+            async src="//analytics.halb.it/count.js"></script>
+  </head>
+  <body>
+
+    <div>
+      <video id="jsvid" width="auto" height="100%" autoplay="autoplay" loop="loop" muted="muted">
+        <source src="https://drive.google.com/uc?export=preview&id=1eGXXGwKEz3iA3dhVhjtiw40LmjG6bofp" type="video/mp4">
+          Your browser does not support the video tag.
+      </video>
+      <div id="jsmut" class="play-button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <line x1="23" y1="9" x2="17" y2="15"/>
+          <line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+      </div>
+      <div id="jsbt" class="play-button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("click", handleInteraction, {once: true})
+      document.addEventListener("touchstart", handleInteraction, {once: true})
+      document.addEventListener("mousedown", handleInteraction, {once: true})
+      document.addEventListener("keydown", handleInteraction, {once: true})
+      jsvid.addEventListener("play", handleFirstPlay, {once:true});
+      const isVideoPlaying = video => !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
+      if(isVideoPlaying){
+        handleFirstPlay();
+      }
+      function handleFirstPlay(event) {
+        jsbt.style.display = "none";
+      }
+      function handleInteraction(){
+        jsvid.play();
+        jsvid.muted = false;
+        jsbt.style.display = "none";
+        jsmut.style.display = "none";
+      }
+    </script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100%;
+        background-color: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      video{
+        max-width: 100%;
+      }
+      .play-button {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .play-button svg {
+        fill: #000;
+        width: 50px;
+        height: 50px;
+      }
+    </style>
+  </body>
+</html>
