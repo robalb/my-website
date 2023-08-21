@@ -8,7 +8,6 @@ https://github.com/Automattic/social-logos
 
 google icons
 
-
 # Astro Starter Kit: Blog
 
 ```
