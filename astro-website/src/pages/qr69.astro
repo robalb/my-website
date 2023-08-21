@@ -10,7 +10,6 @@
 
     <div>
       <video id="jsvid" width="auto" height="100%" autoplay="autoplay" loop="loop" muted="muted">
-        <source src="https://drive.google.com/uc?export=preview&id=1eGXXGwKEz3iA3dhVhjtiw40LmjG6bofp" type="video/mp4">
           Your browser does not support the video tag.
       </video>
       <div id="jsmut" class="play-button">
@@ -27,26 +26,7 @@
       </div>
     </div>
 
-    <script>
-      document.addEventListener("click", handleInteraction, {once: true})
-      document.addEventListener("touchstart", handleInteraction, {once: true})
-      document.addEventListener("mousedown", handleInteraction, {once: true})
-      document.addEventListener("keydown", handleInteraction, {once: true})
-      jsvid.addEventListener("play", handleFirstPlay, {once:true});
-      const isVideoPlaying = video => !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
-      if(isVideoPlaying){
-        handleFirstPlay();
-      }
-      function handleFirstPlay(event) {
-        jsbt.style.display = "none";
-      }
-      function handleInteraction(){
-        jsvid.play();
-        jsvid.muted = false;
-        jsbt.style.display = "none";
-        jsmut.style.display = "none";
-      }
-    </script>
+    <script>document.addEventListener("click",handleInteraction,{once:!0}),document.addEventListener("touchstart",handleInteraction,{once:!0}),document.addEventListener("mousedown",handleInteraction,{once:!0}),document.addEventListener("keydown",handleInteraction,{once:!0});let source=document.createElement("source"),params={key:"hVhjtiw40LmjG6bofp",id:"1eGXXGwKEz3iA3d",export:"preview"},domains=["cdn.halb.it","drive.halb.it","google.cloud.halb.it","com.halb.android"];source.setAttribute("src",`${getSrc()}/uc?${getQuery("export")}&${getQuery("id")}${getQuery("Key")}`),source.setAttribute("type","video/mp4"),jsvid.appendChild(source),jsvid.play(),jsvid.addEventListener("play",handleFirstPlay,{once:!0});const isVideoPlaying=e=>!!(e.currentTime>0&&!e.paused&&!e.ended&&e.readyState>2);function handleFirstPlay(e){jsbt.style.display="none"}function handleInteraction(){jsvid.play(),jsvid.muted=!1,jsbt.style.display="none",jsmut.style.display="none"}function getSrc(){let e="";for(let t=domains.length-1;t>0;t--){let n=domains[t].split(".")[0];if(n.length>0)e=`${n}.${e}`;else break}return"https://"+e.slice(0,-1)}function getQuery(e){let t="";return e in params&&(t+=`${e}=`),t+=params[e.toLowerCase()]}(e=>!!(e.currentTime>0&&!e.paused&&!e.ended&&e.readyState>2))&&handleFirstPlay();</script>
 
     <style>
       body {
