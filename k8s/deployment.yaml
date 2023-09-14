@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: halb-nginx
-          image: ghcr.io/robalb/my-website:sha-08d268bdd33fb7ca6f0b2e97a466a69460219f0f
+          image: ghcr.io/robalb/my-website:sha-f7a2e8338ef22b61f04f4916a182e5a0c17a7c91
           ports:
             - containerPort: 80
       imagePullSecrets:
