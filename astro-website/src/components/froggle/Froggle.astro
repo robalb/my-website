@@ -8,17 +8,19 @@ export interface Props {
   level: number;
 }
 
-const {prevBt=true, nextBt=true, restartBt=true, showLevel=true, level=0} = Astro.props;
+let {prevBt=true, nextBt=true, restartBt=true, showLevel=true, level=0} = Astro.props;
+level=1
 
 ---
 {
 showLevel &&
-<h3 id="level-txt" class="level">level 1</h3>
+<h3 id="level-txt" class="level">level {level}</h3>
 }
-<div id="container">
+<input type="number" value={level} id="level-select" />
+<div id="container" aria-label="Froggle game canvas. This is a mouse only drag-and-drop game">
   <svg viewBox='0 0 1 1'></svg>
 </div>
-<div class="controls">
+<div class="controls" aria-controls="container">
   {
     prevBt &&
     <button id="previous-bt">&lt Prev</button>
@@ -38,4 +40,7 @@ showLevel &&
 </script>
 
 <style>
+input{
+display:none;
+}
 </style>

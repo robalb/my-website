@@ -450,6 +450,56 @@ class Game{
 const games = [
 
 {
+  name: "tutorial 1",
+  frogs: [
+    {x: 4, y: 2},
+  ],
+  foxes: [
+    // {x: 0, y: 2, isVertical: false},
+  ],
+  rocks: [
+    {x: 3, y: 2},
+  ]
+},
+{
+  name: "tutorial 2",
+  frogs: [
+    {x: 0, y: 3},
+  ],
+  foxes: [
+    // {x: 0, y: 2, isVertical: false},
+  ],
+  rocks: [
+    {x: 0, y: 2},
+    {x: 0, y: 1},
+  ]
+},
+{
+  name: "tutorial 3",
+  frogs: [
+    {x: 3, y: 2},
+  ],
+  foxes: [
+    // {x: 0, y: 2, isVertical: false},
+  ],
+  rocks: [
+    {x: 0, y: 1},
+    {x: 1, y: 2},
+    {x: 2, y: 2},
+  ]
+},
+{
+  name: "tutorial 4",
+  frogs: [
+    {x: 4, y: 2},
+  ],
+  foxes: [
+     {x: 3, y: 0, isVertical: true},
+  ],
+  rocks: [
+  ]
+},
+{
   name: "level 1",
   frogs: [
     {x: 2, y: 2},
@@ -790,8 +840,20 @@ function addFox(layer, x, y, isVertical=true){
     main()
   }, false);
   function main(){
+    const DOMlevelTxt = document.getElementById("level-txt")
+    const DOMlevelSelect = document.getElementById("level-select")
+    const DOMrestartBt = document.getElementById("restart-bt")
+    const DOMpreviousBt = document.getElementById("previous-bt")
+    const DOMnextBt = document.getElementById("next-bt")
+
 
     let selected = 0
+   
+    // try to get the selected game from the html
+    if(DOMlevelSelect && parseInt(DOMlevelSelect.value) >= 0){
+      selected = parseInt(DOMlevelSelect.value)
+    }
+
     const game = new Game();
 
     function setGame(selected){
@@ -799,24 +861,28 @@ function addFox(layer, x, y, isVertical=true){
       game.initGame(
         g.frogs, g.foxes, g.rocks
       )
-      document.getElementById("level-txt").innerText = " " + g.name
+      if(DOMlevelTxt)
+        DOMlevelTxt.innerText = " " + g.name
     }
 
     setGame(selected)
 
 
-    document.getElementById("restart-bt").addEventListener("click", c => {
-      setGame(selected)
-    })
+    if(DOMrestartBt)
+      DOMrestartBt.addEventListener("click", c => {
+        setGame(selected)
+      })
 
-    document.getElementById("previous-bt").addEventListener("click", c => {
-      selected --;
-      if(selected < 0)
-      selected = games.length -1;
-      setGame(selected)
-    })
+    if(DOMpreviousBt)
+      DOMpreviousBt.addEventListener("click", c => {
+        selected --;
+        if(selected < 0)
+        selected = games.length -1;
+        setGame(selected)
+      })
 
-    document.getElementById("next-bt").addEventListener("click", c => {
+    if(DOMnextBt)
+    DOMnextBt.addEventListener("click", c => {
       selected ++;
       if(selected == games.length)
       selected = 0;
