@@ -18,7 +18,8 @@ My main hardware is a thinkpad7480s running Ubuntu, which connects to a docking 
 <Picture src="uses" height={350} alt="A picture of a wooden desk, with a wite wall in the background. At the center of the desk there is a 24' screen, that is connected to a thinkpad covered in stickers. It's difficult to describe how cool the stickers look like. They are mostly black and white, with brown tones. They look extremely cool. At the corners of the image you can see the leaves and some branches of an indoor plant. On the screen you can see gnome, with a terminal and wireshark opened on a coloured background" />
 <br />
 
-I'm not really a hardware person, this is why I prefer to keep all my self-hosted software and all my projects on a kubernetes cluster in the cloud
+I'm not really a hardware person, and unfortunately I don't have any fancy homelab to show off.
+But don't worry, I spend the time and money saved from that hobby into expensive cloud infrastructure anyway
 
 ## My tools
 

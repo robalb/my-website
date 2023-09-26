@@ -8,27 +8,33 @@ permalink: https://halb.it/about/
 activePage: about
 ---
 
- 
-I'm a computer science student at UniMib, living in Milan, Italy.<br/>
-I like to work on <a href="/projects/" >projects</a> that span
-the topics of cyber security, web development,
-and distributed systems.
+Hi, I'm Alberto Ventafridda.<br/>
+I'm a software developer based in Milan, Italy.
+I aspire to be a "jack of all trades, master of at least one",
+however impossible this may sound.<br/>
+ So far, my journey has covered web development,
+cloud infrastructure, distributed systems, and cybersecurity.
 
-This website is my personal blog,
-where I occasionally write about any topic that I find interesting and where I host my web-based projects.
+On this website I write about the challenges I encounter along the road,
+and whatever I feel interesting to share.
+I like the idea that the content I publish will help someone in the future,
+however, right now it’s mostly written for myself.
 
-> Interested in the software and tools i use everyday? Check out my [/uses](/uses/) page
+## About this blog
+
+The design of this website is a fork of
+<a href="https://github.com/taniarascia/taniarascia.com">Tania Rascia</a>'s
+blog and uses her Newmoon dark theme for
+ the code snippets. 
+ The pages are plain HTML files generated using custom Astro.js code.
+ I host them on an equally over-engineered infrastructure.
+
+ If you are interested about these details, check out the <a href="/posts/my-website/">blog post</a>
+ I've written about it, or my [/uses](/uses/) page 
+ which describes the software and tools i use everyday
 
 ## contacts
 
 Feel free to contact me on <a href="https://twitter.com/albertCoolwind">Twitter</a>.
 I'm also on [LinkedIn](https://www.linkedin.com/in/alberto-ventafridda/) and [Github](https://github.com/robalb)
 
-## About this blog
-
-The design of this website is a fork of
-<a href="https://github.com/taniarascia/taniarascia.com">Tania Rascia</a>'s
-blog and uses her newmoon dark theme for
- the code snippets. Check out the
-<a href="/posts/my-website/">blog post</a>
- I've written about its technical details
