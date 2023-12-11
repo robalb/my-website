@@ -11,10 +11,48 @@ permalink: https://halb.it/posts/pwntools-gdb/
 
 This post is mostly written for myself, since i keep forgetting this kind of commands
 
-Long story short, pwntools makes it very easy to run gdb with the process you are interacting with.
+### The simpliest workflow
+
+There is a very common trick used to attach gdb to a process controlled by pwntools, and it looks like this:
+
+```python
+from pwn import *
+
+local_file = './some_example_elf'
+p = process(local_file)
+
+pause()
+
+# ... the rest of your exploit
+```
+
+Pwntools will start the process and print its PID, then it will pause itself.
+```
+[+] Starting local process '/challenge/some_example_elf': pid 226
+[*] Paused (press any to continue)
+```
+
+This gives you the time to open a new terminal and attach gdb to that PID, with the command
+
+```bash
+gdb -p <pid>
+```
+
+Then, once gdb started successfully and you optionally set your favourites breakpoints, you can press any key in the python script terminal to resume the process.
+
+This workflow is simple, reliable, and sometimes it's the only way to use gdb.
+
+It's only drawback is that it's slow and it requires manual interaction.
+When you are systematically using gdb in your workflow, for example when you are setting a lot of breakpoints or calling it repeatedly, manual steps could lead to mistakes, or worse, they will be forgotten if you don't document everything
+
+### The elegant workflow
+
+Long story short, pwntools makes it very easy to automatically run gdb with the process you are interacting with.
 The setup is pretty straightforward, [this guide](https://github.com/Gallopsled/pwntools-tutorial/blob/master/debugging.md) covers pretty much everything you need to know about it.
 
-This is the easiest way to do it. Pwntools will launch gdb in a new terminal window, and you will maintain your ability to interact with the process in the usual ways
+The major advantage is that all your workflow will be written as code, including your gdb breakpoints. Paired with git, this makes everything reproducible and easy to manage
+
+The guide I linked explains all the details better, but basically this is the easiest way to automatically launch gdb with your process:
 
 
 ```python
@@ -23,17 +61,21 @@ from pwn import *
 local_file = './some_example_elf'
 p = gdb.debug(local_file)
 
+# ... the rest of your exploit
+
 p.interactive()
 ```
+Pwntools will launch gdb in a new terminal window, and you will maintain your ability to interact with the process in the current terminal window
 
-In this snippet `p.interactive()` is very important because it prevents the script from quitting.
-Without it the script would immediately reach its end, quitting itself and the 
+In this snippet `p.interactive()` serves a double purpose because it prevents the script from quitting.
+Without it the python script would immediately reach its end, quitting itself and the 
 gdb child process it had just launched.
+If you don't need manual interaction with the process you can replace that line with `p.wait()`
 
 ### Tmux integration
 
 pwntools automatically detects your terminal type when opening the gdb window.
-If you are using tmux it will automatically open a new pane, which is nice.
+If you are using tmux it will automatically open a new pane in a vertical split.
 I like to customize the behaviour to open a new panel in a horizontal split
 
 ```python
@@ -58,8 +100,9 @@ embed()
 
 ```
 
-`embed()`, similarly to `p.interactive()`, 
-will also prevent the script from quitting, by starting an interactive python shell.
+`embed()`, just like `p.interactive()`, serves a double purpose:
+it prevents the script from quitting, and at the same time it starts a useful 
+interactive python shell.
 You can use the shell to run python code that interacts with the process, inspecting the results in real time.
 The nice part is that all variables or imports you defined in the script will remain available in the interactive shell
 
