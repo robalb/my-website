@@ -9,10 +9,21 @@ let description = "Developer. Passionate about cyber security, web development a
 let permalink = 'https://halb.it';
 
 // Data Fetching: List all Markdown posts in the repo.
-//TODO: fetch only the last 10 posts
-let allPosts = await Astro.glob('./posts/*.md');
-allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
+let MAX_POSTS = 10
+let sortedPosts = await Astro.glob('./posts/*.md')
+sortedPosts = sortedPosts
+    .sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf())
+    .slice(0, MAX_POSTS);
 
+let currentYear;
+if(sortedPosts.length > 0){
+  currentYear = new Date(sortedPosts[0].frontmatter.publishDate).getFullYear()
+}
+
+let posts = sortedPosts.map(p => ({
+  post: p,
+  shortDate: new Date(p.frontmatter.publishDate).getFullYear() != currentYear
+}))
 
 //TODO: fetch only the last 10 projects
 let allProjects = await Astro.glob('./projects/*.md');
@@ -45,7 +56,7 @@ allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf()
 			<span>Latest articles</span>
 			<a href="/articles/">View All <span class="visually-hidden">articles</span></a>
 		</h2>
-		{allPosts.map((p) => <BlogPostPreview post={p} />)}
+		{posts.map((p) => <BlogPostPreview post={p.post} shortDate={p.shortDate} />)}
 	</section>
 	<section aria-labelledby="latest-projects">
 		<h2 id="latest-projects">

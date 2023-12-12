@@ -47,12 +47,12 @@ When you are systematically using gdb in your workflow, for example when you are
 
 ### The elegant workflow
 
-Long story short, pwntools makes it very easy to automatically run gdb with the process you are interacting with.
-The setup is pretty straightforward, [this guide](https://github.com/Gallopsled/pwntools-tutorial/blob/master/debugging.md) covers pretty much everything you need to know about it.
+Pwntools makes it very easy to automatically run gdb with the process you are interacting with.
+The setup is pretty straightforward, [this guide](https://github.com/Gallopsled/pwntools-tutorial/blob/master/debugging.md) covers everything you need to know about it.
 
-The major advantage is that all your workflow will be written as code, including your gdb breakpoints. Paired with git, this makes everything reproducible and easy to manage
+The major advantage is that all your workflow will be written as code, including your gdb breakpoints. Paired with git, this makes everything reproducible and easy to maintain
 
-The guide I linked explains all the details better, but basically this is the easiest way to automatically launch gdb with your process:
+The guide I linked explains all the details, but in a nutshell this is the easiest way to automatically launch gdb with your process:
 
 
 ```python

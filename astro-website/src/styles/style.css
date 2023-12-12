@@ -719,7 +719,7 @@ blockquote ul:last-of-type {
 
 a.post {
   display: grid;
-  grid-template-columns: auto 60px;
+  grid-template-columns: auto 100px;
   grid-gap: 1rem;
   align-items: center;
   border: 1px solid transparent;
@@ -777,7 +777,7 @@ a.post:hover time {
 
 a.post time {
   display: block;
-  text-align: center;
+  text-align: right;
   font-family: var(--code-font-family);
   font-size: 0.8rem;
   font-weight: 400;

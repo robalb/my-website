@@ -1,13 +1,17 @@
 ---
 export interface Props {
 	post: any;
+  shortDate: boolean;
 }
 
-const { post } = Astro.props;
+const { post, shortDate } = Astro.props;
 
 const publishDate = post.frontmatter.publishDate
 
-const options = { month: 'short', day: 'numeric' };
+const options = shortDate ? 
+  { month: 'short',  year: 'numeric' } :
+  { month: 'short', day: 'numeric' };
+
 const readableDate = publishDate && new Intl.DateTimeFormat('en-US', options).format(new Date(publishDate));
 
 let tagAtttributes = {}
