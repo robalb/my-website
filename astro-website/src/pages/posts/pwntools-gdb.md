@@ -42,7 +42,7 @@ Then, once gdb started successfully and you optionally set your favourites break
 
 This workflow is simple, reliable, and sometimes it's the only way to use gdb.
 
-It's only drawback is that it's slow and it requires manual interaction.
+Its only drawback is that it's slow and it requires manual interaction.
 When you are systematically using gdb in your workflow, for example when you are setting a lot of breakpoints or calling it repeatedly, manual steps could lead to mistakes, or worse, they will be forgotten if you don't document everything
 
 ### The elegant workflow

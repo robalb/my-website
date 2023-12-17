@@ -6,7 +6,7 @@ title: exploiting inconsistencies in the esprima AST parser - PingCTF writeup
 publishDate: 2023-12-12
 description: writeup for the challenge calc - PingCTF 2023
 tags: ['writeup', 'web', 'AST', 'js']
-permalink: https://halb.it/posts/pwntools-gdb/
+permalink: https://halb.it/posts/pingctf-calc/
 ---
 
 PingCTF 2023 had an interesting web challenge, called calc. The solution involved a simple logic bug, but there were some unintended workarounds based on inconsistencies in the esprima.js parser that i think are worth sharing
