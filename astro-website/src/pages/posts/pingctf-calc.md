@@ -102,7 +102,7 @@ Browsers today are running newer versions of the standard, which means that this
 
 We don't have to go very far to find [this useful issue](https://github.com/jquery/esprima/issues/1985
 ) for our exploit.
- Any identifier character specified using `\UnicodeEscapeSequence` is accepted by esprima as part of that identifier.<br/>
+ According to the report, any identifier character specified using `\UnicodeEscapeSequence` is accepted by esprima as part of that identifier.<br/>
  This is exactly what we need! This means that we can create an identifier containing HTML tags:
 ```
 <img src=1 onerror=alert(1)> = 1
