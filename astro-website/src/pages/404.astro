@@ -1,6 +1,7 @@
 ---
 // Component Imports
 import SharedLayout from '../components/SharedLayout.astro';
+import Hexdump from '../components/Hexdump.svelte'
 
 let description = '404 page not found'
 ---
@@ -10,6 +11,8 @@ let description = '404 page not found'
         <h1>{404}</h1>
         <p class="description">Page not found</p>
     </header>
+    <Hexdump client:visible />
+      
 </article>
 </SharedLayout>
 
