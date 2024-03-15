@@ -1,29 +1,17 @@
 <script>
-  import { writable } from 'svelte/store';
+  const centered = true;
+  const bytes_per_row = 16;
 
-  const count = writable(0);
-
-	function handleClick() {
-    console.log(1)
-    count.update((n) => n + 1);
-	}
-
-  let countValue;
-  const unsubscribe = count.subscribe((value) => {
-		countValue = value;
-	});
 
 </script>
 
 
-<button on:click={handleClick}>
-	increment
-</button>
-
-<h1>The count is {countValue}</h1>
-
-  <div class="container">
-<div class="hexdump hexdump--center hexdump--bytes-16">
+<div class="container">
+<div class="hexdump" 
+  class:hexdump--center={centered}
+  class:hexdump--bytes-16={bytes_per_row === 16}
+  class:hexdump--bytes-8={bytes_per_row !== 16}
+  >
 <div class="hexdump__address">
   <div>0x000aa0</div>
   <div>0x000aa0</div>
@@ -209,19 +197,28 @@ contain: strict;
   .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
   .hexdump--bytes-8 .hexdump__address div:nth-child(8n){ display: block;}
 
-  /* 16 bytes by default is disabled, behaves exaclty like 8 bytes */
-  .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
-  .hexdump--bytes-16 .hexdump__address div:nth-child(8n){ display: block;}
+  @container (width <= 400px) {
+    /* 8 bytes on this size is disabled, behaves exaclty like 4 bytes */
+    .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
+    .hexdump--bytes-8 .hexdump__address div:nth-child(4n){ display: block;}
+    /* 16 bytes on this size is disabled, behaves exaclty like 4 bytes */
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
+    .hexdump--bytes-16 .hexdump__address div:nth-child(4n){ display: block;}
+  }
+
+  @container (400px <= width <= 740px) {
+    /* enable 8 bytes on this size */
+    .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
+    .hexdump--bytes-8 .hexdump__address div:nth-child(8n){ display: block;}
+
+    /* 16 bytes on this size is disabled, behaves exaclty like 8 bytes */
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
+    .hexdump--bytes-16 .hexdump__address div:nth-child(8n){ display: block;}
+  }
 
 
-  /* enables 16 bytes if the container is large enough */
   @container (min-width: 740px) {
-    .hexdump__responsivecol{
-          color: red;
-          background-color: red;
-          outline: 2px solid red;
-    }
-
+    /* enables 16 bytes on this size*/
     .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(16n):after{ content: "\a"; }
     .hexdump--bytes-16 .hexdump__address div:nth-child(16n){ display: block;}
 
