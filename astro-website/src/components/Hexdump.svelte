@@ -1,16 +1,27 @@
 <script>
   const centered = true;
-  const bytes_per_row = 16;
+  let range_bytes = 4;
+  let bytes_per_row = 16;
 
+  $: bytes_per_row = Math.pow(2, range_bytes);
+
+  const data = [1,2,3,4,5,6,7,8];
+  const start_address = 0x0;
 
 </script>
 
 
 <div class="container">
+<input type="range" bind:value={range_bytes} min="0" max="4" step="1" />
+<p>{bytes_per_row}</p>
+
 <div class="hexdump" 
   class:hexdump--center={centered}
   class:hexdump--bytes-16={bytes_per_row === 16}
-  class:hexdump--bytes-8={bytes_per_row !== 16}
+  class:hexdump--bytes-8={bytes_per_row === 8}
+  class:hexdump--bytes-4={bytes_per_row === 4}
+  class:hexdump--bytes-2={bytes_per_row === 2}
+  class:hexdump--bytes-1={bytes_per_row === 1}
   >
 <div class="hexdump__address">
   <div>0x000aa0</div>
@@ -119,7 +130,6 @@
 
 <style>
       .container{
-     container-type: inline-size;
 
     }
   .hexdump{
@@ -141,6 +151,7 @@
     border-radius: 8px;
     border: 1px solid var(--light-border-color);
     display: flex;
+     container-type: inline-size;
 
     /* ========= style ========= */
     color: var(--code-font-color);
