@@ -22,8 +22,9 @@
 
 <h1>The count is {countValue}</h1>
 
-<div class="hexdump bytes-16">
-<div class="address">
+  <div class="container">
+<div class="hexdump hexdump--center hexdump--bytes-16">
+<div class="hexdump__address">
   <div>0x000aa0</div>
   <div>0x000aa0</div>
   <div>0x000aa0</div>
@@ -57,7 +58,7 @@
   <div>0x000aa8</div>
   <div>0x000ab0</div>
 </div>
-<div class="hex">
+<div class="hexdump__hex hexdump__responsivecol">
   <span>00</span>
   <span>10</span>
   <span>20</span>
@@ -91,7 +92,7 @@
   <span>e0</span>
   <span>f0</span>
 </div>
-<div class="ascii">
+<div class="hexdump__ascii hexdump__responsivecol">
   <span>.</span>
   <span>.</span>
   <span>.</span>
@@ -126,8 +127,13 @@
   <span>.</span>
 </div>
 </div>
+</div>
 
 <style>
+      .container{
+     container-type: inline-size;
+
+    }
   .hexdump{
     --columns-padding: 0.5rem;
     --addr-text-color: white;
@@ -147,69 +153,82 @@
     border-radius: 8px;
     border: 1px solid var(--light-border-color);
     display: flex;
-    /*centering should be configurable */
-    justify-content:center;
 
     /* ========= style ========= */
     color: var(--code-font-color);
     font-family: var(--code-font-family);
     font-size: .9rem !important;
   }
-  .hexdump
+  .hexdump--center{
+    justify-content:center;
+    }
+
   .hexdump>div{
       background-color: var(--code-background-color);
       padding: var(--columns-padding);
   }
-  .address{
+
+  .hexdump__address{
         display: flex;
         flex-direction: column;
   }
-
-        .ascii {
-        letter-spacing: -0.2em;
+  .hexdump__address div{
+        display: none;
       }
 
-  .hex, .ascii{
+  .hexdump__ascii {
+      letter-spacing: -0.2em;
+          padding: 0;
+        margin: 0;
+  }
+
+  .hexdump__responsivecol{
     padding: 0.5rem;
 contain: content;
   display: inline-block;
   overflow: hidden;
   vertical-align: top;
   }
-  .hex span, .ascii span{
+  .hexdump__responsivecol span{
 contain: strict;
   display: inline;
   white-space: pre;
       }
 
-  .address div{
-        display: none;
-      }
 
-  .bytes-1 .hex span:nth-child(1n):after{ content: "\a"; }
-  .bytes-1 .ascii span:nth-child(1n):after{ content: "\a"; }
-  .bytes-1 .address div:nth-child(1n){ display: block;}
-  .bytes-2 .hex span:nth-child(2n):after{ content: "\a"; }
-  .bytes-2 .ascii span:nth-child(2n):after{ content: "\a"; }
-  .bytes-2 .address div:nth-child(2n){ display: block;}
-  .bytes-4 .hex span:nth-child(4n):after{ content: "\a"; }
-  .bytes-4 .ascii span:nth-child(4n):after{ content: "\a"; }
-  .bytes-4 .address div:nth-child(4n){ display: block;}
-  .bytes-8 .hex span:nth-child(8n):after{ content: "\a"; }
-  .bytes-8 .ascii span:nth-child(8n):after{ content: "\a"; }
-  .bytes-8 .address div:nth-child(8n){ display: block;}
-  .bytes-16 .hex span:nth-child(16n):after{ content: "\a"; }
-  .bytes-16 .ascii span:nth-child(16n):after{ content: "\a"; }
-  .bytes-16 .address div:nth-child(16n){ display: block;}
 
-  .bytes-16 .hex span:nth-child(8n):not(span:nth-child(16n)){
-    border-right: 1px solid var(--divider-bar-color);
-    padding-right: 0.4em;
-      }
-  .bytes-16 .ascii span:nth-child(8n):not(span:nth-child(16n)){
-    border-right: 1px solid var(--divider-bar-color);
-    padding-right: 0.4em;
-      }
+  .hexdump--bytes-1 .hexdump__responsivecol span:nth-child(1n):after{ content: "\a"; }
+  .hexdump--bytes-1 .hexdump__address div:nth-child(1n){ display: block;}
 
+  .hexdump--bytes-2 .hexdump__responsivecol span:nth-child(2n):after{ content: "\a"; }
+  .hexdump--bytes-2 .hexdump__address div:nth-child(2n){ display: block;}
+
+  .hexdump--bytes-4 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
+  .hexdump--bytes-4 .hexdump__address div:nth-child(4n){ display: block;}
+
+  .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
+  .hexdump--bytes-8 .hexdump__address div:nth-child(8n){ display: block;}
+
+  /* 16 bytes by default is disabled, behaves exaclty like 8 bytes */
+  .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
+  .hexdump--bytes-16 .hexdump__address div:nth-child(8n){ display: block;}
+
+
+  /* enables 16 bytes if the container is large enough */
+  @container (min-width: 740px) {
+    .hexdump__responsivecol{
+          color: red;
+          background-color: red;
+          outline: 2px solid red;
+    }
+
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(16n):after{ content: "\a"; }
+    .hexdump--bytes-16 .hexdump__address div:nth-child(16n){ display: block;}
+
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(8n):not(span:nth-child(16n)){
+      border-right: 1px solid var(--divider-bar-color);
+      padding-right: 0.4em;
+      }
+  }
   
 </style>
