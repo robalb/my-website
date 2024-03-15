@@ -22,7 +22,7 @@
 
 <h1>The count is {countValue}</h1>
 
-<div class="parent bytes-8">
+<div class="hexdump bytes-16">
 <div class="address">
   <div>0x000aa0</div>
   <div>0x000aa0</div>
@@ -95,20 +95,20 @@
   <span>.</span>
   <span>.</span>
   <span>.</span>
+  <span>p</span>
+  <span>a</span>
+  <span>g</span>
+  <span>e</span>
   <span>.</span>
+  <span>n</span>
+  <span>o</span>
+  <span>t</span>
   <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
-  <span>.</span>
+  <span>f</span>
+  <span>0</span>
+  <span>u</span>
+  <span>n</span>
+  <span>d</span>
   <span>.</span>
   <span>.</span>
   <span>.</span>
@@ -128,7 +128,7 @@
 </div>
 
 <style>
-  .parent{
+  .hexdump{
     --columns-padding: 0.5rem;
     --addr-text-color: white;
     --addr-bg-color: black;
@@ -137,18 +137,26 @@
     --ascii-text-color: white;
     --ascii-bg-color: black;
     
-    
+    --divider-bar-color: gray;
     
   }
-  .parent{
+
+  .hexdump{
+    /* ========= layout ========= */
     box-sizing: border-box;
     border-radius: 8px;
     border: 1px solid var(--light-border-color);
     display: flex;
     /*centering should be configurable */
     justify-content:center;
+
+    /* ========= style ========= */
+    color: var(--code-font-color);
+    font-family: var(--code-font-family);
+    font-size: .9rem !important;
   }
-  .parent>div{
+  .hexdump
+  .hexdump>div{
       background-color: var(--code-background-color);
       padding: var(--columns-padding);
   }
@@ -156,6 +164,10 @@
         display: flex;
         flex-direction: column;
   }
+
+        .ascii {
+        letter-spacing: -0.2em;
+      }
 
   .hex, .ascii{
     padding: 0.5rem;
@@ -191,10 +203,12 @@ contain: strict;
   .bytes-16 .address div:nth-child(16n){ display: block;}
 
   .bytes-16 .hex span:nth-child(8n):not(span:nth-child(16n)){
-    border-right: 2px solid grey;
+    border-right: 1px solid var(--divider-bar-color);
+    padding-right: 0.4em;
       }
   .bytes-16 .ascii span:nth-child(8n):not(span:nth-child(16n)){
-    border-right: 2px solid grey;
+    border-right: 1px solid var(--divider-bar-color);
+    padding-right: 0.4em;
       }
 
   
