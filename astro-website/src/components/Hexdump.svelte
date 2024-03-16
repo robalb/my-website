@@ -1,22 +1,84 @@
 <script>
-  const centered = false;
+  const centered = true;
   let range_input = 4;
   let bytes_per_row = 16;
 
   $: bytes_per_row = Math.pow(2, range_input);
 
-  const data = [];
-  for(let i=0; i< 200; i++){
-    data[i] = i%255;
+  let hoveredIndex = -1;
+  let hexRef;
+  let asciiRef;
+
+  let data = [];
+
+  let dump = `
+01 00 00 00 00 00 00 00 90 9d c2 f7 ff 7f 00 00
+00 00 00 00 00 00 00 00 e9 51 55 55 55 55 00 00
+40 dc ff ff 01 00 00 00 58 dc ff ff ff 7f 00 00
+00 00 00 00 00 00 00 00 e8 04 be 12 78 e9 6f e0
+58 dc ff ff ff 7f 00 00 e9 51 55 55 55 55 00 00
+98 7d 55 55 55 55 00 00 40 d0 ff f7 ff 7f 00 00
+e8 04 1c a4 87 16 90 1f e8 04 34 28 fd 06 90 1f
+00 00 00 00 ff 7f 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 42 9e 87 5d ca 2f 7e
+00 00 00 00 00 00 00 00 40 9e c2 f7 ff 7f 00 00
+68 dc ff ff ff 7f 00 00 98 7d 55 55 55 55 00 00
+e0 e2 ff f7 ff 7f 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 51 55 55 55 55 00 00
+  `;
+function parseHexdump(hexdump) {
+    // Split the hexdump string into an array of lines
+    const lines = hexdump.trim().split('\n');
+    
+    // Initialize an empty array to store the parsed integers
+    const parsedArray = [];
+    
+    // Iterate through each line of the hexdump
+    for (const line of lines) {
+        // Split each line into individual hex bytes
+        const hexBytes = line.trim().split(' ');
+        
+        // Convert each hex byte to an integer and push it to the parsed array
+        for (const hexByte of hexBytes) {
+            const intValue = parseInt(hexByte, 16);
+            parsedArray.push(intValue);
+        }
+    }
+    
+    return parsedArray;
+}
+
+data = parseHexdump(dump)
+
+  //data gen
+  // const data_size = 500
+  // for(let i=0; i< data_size; i++){
+  //   data[i] = i%255;
+  // }
+  // for(let i=0; i<300; i++){
+  //  let index = Math.floor(Math.random() * data_size);
+  //   data[index] = Math.floor(Math.random() * 255);
+  // }
+  // data[20] = 0
+  // data[21] = 0
+  // data[22] = 0
+  // data[23] = 0xff
+  // data[24] = 0xff
+  // data[25] = 0xfa
+  // data[26] = 0x3c
+  // data[27] = 0
+
+  function updateRandom(){
+  let base = 8;
+  let string = "page not found "
+  for(let i=0; i< string.length; i++){
+    data[base+i] = string.charCodeAt(i);
   }
-  data[20] = 0
-  data[21] = 0
-  data[22] = 0
-  data[23] = 0xff
-  data[24] = 0xff
-  data[25] = 0xfa
-  data[26] = 0x3c
-  data[27] = 0
+  }
+  updateRandom();
+
+
   const start_address = 0x0;
 
   function ascii(number){
@@ -38,12 +100,26 @@
       return "small"
   }
 
+function handleHover_hex(e){
+  if(e.target.localName != "span"){
+    hoveredIndex = -1
+    return
+  }
+  let index = e.target.getAttribute("data-index")
+  hoveredIndex = index;
+}
+
+function handleHover_ascii(e){
+  console.log(e)
+}
+
 
 </script>
 
 
 <div class="container">
 <input type="range" bind:value={range_input} min="0" max="4" step="1" />
+<button on:click={updateRandom} >randomize</button>
 <p>{bytes_per_row}</p>
 
 <div class="hexdump" 
@@ -59,17 +135,21 @@
       <div>{("0000000" + i.toString(16)).slice(-8)}</div>
 		{/each}
 </div>
-<div class="hexdump__hex hexdump__responsivecol">
+<div class="hexdump__hex hexdump__responsivecol" on:mouseover={handleHover_hex} bind:this={hexRef}>
 		{#each data as d, i}
       <span
         data-range={range(d)}
+        data-index={i}
+        class:highlight={i == hoveredIndex}
       >{("0" + d.toString(16)).slice(-2)}</span>
 		{/each}
 </div>
-<div class="hexdump__ascii hexdump__responsivecol">
+<div class="hexdump__ascii hexdump__responsivecol" on:mouseover={handleHover_hex} bind:this={asciiRef}>
 		{#each data as d, i}
       <span
         data-ascii={ascii(d) != "."}
+        data-index={i}
+        class:highlight={i == hoveredIndex}
       >{ascii(d)}</span>
 		{/each}
 </div>
@@ -97,6 +177,7 @@
     --hex-bg-color: var(--default-bg-color);
 
     --ascii-valid-color: #6ab0f3;
+    --ascii-valid-color: white;
     --ascii-invalid-color: #b3b9c5;
     --ascii-bg-color: var(--default-bg-color);
     
@@ -120,9 +201,7 @@
     }
 
   .hexdump>div{
-      /*
-      background-color: var(--code-background-color);
-*/
+      overflow:hidden;
       padding: var(--columns-padding);
   }
 
@@ -188,6 +267,25 @@
     border-right: 1px solid var(--light-border-color);
   }
 
+  /* hover states */
+  .hexdump .highlight{
+    background-color: gold;
+    color: black !important;
+  }
+  .hexdump__hex span:hover{
+    background-color: gold;
+    color: black;
+  }
+  .hexdump__ascii span:hover{
+    background-color: gold;
+    color: black;
+  }
+  .hexdump__address div:hover{
+    background-color: gold;
+    color: black;
+  }
+
+
   .hexdump__responsivecol{
   contain: content;
   display: inline-block;
@@ -241,7 +339,6 @@ contain: strict;
     .hexdump--bytes-16 .hexdump__address div:nth-child(16n+1){ display: block;}
 
     .hexdump--bytes-16 .hexdump__hex span:nth-child(8n):not(span:nth-child(16n)){
-        border-right: 1px solid var(--divider-bar-color);
         margin-right: 10px;
       }
     .hexdump--bytes-16 .hexdump__ascii span:nth-child(8n):not(span:nth-child(16n)){
