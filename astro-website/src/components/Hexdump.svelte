@@ -1,85 +1,28 @@
 <script>
-  const centered = true;
-  let range_input = 4;
-  let bytes_per_row = 16;
-
-  $: bytes_per_row = Math.pow(2, range_input);
+  export let centered = true;
+  export let bytesPerRow = 8;
+  export let data = [0,0,0,0, 0xca, 0xfe, 0xba, 0xbe];
+  export let strData = "";
+  export let startAddress = 0;
+  export let colorRegions = {}
 
   let hoveredIndex = -1;
-  let hexRef;
-  let asciiRef;
 
-  let data = [];
-
-  let dump = `
-01 00 00 00 00 00 00 00 90 9d c2 f7 ff 7f 00 00
-00 00 00 00 00 00 00 00 e9 51 55 55 55 55 00 00
-40 dc ff ff 01 00 00 00 58 dc ff ff ff 7f 00 00
-00 00 00 00 00 00 00 00 e8 04 be 12 78 e9 6f e0
-58 dc ff ff ff 7f 00 00 e9 51 55 55 55 55 00 00
-98 7d 55 55 55 55 00 00 40 d0 ff f7 ff 7f 00 00
-e8 04 1c a4 87 16 90 1f e8 04 34 28 fd 06 90 1f
-00 00 00 00 ff 7f 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 42 9e 87 5d ca 2f 7e
-00 00 00 00 00 00 00 00 40 9e c2 f7 ff 7f 00 00
-68 dc ff ff ff 7f 00 00 98 7d 55 55 55 55 00 00
-e0 e2 ff f7 ff 7f 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 51 55 55 55 55 00 00
-  `;
-function parseHexdump(hexdump) {
-    // Split the hexdump string into an array of lines
-    const lines = hexdump.trim().split('\n');
-    
-    // Initialize an empty array to store the parsed integers
-    const parsedArray = [];
-    
-    // Iterate through each line of the hexdump
-    for (const line of lines) {
-        // Split each line into individual hex bytes
-        const hexBytes = line.trim().split(' ');
-        
-        // Convert each hex byte to an integer and push it to the parsed array
-        for (const hexByte of hexBytes) {
-            const intValue = parseInt(hexByte, 16);
-            parsedArray.push(intValue);
-        }
-    }
-    
-    return parsedArray;
-}
-
-data = parseHexdump(dump)
-
-  //data gen
-  // const data_size = 500
-  // for(let i=0; i< data_size; i++){
-  //   data[i] = i%255;
-  // }
-  // for(let i=0; i<300; i++){
-  //  let index = Math.floor(Math.random() * data_size);
-  //   data[index] = Math.floor(Math.random() * 255);
-  // }
-  // data[20] = 0
-  // data[21] = 0
-  // data[22] = 0
-  // data[23] = 0xff
-  // data[24] = 0xff
-  // data[25] = 0xfa
-  // data[26] = 0x3c
-  // data[27] = 0
-
-  function updateRandom(){
-  let base = 8;
-  let string = "page not found "
-  for(let i=0; i< string.length; i++){
-    data[base+i] = string.charCodeAt(i);
+  function parseHexdump(hexdump) {
+      const lines = hexdump.trim().split('\n');
+      const parsedArray = [];
+      for (const line of lines) {
+          const hexBytes = line.trim().split(' ');
+          for (const hexByte of hexBytes) {
+              const intValue = parseInt(hexByte, 16);
+              parsedArray.push(intValue);
+          } }
+      return parsedArray;
   }
+
+  $: if(strData.length > 0){
+    data = parseHexdump(strData);
   }
-  updateRandom();
-
-
-  const start_address = 0x0;
 
   function ascii(number){
     if (number >= 32 && number <= 126) {
@@ -100,7 +43,32 @@ data = parseHexdump(dump)
       return "small"
   }
 
-function handleHover_hex(e){
+  function color(index){
+      for(let key in colorRegions){
+        if(colorRegions[key].includes(index)){
+          return key;
+        }
+      }
+      return "default"
+  }
+
+  function rounded(index){
+      for(let key in colorRegions){
+        if(!colorRegions[key].includes(index))
+          continue;
+        let isEdgeLeft = !colorRegions[key].includes(index-1)
+        let isEdgeRigth = !colorRegions[key].includes(index+1)
+        if(isEdgeLeft && isEdgeRigth)
+          return "all"
+        else if(isEdgeLeft)
+          return "left"
+        else if(isEdgeRigth)
+          return "right"
+      }
+      return "";
+  }
+
+function handleHover(e){
   if(e.target.localName != "span"){
     hoveredIndex = -1
     return
@@ -109,46 +77,42 @@ function handleHover_hex(e){
   hoveredIndex = index;
 }
 
-function handleHover_ascii(e){
-  console.log(e)
-}
-
-
 </script>
 
 
 <div class="container">
-<input type="range" bind:value={range_input} min="0" max="4" step="1" />
-<button on:click={updateRandom} >randomize</button>
-<p>{bytes_per_row}</p>
 
 <div class="hexdump" 
   class:hexdump--center={centered}
-  class:hexdump--bytes-16={bytes_per_row === 16}
-  class:hexdump--bytes-8={bytes_per_row === 8}
-  class:hexdump--bytes-4={bytes_per_row === 4}
-  class:hexdump--bytes-2={bytes_per_row === 2}
-  class:hexdump--bytes-1={bytes_per_row === 1}
+  class:hexdump--bytes-16={bytesPerRow === 16}
+  class:hexdump--bytes-8={bytesPerRow === 8}
+  class:hexdump--bytes-4={bytesPerRow === 4}
+  class:hexdump--bytes-2={bytesPerRow === 2}
+  class:hexdump--bytes-1={bytesPerRow === 1}
   >
 <div class="hexdump__address">
 		{#each data as _, i}
-      <div>{("0000000" + i.toString(16)).slice(-8)}</div>
+      <div>{("0000000" + (i+startAddress).toString(16)).slice(-8)}</div>
 		{/each}
 </div>
-<div class="hexdump__hex hexdump__responsivecol" on:mouseover={handleHover_hex} bind:this={hexRef}>
+<div class="hexdump__hex hexdump__responsivecol" on:mouseover={handleHover} >
 		{#each data as d, i}
       <span
         data-range={range(d)}
         data-index={i}
+        data-color={color(i)}
+        data-rounded={rounded(i)}
         class:highlight={i == hoveredIndex}
       >{("0" + d.toString(16)).slice(-2)}</span>
 		{/each}
 </div>
-<div class="hexdump__ascii hexdump__responsivecol" on:mouseover={handleHover_hex} bind:this={asciiRef}>
+<div class="hexdump__ascii hexdump__responsivecol" on:mouseover={handleHover} >
 		{#each data as d, i}
       <span
         data-ascii={ascii(d) != "."}
         data-index={i}
+        data-color={color(i)}
+        data-rounded={rounded(i)}
         class:highlight={i == hoveredIndex}
       >{ascii(d)}</span>
 		{/each}
@@ -157,9 +121,6 @@ function handleHover_ascii(e){
 </div>
 
 <style>
-      .container{
-
-    }
   .hexdump{
     --columns-padding: 0.5rem;
     --hex-spacing: 0.4rem;
@@ -168,6 +129,11 @@ function handleHover_ascii(e){
 
     --addr-text-color: white;
     --addr-bg-color: var(--default-bg-color);
+
+    --section-blue-color: #3e296c;
+    --section-red-color: #640054;
+    --section-green-color: green;
+    --section-border-radius: 6px;
 
     --hex-text-color: #b3b9c5;
     --hex-zero-color: #818a9d;
@@ -194,7 +160,7 @@ function handleHover_ascii(e){
     /* ========= style ========= */
     color: var(--code-font-color);
     font-family: var(--code-font-family);
-    font-size: .9rem !important;
+    font-size: .9rem;
   }
   .hexdump--center{
     justify-content:center;
@@ -202,6 +168,7 @@ function handleHover_ascii(e){
 
   .hexdump>div{
       overflow:hidden;
+      white-space: nowrap;
       padding: var(--columns-padding);
   }
 
@@ -267,9 +234,30 @@ function handleHover_ascii(e){
     border-right: 1px solid var(--light-border-color);
   }
 
+  /*custom section colors */
+  .hexdump span[data-color="blue"]{
+    background-color: var(--section-blue-color);
+  }
+  .hexdump span[data-color="green"]{
+    background-color: var(--section-green-color);
+  }
+  .hexdump span[data-color="red"]{
+    background-color: var(--section-red-color);
+  }
+  .hexdump span[data-rounded="left"]{
+    border-radius: var(--section-border-radius) 0 0 var(--section-border-radius);
+  }
+  .hexdump span[data-rounded="right"]{
+    border-radius: 0 var(--section-border-radius) var(--section-border-radius) 0;
+  }
+  .hexdump span[data-rounded="all"]{
+    border-radius: var(--section-border-radius);
+  }
+
+
   /* hover states */
   .hexdump .highlight{
-    background-color: gold;
+    background-color: gold !important;
     color: black !important;
   }
   .hexdump__hex span:hover{
@@ -286,6 +274,7 @@ function handleHover_ascii(e){
   }
 
 
+  /* responsiveness based on "\a" and media queries */
   .hexdump__responsivecol{
   contain: content;
   display: inline-block;
@@ -297,8 +286,6 @@ contain: strict;
   display: inline;
   white-space: pre;
       }
-
-
 
   .hexdump--bytes-1 .hexdump__responsivecol span:nth-child(1n):after{ content: "\a"; }
   .hexdump--bytes-1 .hexdump__address div:nth-child(1n){ display: block;}
@@ -314,6 +301,7 @@ contain: strict;
 
 
   @container (width <= 430px) {
+
     /* 8 bytes on this size is disabled, behaves exaclty like 4 bytes */
     .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
     .hexdump--bytes-8 .hexdump__address div:nth-child(4n+1){ display: block;}
