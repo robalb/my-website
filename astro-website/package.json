@@ -15,6 +15,7 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@astrojs/mdx": "^2.2.0",
     "svelte": "^4.2.12"
   }
 }
