@@ -1,130 +1,127 @@
 <script>
   export let centered = true;
   export let bytesPerRow = 8;
-  export let data = [0,0,0,0, 0xca, 0xfe, 0xba, 0xbe];
+  export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
   export let strData = "";
   export let startAddress = 0;
-  export let colorRegions = {}
+  export let colorRegions = {};
 
   let hoveredIndex = -1;
 
   function parseHexdump(hexdump) {
-      const lines = hexdump.trim().split('\n');
-      const parsedArray = [];
-      for (const line of lines) {
-          const hexBytes = line.trim().split(' ');
-          for (const hexByte of hexBytes) {
-              const intValue = parseInt(hexByte, 16);
-              parsedArray.push(intValue);
-          } }
-      return parsedArray;
+    const lines = hexdump.trim().split("\n");
+    const parsedArray = [];
+    for (const line of lines) {
+      const hexBytes = line.trim().split(" ");
+      for (const hexByte of hexBytes) {
+        const intValue = parseInt(hexByte, 16);
+        parsedArray.push(intValue);
+      }
+    }
+    return parsedArray;
   }
 
-  $: if(strData.length > 0){
+  $: if (strData.length > 0) {
     data = parseHexdump(strData);
   }
 
-  function ascii(number){
+  function ascii(number) {
     if (number >= 32 && number <= 126) {
-        return String.fromCharCode(number);
+      return String.fromCharCode(number);
     } else {
-        return ".";
+      return ".";
     }
   }
 
-  function range(number){
-    if(number == 0)
-      return "00"
-    else if(number == 0xff)
-      return "ff"
-    else if(number > 0x80)
-      return "large"
-    else
-      return "small"
+  function range(number) {
+    if (number == 0) return "00";
+    else if (number == 0xff) return "ff";
+    else if (number > 0x80) return "large";
+    else return "small";
   }
 
-  function color(index){
-      for(let key in colorRegions){
-        if(colorRegions[key].includes(index)){
-          return key;
-        }
+  function color(index) {
+    for (let key in colorRegions) {
+      if (colorRegions[key].includes(index)) {
+        return key;
       }
-      return "default"
+    }
+    return "default";
   }
 
-  function rounded(index){
-      for(let key in colorRegions){
-        if(!colorRegions[key].includes(index))
-          continue;
-        let isEdgeLeft = !colorRegions[key].includes(index-1)
-        let isEdgeRigth = !colorRegions[key].includes(index+1)
-        if(isEdgeLeft && isEdgeRigth)
-          return "all"
-        else if(isEdgeLeft)
-          return "left"
-        else if(isEdgeRigth)
-          return "right"
-      }
-      return "";
+  function rounded(index) {
+    for (let key in colorRegions) {
+      if (!colorRegions[key].includes(index)) continue;
+      let isEdgeLeft = !colorRegions[key].includes(index - 1);
+      let isEdgeRigth = !colorRegions[key].includes(index + 1);
+      if (isEdgeLeft && isEdgeRigth) return "all";
+      else if (isEdgeLeft) return "left";
+      else if (isEdgeRigth) return "right";
+    }
+    return "";
   }
 
-function handleHover(e){
-  if(e.target.localName != "span"){
-    hoveredIndex = -1
-    return
+  function handleHover(e) {
+    if (e.target.localName != "span") {
+      hoveredIndex = -1;
+      return;
+    }
+    let index = e.target.getAttribute("data-index");
+    hoveredIndex = index;
   }
-  let index = e.target.getAttribute("data-index")
-  hoveredIndex = index;
-}
-
 </script>
 
 
 <div class="container">
-
-<div class="hexdump" 
-  class:hexdump--center={centered}
-  class:hexdump--bytes-16={bytesPerRow === 16}
-  class:hexdump--bytes-8={bytesPerRow === 8}
-  class:hexdump--bytes-4={bytesPerRow === 4}
-  class:hexdump--bytes-2={bytesPerRow === 2}
-  class:hexdump--bytes-1={bytesPerRow === 1}
+  <div
+    class="hexdump"
+    class:hexdump--center={centered}
+    class:hexdump--bytes-16={bytesPerRow === 16}
+    class:hexdump--bytes-8={bytesPerRow === 8}
+    class:hexdump--bytes-4={bytesPerRow === 4}
+    class:hexdump--bytes-2={bytesPerRow === 2}
+    class:hexdump--bytes-1={bytesPerRow === 1}
   >
-<div class="hexdump__address">
-		{#each data as _, i}
-      <div>{("0000000" + (i+startAddress).toString(16)).slice(-8)}</div>
-		{/each}
+    <div class="hexdump__address">
+      {#each data as _, i}
+        <div>{("0000000" + (i + startAddress).toString(16)).slice(-8)}</div>
+      {/each}
+    </div>
+    <div class="hexdump__hex hexdump__responsivecol" on:mouseover={handleHover}>
+      {#each data as d, i}
+        <span
+          data-range={range(d)}
+          data-index={i}
+          data-color={color(i)}
+          data-rounded={rounded(i)}
+          class:highlight={i == hoveredIndex}
+          >{("0" + d.toString(16)).slice(-2)}</span
+        >
+      {/each}
+    </div>
+    <div
+      class="hexdump__ascii hexdump__responsivecol"
+      on:mouseover={handleHover}
+    >
+      {#each data as d, i}
+        <span
+          data-ascii={ascii(d) != "."}
+          data-index={i}
+          data-color={color(i)}
+          data-rounded={rounded(i)}
+          class:highlight={i == hoveredIndex}>{ascii(d)}</span
+        >
+      {/each}
+    </div>
+  </div>
 </div>
-<div class="hexdump__hex hexdump__responsivecol" on:mouseover={handleHover} >
-		{#each data as d, i}
-      <span
-        data-range={range(d)}
-        data-index={i}
-        data-color={color(i)}
-        data-rounded={rounded(i)}
-        class:highlight={i == hoveredIndex}
-      >{("0" + d.toString(16)).slice(-2)}</span>
-		{/each}
-</div>
-<div class="hexdump__ascii hexdump__responsivecol" on:mouseover={handleHover} >
-		{#each data as d, i}
-      <span
-        data-ascii={ascii(d) != "."}
-        data-index={i}
-        data-color={color(i)}
-        data-rounded={rounded(i)}
-        class:highlight={i == hoveredIndex}
-      >{ascii(d)}</span>
-		{/each}
-</div>
-</div>
-</div>
+
 
 <style>
-  .hexdump{
+  .hexdump {
     --columns-padding: 0.5rem;
     --hex-spacing: 0.4rem;
-    --ascii-spacing: 0.00rem;
+    --ascii-spacing: 0rem;
     --default-bg-color: #1c1e24;
 
     --addr-text-color: white;
@@ -146,88 +143,87 @@ function handleHover(e){
     --ascii-valid-color: white;
     --ascii-invalid-color: #b3b9c5;
     --ascii-bg-color: var(--default-bg-color);
-    
+
     --divider-bar-color: #818a9d;
-    
   }
 
-  .hexdump{
-    /* ========= layout ========= */
+  .hexdump {
     box-sizing: border-box;
     display: flex;
-     container-type: inline-size;
+    container-type: inline-size;
 
-    /* ========= style ========= */
     color: var(--code-font-color);
     font-family: var(--code-font-family);
-    font-size: .9rem;
+    font-size: 0.9rem;
   }
-  .hexdump--center{
-    justify-content:center;
-    }
-
-  .hexdump>div{
-      overflow:hidden;
-      white-space: nowrap;
-      padding: var(--columns-padding);
+  .hexdump--center {
+    justify-content: center;
   }
 
-  .hexdump__address{
-        display: flex;
-        flex-direction: column;
-        background-color: var(--addr-bg-color);
+  .hexdump > div {
+    overflow: hidden;
+    white-space: nowrap;
+    padding: var(--columns-padding);
   }
-  .hexdump__address div{
-        display: none;
-        color: var(--addr-text-color);
-      }
 
-  .hexdump__hex{
-      background-color: var(--hex-bg-color);
+  /* address element*/
+  .hexdump__address {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--addr-bg-color);
   }
-  .hexdump__hex span{
+  .hexdump__address div {
+    display: none;
+    color: var(--addr-text-color);
+  }
+
+  /* hex element*/
+  .hexdump__hex {
+    background-color: var(--hex-bg-color);
+  }
+  .hexdump__hex span {
     color: var(--hex-text-color);
   }
-  .hexdump__hex span[data-range="00"]{
+  .hexdump__hex span[data-range="00"] {
     color: var(--hex-zero-color);
   }
-  .hexdump__hex span[data-range="ff"]{
+  .hexdump__hex span[data-range="ff"] {
     color: var(--hex-ff-color);
   }
-  .hexdump__hex span[data-range="small"]{
+  .hexdump__hex span[data-range="small"] {
     color: var(--hex-small-color);
   }
-  .hexdump__hex span[data-range="large"]{
+  .hexdump__hex span[data-range="large"] {
     color: var(--hex-large-color);
   }
-
-  .hexdump__hex span{
+  .hexdump__hex span {
     padding: 0 var(--hex-spacing);
   }
 
-  .hexdump__ascii{
-      background-color: var(--ascii-bg-color);
+  /* ascii element*/
+  .hexdump__ascii {
+    background-color: var(--ascii-bg-color);
   }
-  .hexdump__ascii span{
+  .hexdump__ascii span {
     padding: 0 var(--ascii-spacing);
     color: var(--ascii-invalid-color);
   }
-  .hexdump__ascii span[data-ascii="true"]{
+  .hexdump__ascii span[data-ascii="true"] {
     color: var(--ascii-valid-color);
   }
 
   /*border*/
-  .hexdump__address{
+  .hexdump__address {
     border-radius: 8px 0 0 8px;
     border-left: 1px solid var(--light-border-color);
     border-top: 1px solid var(--light-border-color);
     border-bottom: 1px solid var(--light-border-color);
   }
-  .hexdump__hex{
+  .hexdump__hex {
     border-top: 1px solid var(--light-border-color);
     border-bottom: 1px solid var(--light-border-color);
   }
-  .hexdump__ascii{
+  .hexdump__ascii {
     border-radius: 0 8px 8px 0;
     border-top: 1px solid var(--light-border-color);
     border-bottom: 1px solid var(--light-border-color);
@@ -235,103 +231,137 @@ function handleHover(e){
   }
 
   /*custom section colors */
-  .hexdump span[data-color="blue"]{
+  .hexdump span[data-color="blue"] {
     background-color: var(--section-blue-color);
   }
-  .hexdump span[data-color="green"]{
+  .hexdump span[data-color="green"] {
     background-color: var(--section-green-color);
   }
-  .hexdump span[data-color="red"]{
+  .hexdump span[data-color="red"] {
     background-color: var(--section-red-color);
   }
-  .hexdump span[data-rounded="left"]{
+  .hexdump span[data-rounded="left"] {
     border-radius: var(--section-border-radius) 0 0 var(--section-border-radius);
   }
-  .hexdump span[data-rounded="right"]{
+  .hexdump span[data-rounded="right"] {
     border-radius: 0 var(--section-border-radius) var(--section-border-radius) 0;
   }
-  .hexdump span[data-rounded="all"]{
+  .hexdump span[data-rounded="all"] {
     border-radius: var(--section-border-radius);
   }
 
-
   /* hover states */
-  .hexdump .highlight{
+  .hexdump .highlight {
     background-color: gold !important;
     color: black !important;
   }
-  .hexdump__hex span:hover{
+  .hexdump__hex span:hover {
     background-color: gold;
     color: black;
   }
-  .hexdump__ascii span:hover{
+  .hexdump__ascii span:hover {
     background-color: gold;
     color: black;
   }
-  .hexdump__address div:hover{
+  .hexdump__address div:hover {
     background-color: gold;
     color: black;
   }
-
 
   /* responsiveness based on "\a" and media queries */
-  .hexdump__responsivecol{
-  contain: content;
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: top;
+  .hexdump__responsivecol {
+    contain: content;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
   }
-  .hexdump__responsivecol span{
-contain: strict;
-  display: inline;
-  white-space: pre;
-      }
+  .hexdump__responsivecol span {
+    contain: strict;
+    display: inline;
+    white-space: pre;
+  }
 
-  .hexdump--bytes-1 .hexdump__responsivecol span:nth-child(1n):after{ content: "\a"; }
-  .hexdump--bytes-1 .hexdump__address div:nth-child(1n){ display: block;}
+  .hexdump--bytes-1 .hexdump__responsivecol span:nth-child(1n):after {
+    content: "\a";
+  }
+  .hexdump--bytes-1 .hexdump__address div:nth-child(1n) {
+    display: block;
+  }
 
-  .hexdump--bytes-2 .hexdump__responsivecol span:nth-child(2n):after{ content: "\a"; }
-  .hexdump--bytes-2 .hexdump__address div:nth-child(2n+1){ display: block;}
+  .hexdump--bytes-2 .hexdump__responsivecol span:nth-child(2n):after {
+    content: "\a";
+  }
+  .hexdump--bytes-2 .hexdump__address div:nth-child(2n + 1) {
+    display: block;
+  }
 
-  .hexdump--bytes-4 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
-  .hexdump--bytes-4 .hexdump__address div:nth-child(4n+1){ display: block;}
+  .hexdump--bytes-4 .hexdump__responsivecol span:nth-child(4n):after {
+    content: "\a";
+  }
+  .hexdump--bytes-4 .hexdump__address div:nth-child(4n + 1) {
+    display: block;
+  }
 
-  .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
-  .hexdump--bytes-8 .hexdump__address div:nth-child(8n+1){ display: block;}
-
+  .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after {
+    content: "\a";
+  }
+  .hexdump--bytes-8 .hexdump__address div:nth-child(8n + 1) {
+    display: block;
+  }
 
   @container (width <= 430px) {
-
     /* 8 bytes on this size is disabled, behaves exaclty like 4 bytes */
-    .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
-    .hexdump--bytes-8 .hexdump__address div:nth-child(4n+1){ display: block;}
+    .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(4n):after {
+      content: "\a";
+    }
+    .hexdump--bytes-8 .hexdump__address div:nth-child(4n + 1) {
+      display: block;
+    }
     /* 16 bytes on this size is disabled, behaves exaclty like 4 bytes */
-    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(4n):after{ content: "\a"; }
-    .hexdump--bytes-16 .hexdump__address div:nth-child(4n+1){ display: block;}
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(4n):after {
+      content: "\a";
+    }
+    .hexdump--bytes-16 .hexdump__address div:nth-child(4n + 1) {
+      display: block;
+    }
   }
 
   @container (430px < width < 760px) {
     /* enable 8 bytes on this size */
-    .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
-    .hexdump--bytes-8 .hexdump__address div:nth-child(8n+1){ display: block;}
+    .hexdump--bytes-8 .hexdump__responsivecol span:nth-child(8n):after {
+      content: "\a";
+    }
+    .hexdump--bytes-8 .hexdump__address div:nth-child(8n + 1) {
+      display: block;
+    }
 
     /* 16 bytes on this size is disabled, behaves exaclty like 8 bytes */
-    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(8n):after{ content: "\a"; }
-    .hexdump--bytes-16 .hexdump__address div:nth-child(8n+1){ display: block;}
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(8n):after {
+      content: "\a";
+    }
+    .hexdump--bytes-16 .hexdump__address div:nth-child(8n + 1) {
+      display: block;
+    }
   }
-
 
   @container (min-width: 760px) {
     /* enables 16 bytes on this size*/
-    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(16n):after{ content: "\a"; }
-    .hexdump--bytes-16 .hexdump__address div:nth-child(16n+1){ display: block;}
+    .hexdump--bytes-16 .hexdump__responsivecol span:nth-child(16n):after {
+      content: "\a";
+    }
+    .hexdump--bytes-16 .hexdump__address div:nth-child(16n + 1) {
+      display: block;
+    }
 
-    .hexdump--bytes-16 .hexdump__hex span:nth-child(8n):not(span:nth-child(16n)){
-        margin-right: 10px;
-      }
-    .hexdump--bytes-16 .hexdump__ascii span:nth-child(8n):not(span:nth-child(16n)){
-        margin-right: 10px;
-      }
+    .hexdump--bytes-16
+      .hexdump__hex
+      span:nth-child(8n):not(span:nth-child(16n)) {
+      margin-right: 10px;
+    }
+    .hexdump--bytes-16
+      .hexdump__ascii
+      span:nth-child(8n):not(span:nth-child(16n)) {
+      margin-right: 10px;
+    }
   }
-  
 </style>

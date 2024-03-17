@@ -1,8 +1,6 @@
 <script>
 import Hexdump from './Hexdump.svelte';
 
-import { onMount } from 'svelte';
-
 let smashing = false;
 
 const start_address = 0xffffdb90;
@@ -31,21 +29,21 @@ function handleChange(e){
       }
     }
 }
-
 </script>
 
-<div>
-<p class="description"
-  role="textbox"
-  aria-multiline="true"
-  aria-label="buffer content"
-  tabindex="0"
-  on:input={handleChange}
-  contenteditable="true"
-  >Page not found<p/>
-</div>
 
+<div>
+  <p class="description"
+    role="textbox"
+    aria-multiline="true"
+    aria-label="buffer content"
+    tabindex="0"
+    on:input={handleChange}
+    contenteditable="true"
+    >Page not found<p/>
+</div>
 <Hexdump {...hexConfig} />
+
 
 <style>
   div{
