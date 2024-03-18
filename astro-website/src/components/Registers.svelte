@@ -3,7 +3,11 @@
 
 <div class="container">
 <div class="registers">
-    <div>rax: <span>0a 0a 0a 0a </span> eax: <span>0a 0a 0a 0a</span> (return value)</div>
+    <div>rax: <span>0xcafebabecafebabe</span> (return value)</div>
+    <div> <span class="trp">----------</span>eax: <span>cafebabe</span> </div>
+    <div> <span class="trp">--------------</span> ax: <span>babe</span> </div>
+    <div> <span class="trp">----------------</span> al: <span>be</span> </div>
+
     <div>rbx: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> </div>
     <div>rcx: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (4th argument)</div>
     <div>rdx: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (3rd argument)</div>
@@ -23,6 +27,9 @@
     .container{
         display: flex;
     }
+    .trp{
+        opacity:0;
+    }
     .registers{
         box-sizing: border-box;
         display: flex;
@@ -40,9 +47,11 @@
     .registers div{
         margin: 0.1rem;
     }
+    div.label{
+        border: 1px solid gray;
+    }
     span{
         background-color: rgba(255,255,255,0.1);
         padding: 0.1em;
-
     }
 </style>
