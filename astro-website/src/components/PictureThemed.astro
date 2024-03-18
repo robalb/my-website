@@ -24,10 +24,10 @@ export interface Props {
 const { alt, src, height=400 } = Astro.props;
 
 //https://github.com/withastro/astro/issues/3373
-const baseDark = (await import(`../assets/posts/${src}-dark.png`)).default
-const baseLight = (await import(`../assets/posts/${src}-light.png`)).default
-const webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default
-const webpLight = (await import(`../assets/posts/${src}-light.webp`)).default
+const baseDark = (await import(`../assets/posts/${src}-dark.png`)).default.src
+const baseLight = (await import(`../assets/posts/${src}-light.png`)).default.src
+const webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default.src
+const webpLight = (await import(`../assets/posts/${src}-light.webp`)).default.src
 
 ---
 
