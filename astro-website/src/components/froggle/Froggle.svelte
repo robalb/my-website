@@ -9,11 +9,14 @@
   export let showLevel = true;
   export let level = 0;
 
+  let container_id = `container_${Math.floor(Math.random()*1000)}`
+
   let level_txt = ""
+  let game_container_ref;
   let game;
 
   onMount(() => {
-    game = new Game("container");
+    game = new Game(game_container_ref);
     setGame(level);
   });
 
@@ -44,22 +47,22 @@
 </script>
 
 {#if showLevel}
-  <h3 id="level-txt" class="level">{level_txt}</h3>
+  <h3 class="level">{level_txt}</h3>
 {/if}
 
-<div id="container" aria-label="Froggle game canvas. This is a mouse only drag-and-drop game">
+<div id={container_id} class="froggle-container" bind:this={game_container_ref} aria-label="Froggle game canvas. This is a mouse only drag-and-drop game">
   <svg viewBox='0 0 1 1'></svg>
 </div>
 
-<div class="controls" aria-controls="container">
+<div class="controls" aria-controls={container_id}>
   {#if prevBt}
-    <button id="previous-bt" on:click={getHandleClick("prev")}>&lt; Prev</button>
+    <button on:click={getHandleClick("prev")}>&lt; Prev</button>
   {/if}
   {#if restartBt}
-    <button id="restart-bt" on:click={getHandleClick("restart")}>Restart</button>
+    <button on:click={getHandleClick("restart")}>Restart</button>
   {/if}
   {#if nextBt}
-    <button id="next-bt" on:click={getHandleClick("next")}>Next &gt;</button>
+    <button on:click={getHandleClick("next")}>Next &gt;</button>
   {/if}
 </div>
 

@@ -3,6 +3,7 @@
   export let bytesPerRow = 8;
   export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
   export let strData = "";
+  export let showAscii = true;
   export let startAddress = 0;
   export let colorRegions = {};
 
@@ -99,6 +100,7 @@
         >
       {/each}
     </div>
+    {#if showAscii}
     <div
       class="hexdump__ascii hexdump__responsivecol"
       on:mouseover={handleHover}
@@ -113,6 +115,7 @@
         >
       {/each}
     </div>
+    {/if}
   </div>
 </div>
 
