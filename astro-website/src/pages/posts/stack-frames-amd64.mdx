@@ -40,10 +40,16 @@ You can play with these different visualizations by adjusting the slider for thi
 Registers are quickly accessible containers inside your CPU.
 Usually, there is a limited amount of registers, each with an associated name.
 
-On amd64 we mostly interact with these registers:
-
-
+On amd64 we mostly interact with these registers, that contain 64-bit values:
 <Registers />
 
 <br/>
-<Picture src="amd64-regs-dark" height={300} alt="" />
+
+But there are [a lot more](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg).
+It's also possible to access the lower portion of most registers:
+Given a register name such as `rax`
+the prefix `r` gives you access to the full 64 bit register, and the prefix `e`
+ gives you access to the lower 32 bits of the same register
+<Registers display={"rax"} expand={"rax"} />
+
+<br/>

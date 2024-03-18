@@ -1,23 +1,29 @@
 <script>
+    export let display="common-64";
+    export let expand="none";
 </script>
 
 <div class="container">
-<div class="registers">
-    <div>rax: <span>0xcafebabecafebabe</span> (return value)</div>
-    <div> <span class="trp">----------</span>eax: <span>cafebabe</span> </div>
-    <div> <span class="trp">--------------</span> ax: <span>babe</span> </div>
-    <div> <span class="trp">----------------</span> al: <span>be</span> </div>
-
-    <div>rbx: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> </div>
-    <div>rcx: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (4th argument)</div>
-    <div>rdx: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (3rd argument)</div>
-    <div>rsi: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (2nd argument)</div>
-    <div>rdi: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (1st argument)</div>
-    <div>rbp: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (base pointer)</div>
-    <div>rsp: <span>0a 0a 0a 0a 0a 0a 0a 0a </span> (stack pointer)</div>
+    <div class="registers">
+        <div>rax: <span>00 00 00 00 00 00 00 00 </span> (return value)</div>
+        {#if expand=="rax"}
+            <div> <span class="trp">-----------</span>eax: <span class="tra">00 00 00 00</span> </div>
+            <div> <span class="trp">-----------------</span> ax: <span class="tra">00 00</span> </div>
+            <div> <span class="trp">--------------------</span> al: <span class="tra">00</span> </div>
+            <div></div>
+        {/if}
+        {#if display=="common-64"}
+            <div>rbx: <span>00 00 00 00 00 00 00 00 </span> </div>
+            <div>rcx: <span>00 00 00 00 00 00 00 00 </span> (4th argument)</div>
+            <div>rdx: <span>00 00 00 00 00 00 00 00 </span> (3rd argument)</div>
+            <div>rsi: <span>00 00 00 00 00 00 00 00 </span> (2nd argument)</div>
+            <div>rdi: <span>00 00 00 00 00 00 00 00 </span> (1st argument)</div>
+            <div>rbp: <span>00 00 00 00 00 00 00 00 </span> (base pointer)</div>
+            <div>rsp: <span>00 00 00 00 00 00 00 00 </span> (stack pointer)</div>
+        {/if}
+    </div>
 </div>
 
-</div>
 
 <style>
     .registers{
@@ -26,10 +32,27 @@
 
     .container{
         display: flex;
+        justify-content: center;
     }
     .trp{
         opacity:0;
     }
+    .tra{
+        border: 1px solid gray;
+        border-radius: 4px;
+        color: transparent;
+        border-radius: 0 0 4px 4px;
+        border-top: 0;
+    }
+    span{
+        border: 1px solid gray;
+        border-radius: 4px;
+        padding: 0.1rem;
+        margin: 0.1rem;
+        background-color: rgba(255,255,255,0.1);
+        padding: 0.1em;
+    }
+
     .registers{
         box-sizing: border-box;
         display: flex;
@@ -47,11 +70,8 @@
     .registers div{
         margin: 0.1rem;
     }
-    div.label{
-        border: 1px solid gray;
-    }
-    span{
+    /* span{
         background-color: rgba(255,255,255,0.1);
         padding: 0.1em;
-    }
+    } */
 </style>
