@@ -1,6 +1,6 @@
 //https://konvajs.org/docs/sandbox/Gestures.html
 
-class Game{
+export class Game{
   /*
   * Initialize an empty game board canvas inside the give container id
   * containerId:  String
@@ -447,7 +447,7 @@ class Game{
 
 }
 
-const games = [
+export const games = [
 
 {
   name: "tutorial 1",
@@ -835,7 +835,7 @@ function addFox(layer, x, y, isVertical=true){
   return s;
 }
 
-
+/*
   document.addEventListener('DOMContentLoaded', function() {
     main()
   }, false);
@@ -889,3 +889,4 @@ function addFox(layer, x, y, isVertical=true){
       setGame(selected)
     })
   }
+*/
