@@ -8,6 +8,7 @@ permalink: https://halb.it/posts/the-story-of-the-frog-puzzle/
 ---
 import Picture from '../../components/Picture.astro'
 import SliderHexdump from '../../components/SliderHexdump.svelte'
+import PtrHexdump from '../../components/PtrHexdump.svelte'
 import Registers from '../../components/Registers.svelte'
 
 You may have learned that data in a program is either stored in the heap or in the stack.
@@ -38,18 +39,58 @@ You can play with these different visualizations by adjusting the slider for thi
 ### registers
 
 Registers are quickly accessible containers inside your CPU.
-Usually, there is a limited amount of registers, each with an associated name.
-
-On amd64 we mostly interact with these registers, that contain 64-bit values:
+The amd64 architecture has
+[a lot of registers](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg),
+each with an associated name.
+We mostly interact with these ones, that contain 64-bit values:
 <Registers />
 
 <br/>
 
-But there are [a lot more](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg).
 It's also possible to access the lower portion of most registers:
-Given a register name such as `rax`
-the prefix `r` gives you access to the full 64 bit register, and the prefix `e`
- gives you access to the lower 32 bits of the same register
+Given a register name, the prefix `r` gives you access to the full 64 bit register, and the prefix `e`
+ gives you access to the lower 32 bits of the same register. These are all the ways you can
+  access lower portions of `rax`:
 <Registers display={"rax"} expand={"rax"} />
 
 <br/>
+
+### moving data
+
+The instruction `mov` moves data around. It can move data from a register to another,
+from memory to a register, or from a register to memory. These first examples are self-explanatory:
+
+```c
+mov rbx, 0x10  #copies an integer into rbx
+mov rax, rbx   #copies the content of rbx into rax
+```
+
+Moving data to memory requires some extra syntax:
+Here we are putting in a register `0x10`, the address in memory we want to write.
+Then we are moving the byte `0xff` into the memory cell pointed by the register
+```c
+mov rax, 0x10
+mov byte ptr [rax], 0xff
+```
+
+what if we wanted to write to memory more than one byte, for example the whole 8 bytes contained in `rbx`?
+This requires a variation of the ptr syntax, to specify that we want to write a sequence of 8 bytes to memory.
+
+these are the possible variations of the pointer syntax, and the way they affect the pointed memory:
+
+<PtrHexdump
+  client:load 
+  showAscii={false}
+  data={[
+  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+  232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
+  ]}
+  sliderStart={0} />
+
+### stack frames
+
+amd64, like most architectures, has the concept of stack: an area in memory pointed
+by the special register `rsp`
+
+Some instructions, such as `push`, `pop`, `return`, and `call` read and write the memory pointed by `rsp`
