@@ -134,6 +134,7 @@
     --section-red-color: #640054;
     --section-green-color: green;
     --section-border-radius: 6px;
+    --section-border-color: gray;
 
     --hex-text-color: #b3b9c5;
     --hex-zero-color: #818a9d;
@@ -236,21 +237,31 @@
   /*custom section colors */
   .hexdump span[data-color="blue"] {
     background-color: var(--section-blue-color);
+    border-top: 1px solid var(--section-border-color);
+    border-bottom: 1px solid var(--section-border-color);
   }
   .hexdump span[data-color="green"] {
     background-color: var(--section-green-color);
+    border-top: 1px solid var(--section-border-color);
+    border-bottom: 1px solid var(--section-border-color);
   }
   .hexdump span[data-color="red"] {
     background-color: var(--section-red-color);
+    border-top: 1px solid var(--section-border-color);
+    border-bottom: 1px solid var(--section-border-color);
   }
   .hexdump span[data-rounded="left"] {
     border-radius: var(--section-border-radius) 0 0 var(--section-border-radius);
+    border-left: 1px solid var(--section-border-color);
   }
   .hexdump span[data-rounded="right"] {
     border-radius: 0 var(--section-border-radius) var(--section-border-radius) 0;
+    border-right: 1px solid var(--section-border-color);
   }
   .hexdump span[data-rounded="all"] {
     border-radius: var(--section-border-radius);
+    border-left: 1px solid var(--section-border-color);
+    border-right: 1px solid var(--section-border-color);
   }
 
   /* hover states */
