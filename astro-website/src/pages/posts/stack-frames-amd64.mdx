@@ -9,6 +9,7 @@ permalink: https://halb.it/posts/the-story-of-the-frog-puzzle/
 import Picture from '../../components/Picture.astro'
 import SliderHexdump from '../../components/SliderHexdump.svelte'
 import PtrHexdump from '../../components/PtrHexdump.svelte'
+import PushHexdump from '../../components/PushHexdump.svelte'
 import Registers from '../../components/Registers.svelte'
 
 It's common knowledge that assembly language is complex.
@@ -27,7 +28,7 @@ for reverse engineering, binary exploitation, or simply program debugging
 
 ### what is data?
 
-Data is just bites, representing information. It can be in only 2 places:
+Data is just bites, representing information. You can find it in only two places:
 - in memory, which means in your RAM
 - in registers, which are special containers inside your CPU
 
@@ -104,9 +105,45 @@ You can click "run" to see how the memory is affected
   showAscii={false}
   sliderStart={0} />
 
-### stack frames
+### the stack
 
 amd64, like most architectures, has the concept of stack: an area in memory pointed
-by the special register `rsp`
+by the special register `rsp`.<br/>
+The `push` and `pop` instructions offer the simpliest interaction with the stack:
+You can experiment with them in this interactive example.
+Notice that this time we are also visualizing some registers
 
-Some instructions, such as `push`, `pop`, `return`, and `call` read and write the memory pointed by `rsp`
+<PushHexdump 
+  client:load
+  centered={false}
+  showAscii={true} />
+<br/>
+
+You will notice that when we push a value, 
+rsp is decreased by 8 to make space for 8 bytes of data.
+then the value is moved to the memory pointed to rsp.
+
+Basically, `push rax` does the same as the following code:
+```c
+sub rsp, 8
+mov qword ptr [rsp], rax
+```
+
+And `pop rax` does the same as the following code
+```c
+mov rax, qword ptr [rsp]
+add rsp, 8
+```
+
+There is a confusing element here: when we put something onto the stack, therefore
+growing the stack, we are moving towards lower addresses of memory.
+
+With the way we visualize memory this actually looks correct, the stack is growing 
+towards the top.<br/>
+But if we only look at the numeric adresses of elements on the stack newer elements have smaller addresses,
+which looks backwards.<br/>
+Even when you are aware of this, it's common to get confused. The common train of thoughts goes like this:
+"i put a new value on the stack, and it has a smaller address than the previous value, how it is possible?"
+
+
+

@@ -23,7 +23,7 @@ $: bytes_per_row = Math.pow(2, range_val)
 showing {bytes_per_row} byte{bytes_per_row > 1 ? "s": ""} per row </p>
 </div>
 
-<div class="container">
+<div class="hexcontainer">
   <Hexdump client:load 
     bytesPerRow={bytes_per_row}
     {centered}
@@ -41,7 +41,7 @@ showing {bytes_per_row} byte{bytes_per_row > 1 ? "s": ""} per row </p>
   flex-direction: column;
   align-items: center;
 }
-.container {
+.hexcontainer {
   max-height: 400px;
   overflow: scroll;
 }

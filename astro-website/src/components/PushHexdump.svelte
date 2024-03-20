@@ -1,6 +1,7 @@
 <script>
 import Hexdump from './Hexdump.svelte'
 
+
 export let centered = true;
 export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
 export let strData = "";
@@ -15,10 +16,8 @@ data = [
   ]
 
 let options = [
-	{bytes: 1, name: "byte", reg: "bl   #note: bl is the first byte of register rbx"},
-	{bytes: 2, name: "word", reg: "bx"},
-	{bytes: 4, name: "dword", reg: "ebx"},
-	{bytes: 8, name: "qword", reg: "rbx"},
+	{bytes: 1, name: "push", reg: "bl   #note: bl is the first byte of register rbx"},
+	{bytes: 2, name: "pop", reg: "bx"},
 ]
 let selected = options[0];
 let start_addr = 0x20
@@ -41,14 +40,13 @@ function run(){
 
 <pre class="language-plaintext">
 	<code class="language-plaintext">mov rbx, 0x4242424242424242
-	mov rax, 0x20
-	mov <select bind:value={selected} on:change={updateRegions}>
+	<select bind:value={selected} on:change={updateRegions}>
 		{#each options as option}
 			<option value={option}>
 				{option.name}
 			</option>
 		{/each}
-		</select> ptr [rax], {selected.reg}</code>
+		</select> rbx</code>
 </pre>
 <div class="pos">
 	<button on:click={run}>run</button>
@@ -56,7 +54,23 @@ function run(){
 
 
 
-<div class="container">
+<div class="regcontainer">
+	<div class="regdump">
+		<div class="regdump__entry">
+			<span class="red">rax</span>
+			<span class="hex">00 00 00 00 00 00 00 00</span>
+			<span class="int">0xffffda</span>
+		</div>
+		<div class="regdump__entry">
+			<span class="red">rax</span>
+			<span class="hex">00 00 00 00 00 00 00 00</span> value:
+			<span class="int">0xffffda</span>
+		</div>
+	</div>
+</div>
+<br />
+
+<div class="hexcontainer">
 	 {#key color_regions}
   <Hexdump
     bytesPerRow={16}
@@ -71,6 +85,35 @@ function run(){
 </div>
 
 <style>
+
+	/** register preview TODO: move all this to a dedicated component, with proper BEM*/
+	.regcontainer{
+		display: flex;
+	}
+	.hexcontainer {
+	max-height: 400px;
+	overflow: scroll;
+	}
+	.regdump{
+		--default-bg-color: #1c1e24;
+	}
+	.regdump{
+		background-color: var(--default-bg-color);
+		color: var(--code-font-color);
+		font-family: var(--code-font-family);
+		font-size: 0.9rem;
+		padding: 0.5rem;
+		border-radius: 8px;
+		border: 1px solid var(--light-border-color);
+	}
+	.regdump__entry{
+		margin: 0.1rem;
+	}
+	.regdump__entry .hex{
+		border-left: 1px solid white;
+	}
+
+
 	div.pos{
 		float:right;
 		height:0;

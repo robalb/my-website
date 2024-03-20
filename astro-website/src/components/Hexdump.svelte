@@ -73,7 +73,7 @@
 </script>
 
 
-<div class="container">
+<div>
   <div
     class="hexdump"
     class:hexdump--center={centered}

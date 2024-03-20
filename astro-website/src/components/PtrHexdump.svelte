@@ -55,7 +55,7 @@ function run(){
 
 
 
-<div class="container">
+<div class="hexcontainer">
 	 {#key color_regions}
   <Hexdump
     bytesPerRow={16}

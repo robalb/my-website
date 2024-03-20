@@ -3,7 +3,7 @@
     export let expand="none";
 </script>
 
-<div class="container">
+<div class="regcontainer">
     <div class="registers">
         <div>rax: <span>00 00 00 00 00 00 00 00 </span> (return value)</div>
         {#if expand=="rax"}
@@ -30,7 +30,7 @@
         --default-bg-color: #1c1e24;
     }
 
-    .container{
+    .regcontainer{
         display: flex;
         justify-content: center;
     }
