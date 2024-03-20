@@ -14,6 +14,7 @@ data = [
   232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
   ]
+startAddress = 0xffffff00
 
 let options = [
 	{bytes: 1, name: "push", reg: "bl   #note: bl is the first byte of register rbx"},
@@ -39,14 +40,14 @@ function run(){
 </script>
 
 <pre class="language-plaintext">
-	<code class="language-plaintext">mov rbx, 0x4242424242424242
+	<code class="language-plaintext">mov rax, 0x4242424242424242
 	<select bind:value={selected} on:change={updateRegions}>
 		{#each options as option}
 			<option value={option}>
 				{option.name}
 			</option>
 		{/each}
-		</select> rbx</code>
+		</select> rax</code>
 </pre>
 <div class="pos">
 	<button on:click={run}>run</button>
@@ -57,14 +58,16 @@ function run(){
 <div class="regcontainer">
 	<div class="regdump">
 		<div class="regdump__entry">
-			<span class="red">rax</span>
+			<span class="color blue">+</span>
+			<span class="name">rsp</span>
 			<span class="hex">00 00 00 00 00 00 00 00</span>
-			<span class="int">0xffffda</span>
+			<span class="int">(0xffffff00)</span>
 		</div>
 		<div class="regdump__entry">
-			<span class="red">rax</span>
-			<span class="hex">00 00 00 00 00 00 00 00</span> value:
-			<span class="int">0xffffda</span>
+			<span class="color">&nbsp;</span>
+			<span class="name">rax</span>
+			<span class="hex">00 00 00 00 00 00 00 00</span>
+			<span class="int">(0x00)</span>
 		</div>
 	</div>
 </div>
@@ -96,9 +99,14 @@ function run(){
 	}
 	.regdump{
 		--default-bg-color: #1c1e24;
+		/* these colors must be shared with hexdump when this is a standalone component*/
+		--section-blue-color: #3e296c;
+		--section-red-color: #640054;
+		--section-green-color: green;
+		--section-border-radius: 6px;
 	}
 	.regdump{
-		background-color: var(--default-bg-color);
+		background-color: var(--code-background-color);
 		color: var(--code-font-color);
 		font-family: var(--code-font-family);
 		font-size: 0.9rem;
@@ -108,9 +116,36 @@ function run(){
 	}
 	.regdump__entry{
 		margin: 0.1rem;
+		margin-bottom: 0.2rem;
+	}
+	.regdump__entry .color{
+		border-radius: 8px;
+		background-color: transparent;
+		color: transparent;
+		padding: 0 0.3rem;
+	}
+	.regdump__entry .name{
 	}
 	.regdump__entry .hex{
-		border-left: 1px solid white;
+		border: 1px solid var(--light-border-color);
+		background-color: rgba(0,0,0,0.3);
+		margin-left: 1rem;
+		margin-right: 1rem;
+	}
+	.regdump__entry .int{
+	}
+	/*custom section colors */
+	.regdump__entry .color.blue{
+		background-color: var(--section-blue-color);
+		color: var(--section-blue-color);
+	}
+	.regdump__entry .color.green{
+		background-color: var(--section-green-color);
+		color: var(--section-blue-color);
+	}
+	.regdump__entry .color.red{
+		background-color: var(--section-red-color);
+		color: var(--section-blue-color);
 	}
 
 

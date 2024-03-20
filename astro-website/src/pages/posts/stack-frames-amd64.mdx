@@ -109,7 +109,7 @@ You can click "run" to see how the memory is affected
 
 amd64, like most architectures, has the concept of stack: an area in memory pointed
 by the special register `rsp`.<br/>
-The `push` and `pop` instructions offer the simpliest interaction with the stack:
+The `push` and `pop` instructions offer the simplest interaction with the stack.
 You can experiment with them in this interactive example.
 Notice that this time we are also visualizing some registers
 
@@ -135,8 +135,8 @@ mov rax, qword ptr [rsp]
 add rsp, 8
 ```
 
-There is a confusing element here: when we put something onto the stack, therefore
-growing the stack, we are moving towards lower addresses of memory.
+There is a confusing element here: when we put something onto the stack we are
+growing the stack, and yet we are moving towards lower addresses of memory.
 
 With the way we visualize memory this actually looks correct, the stack is growing 
 towards the top.<br/>
