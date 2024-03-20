@@ -64,7 +64,7 @@ function run(){
 			<span class="int">(0xffffff00)</span>
 		</div>
 		<div class="regdump__entry">
-			<span class="color">&nbsp;</span>
+			<span class="color ">&nbsp;</span>
 			<span class="name">rax</span>
 			<span class="hex">00 00 00 00 00 00 00 00</span>
 			<span class="int">(0x00)</span>
@@ -104,6 +104,8 @@ function run(){
 		--section-red-color: #640054;
 		--section-green-color: green;
 		--section-border-radius: 6px;
+
+		--mark-border-color: gray;
 	}
 	.regdump{
 		background-color: var(--code-background-color);
@@ -119,18 +121,20 @@ function run(){
 		margin-bottom: 0.2rem;
 	}
 	.regdump__entry .color{
-		border-radius: 8px;
+		border-radius: 100px;
 		background-color: transparent;
 		color: transparent;
 		padding: 0 0.3rem;
+		border: 1px solid transparent;
 	}
 	.regdump__entry .name{
 	}
 	.regdump__entry .hex{
-		border: 1px solid var(--light-border-color);
+		border: 1px solid rgba(255,255,255, 0.1);
 		background-color: rgba(0,0,0,0.3);
 		margin-left: 1rem;
 		margin-right: 1rem;
+		padding: 0 0.5rem;
 	}
 	.regdump__entry .int{
 	}
@@ -138,14 +142,17 @@ function run(){
 	.regdump__entry .color.blue{
 		background-color: var(--section-blue-color);
 		color: var(--section-blue-color);
+		border-color: var(--mark-border-color);
 	}
 	.regdump__entry .color.green{
 		background-color: var(--section-green-color);
 		color: var(--section-blue-color);
+		border-color: var(--mark-border-color);
 	}
 	.regdump__entry .color.red{
 		background-color: var(--section-red-color);
 		color: var(--section-blue-color);
+		border-color: var(--mark-border-color);
 	}
 
 
