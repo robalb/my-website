@@ -1,16 +1,16 @@
 ---
 layout: '../../layouts/BlogPost.astro'
-title: moving data - a visual guide to amd64 assemly
+title: moving data - a visual guide to x64 assemly
 publishDate: 2024-02-18
 description: 
-tags: ['amd64']
+tags: ['x64']
 permalink: https://halb.it/posts/the-story-of-the-frog-puzzle/
 ---
 import Picture from '../../components/Picture.astro'
 import SliderHexdump from '../../components/SliderHexdump.svelte'
 import PtrHexdump from '../../components/PtrHexdump.svelte'
 import PushHexdump from '../../components/PushHexdump.svelte'
-import Registers from '../../components/Registers.svelte'
+import RegistersTable from '../../components/RegistersTable.svelte'
 
 It's common knowledge that assembly language is complex.
 After all there must be a reason why
@@ -58,18 +58,16 @@ The amd64 architecture has
 [a lot of registers](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg),
 each with an associated name.
 Some of them have a specific purpose, other are generic containers we can use in our program.
-We mostly interact with these ones, that contain 64-bit values:
-<Registers />
+We mostly interact with these one:
+
+<RegistersTable />
 
 <br/>
 
-It's also possible to access the lower portion of most registers:
-Given a register name, the prefix `r` gives you access to the full 64 bit register, and the prefix `e`
- gives you access to the lower 32 bits of the same register. For example, these are all the ways you can
-  access lower portions of `rax`:
-<Registers display={"rax"} expand={"rax"} />
-
-<br/>
+As you can see from the table registers that start with the prefix `r` can store 64bit values,
+ and you can usually access their lower portion.
+For example replacing `r` with the prefix `e` gives you
+access to the lower 32 bits of the same register.
 
 ### moving data
 
@@ -111,7 +109,7 @@ amd64, like most architectures, has the concept of stack: an area in memory poin
 by the special register `rsp`.<br/>
 The `push` and `pop` instructions offer the simplest interaction with the stack.
 You can experiment with them in this interactive example.
-Notice that this time we are also visualizing some registers
+Note that this time we are also visualizing some registers
 
 <PushHexdump 
   client:load
@@ -144,6 +142,22 @@ But if we only look at the numeric adresses of elements on the stack newer eleme
 which looks backwards.<br/>
 Even when you are aware of this, it's common to get confused. The common train of thoughts goes like this:
 "i put a new value on the stack, and it has a smaller address than the previous value, how it is possible?"
+
+
+### Some resources
+
+This article is still under development. My goal is to improve it over time, 
+adding a section that explains stack frames and integrations with a real x86_64 emulator.
+
+If you reached this point, you might be interested in these additional resources:
+
+- pwn.college's assembly module and lectures https://pwn.college/fundamentals/assembly-crash-course
+- the compiler explorer website https://godbolt.org/z/c6brc1df9
+- the official x86_64 reference https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+- unofficial x86_64 instructions reference https://www.felixcloutier.com/x86/
+- the best linux syscall table reference https://syscalls.mebeim.net/?table=x86/64/x64/latest
+
+
 
 
 
