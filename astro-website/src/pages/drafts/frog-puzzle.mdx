@@ -1,25 +1,27 @@
 ---
 layout: '../../layouts/BlogPost.astro'
-title: Solving kid's puzzles with bruteforce and bloom filters
+title: Solving kid's puzzles with bruteforce and web assembly
 publishDate: 2023-09-19
 description: 
 tags: ['programming']
 permalink: https://halb.it/posts/the-story-of-the-frog-puzzle/
 ---
 import Picture from '../../components/Picture.astro'
-import Froggle from '../../components/froggle/Froggle.astro'
-
-This is the story of that time I couldn't solve a kid's puzzle, so I recreated it to share that feeling with others.
-It's also the story of my first steps into the world of c wasm development.
+import Froggle from '../../components/froggle/Froggle.svelte'
 
 There is a very nice puzzle board game that is designed to teach logic
 to children. It works like this: you win when you drag the star into one of the green holes. You can only drag the star over tiles that are not empty. The game below can be solved in two moves, try it! 
 
-<Froggle prevBt={false} nextBt={false} showLevel={false} level={2}/>
+<Froggle prevBt={false} nextBt={false} showLevel={false} level={2} client:load />
 
 there are also draggable items, that can help you move the star where you want
 
-<Froggle prevBt={false} nextBt={false} showLevel={false} level={4}/>
+<Froggle prevBt={false} nextBt={false} showLevel={false} level={4} client:load />
 
+These are the foundamentals mecahnics of the game, it's pretty simple
+but make no mistake, levels can get extremely difficult very quickly.<br/>
+Can you solve this level?
+
+<Froggle prevBt={false} nextBt={false} showLevel={false} level={10} client:load />
 
 

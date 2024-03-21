@@ -1,4 +1,9 @@
 <script>
+	/**
+	 * This is an interactive element specifically created
+	 * for the moving-data-x64 article
+	 * 
+	*/
 import Hexdump from './Hexdump.svelte'
 
 export let centered = true;

@@ -3,8 +3,8 @@ layout: '../../layouts/BlogPost.astro'
 title: moving data - a visual guide to x64 assemly
 publishDate: 2024-02-18
 description: 
-tags: ['x64']
-permalink: https://halb.it/posts/the-story-of-the-frog-puzzle/
+tags: ['x86-64', 'pwn']
+permalink: https://halb.it/posts/moving-data-x64/
 ---
 import Picture from '../../components/Picture.astro'
 import SliderHexdump from '../../components/SliderHexdump.svelte'
@@ -23,7 +23,7 @@ Assembly is the language of the processor, and at it's core, all the processor d
 
 This guide is not about writing assembly, it's about understanding the way memory moves
 behind the scenes when you execute a program. We'll use concrete examples for the
-amd64 architecture, but these informations apply eveywhere, and are foundamental knowledge 
+x86-64 architecture, but these informations apply eveywhere, and are foundamental knowledge 
 for reverse engineering, binary exploitation, or simply program debugging
 
 ### what is data?
@@ -54,7 +54,7 @@ You can adjust the slider below to try different visualizations of an example me
 ### registers
 
 Registers are containers for data, located inside your CPU.
-The amd64 architecture has
+The x86-64 architecture has
 [a lot of registers](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg),
 each with an associated name.
 Some of them have a specific purpose, other are generic containers we can use in our program.
@@ -105,10 +105,11 @@ You can click "run" to see how the memory is affected
 
 ### the stack
 
-amd64, like most architectures, has the concept of stack: an area in memory pointed
+x64, like most architectures, has the concept of stack: an area in memory pointed
 by the special register `rsp`.<br/>
-The `push` and `pop` instructions offer the simplest interaction with the stack.
-You can experiment with them in this interactive example.
+You can add or remove elements from the top of the stack by using the
+`push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
+You can experiment with the stack in this interactive example.
 Note that this time we are also visualizing some registers
 
 <PushHexdump 
@@ -155,7 +156,7 @@ If you reached this point, you might be interested in these additional resources
 - the compiler explorer website https://godbolt.org/z/c6brc1df9
 - the official x86_64 reference https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
 - unofficial x86_64 instructions reference https://www.felixcloutier.com/x86/
-- the best linux syscall table reference https://syscalls.mebeim.net/?table=x86/64/x64/latest
+- simply the best linux syscall table reference https://syscalls.mebeim.net/?table=x86/64/x64/latest
 
 
 

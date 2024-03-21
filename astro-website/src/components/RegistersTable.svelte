@@ -1,7 +1,14 @@
+<script>
+/**
+ * This is an interactive element specifically created
+ * for the moving-data-x64 article
+ * 
+ * It's supposed to be a x64 registers table, with a stylish design.
 
-<scrip>
-
-</scrip>
+ * Some extra work is required for proper a11y
+ * 
+*/
+</script>
 
 
 <div class="regtablecontainer">
@@ -197,7 +204,6 @@
         background: white;
         padding: 1px;
         width: 100%;
-        display: flex;
         justify-content: center;
     }
     .regtable__rect--16 span.invisible{
