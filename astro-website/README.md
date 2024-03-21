@@ -10,6 +10,7 @@ google icons
 
 # Astro Starter Kit: Blog
 
+
 ```
 npm init astro -- --template blog
 ```
