@@ -1,7 +1,7 @@
 # Production web Dockerfile. This is a multi-step docker image
 
 ########## FIRST STEP: FRONTEND BUILD #######
-FROM node:16 as frontendbuild
+FROM node:19 as frontendbuild
 
 WORKDIR /frontend
 
