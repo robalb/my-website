@@ -1,7 +1,5 @@
 ---
-setup: |
-  import Layout from '../../layouts/BlogPost.astro'
-  import Picture from '../../components/Picture.astro'
+layout: '../../layouts/BlogPost.astro'
 title: A simple guide to CAMAC systems with the PCI-CC32 controller
 subtitle: 
 publishDate: 2022-12-6
@@ -9,15 +7,16 @@ description: CAMAC systems with wiener cc32 controller, a simple guide for nucle
 tags: ['CAMAC', 'physics', 'hardware']
 permalink: https://halb.it/posts/camac-cc32/
 ---
+import Picture from '../../components/Picture.astro'
 
 The goal of this guide is to teach nuclear physicists with a deadline the minimal
 information required to write C programs that interface to CAMAC systems, without the confusing parts
 
 ## What is a CAMAC system?
 
-CAMAC is a [modular crate system](https://en.wikipedia.org/wiki/Modular_crate_electronics) used in the nuclear and particle physics industry for data aquisition. <br> In practical terms a CAMAC system is a metallic cabinet, called a **CRATE**, in which electronic modules can be inserted.
+CAMAC is a [modular crate system](https://en.wikipedia.org/wiki/Modular_crate_electronics) used in the nuclear and particle physics industry for data aquisition. <br/> In practical terms a CAMAC system is a metallic cabinet, called a **CRATE**, in which electronic modules can be inserted.
 
-A CRATE has 24 stations, numbered 1-24 in which a module can be inserted.<br>
+A CRATE has 24 stations, numbered 1-24 in which a module can be inserted.<br/>
 station 25, the rightmost station, is reserved for a **CRATE CONTROLLER** whose
 purpose is to issue **CAMAC COMMANDS** to the modules and transfer information between a computer and the modules.
 
@@ -48,7 +47,7 @@ And this is the same command in another manual `N(30) • A(2) • F(2)`
   If you want to know the function codes supported by a module you will have to read its documentation.
 
 When a command is issued, the selected module will respond with an X signal (indicating that the command was accepted) and a Q signal, whose meaning depends on the function code of the command.
-You can see X and Q as two boolean variables.<br>
+You can see X and Q as two boolean variables.<br/>
 Additionally, up to 24 bits of data can be transferred with each command
 
 ### The Look At Me signal
@@ -82,7 +81,7 @@ As always, the way a module reacts to Z, I, or C commands is described in its do
 
 #### connecting to the crate
 
-In Linux everything is represented as a file. That's right, even the internet is a file! You shouldn't be surprised that this includes CAMAC crates.<br>
+In Linux everything is represented as a file. That's right, even the internet is a file! You shouldn't be surprised that this includes CAMAC crates.<br/>
 When a crate is connected to the computer it appears as a special file in the `/dev` folder, usually called cc32_1.
 If you have multiple crates connected to your computer, you will see multiple files in the `/dev` folder.
 You can find them by running the command `ls /dev` in a terminal.
@@ -131,7 +130,7 @@ int main(int argc, char *argv){
 
 Once you have an open connection to the crate, you can use the functions defined in the library to execute two type of commands:
 
-- **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br>
+- **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br/>
   Use write commands for all function codes >= 16, even if they don't expect any data: just set the data parameter to 0, it will be ignored.
   ```c
   /**
@@ -147,7 +146,7 @@ Once you have an open connection to the crate, you can use the functions defined
   */
   cc32_write_word(handle, N, A, F, data);
   ```
-- **READ** commands: they are composed of N, A, F, and they return some data from the selected module<br>
+- **READ** commands: they are composed of N, A, F, and they return some data from the selected module<br/>
   Use read commands for all function codes < 16, even if they don't return any data
   ```c
   /**

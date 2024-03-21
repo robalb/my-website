@@ -1,15 +1,15 @@
 import { defineConfig } from 'astro/config';
-import preact from '@astrojs/preact';
+import svelte from "@astrojs/svelte";
 
-import react from "@astrojs/react";
+import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [preact(), react()],
+  integrations: [svelte(), mdx()],
   markdown: {
     // Can be 'shiki' (default), 'prism' or false to disable highlighting
     //not as cool as https://www.gatsbyjs.com/plugins/gatsby-remark-prismjs/
-    syntaxHighlight: 'prism',
+    syntaxHighlight: 'prism'
   },
   site: "https://halb.it"
 });

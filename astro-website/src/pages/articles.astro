@@ -10,7 +10,7 @@ let permalink = 'https://halb.it/articles/';
 let activePage = 'articles';
 
 // Data Fetching: List all Markdown posts in the repo.
-let allPosts = await Astro.glob('./posts/*.md');
+let allPosts = await Astro.glob('./posts/*.{md,mdx}');
 allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
 
 let allTags = new Set()

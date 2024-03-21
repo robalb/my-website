@@ -1,17 +1,17 @@
 ---
-setup: |
-  import Layout from '../../layouts/BlogPost.astro'
-  import Picture from '../../components/Picture.astro'
+layout: '../../layouts/BlogPost.astro'
 title: Interactive debugging in pwntools
 publishDate: 2023-09-19
-description: How Ipython can enhance your pwntools debugging session
+description: Some workflows for mixing pwntools and gdb
 tags: ['pwntools', 'pwn', 'gdb']
 permalink: https://halb.it/posts/pwntools-gdb/
+
 ---
+import Picture from '../../components/Picture.astro'
 
 This post is mostly written for myself, since i keep forgetting this kind of commands
 
-### The simpliest workflow
+### The safest workflow
 
 There is a very common trick used to attach gdb to a process controlled by pwntools, and it looks like this:
 

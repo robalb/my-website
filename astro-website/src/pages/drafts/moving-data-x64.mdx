@@ -1,0 +1,160 @@
+---
+layout: '../../layouts/BlogPost.astro'
+title: moving data - a visual guide to x64 assemly
+publishDate: 2024-02-18
+description: 
+tags: ['x86-64', 'pwn']
+permalink: https://halb.it/posts/moving-data-x64/
+---
+import Picture from '../../components/Picture.astro'
+import SliderHexdump from '../../components/SliderHexdump.svelte'
+import PtrHexdump from '../../components/PtrHexdump.svelte'
+import PushHexdump from '../../components/PushHexdump.svelte'
+import RegistersTable from '../../components/RegistersTable.svelte'
+
+It's often said that assembly language is complex.
+ After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
+But while it's true that you would have a hard time writing a large project in assembly, the language itself
+is remarcably simple: Assembly is the dialect of the processor,  and at it's essence, all the processor does is moving data.
+
+This guide isn't about writing assembly; it's about understanding the way memory moves
+behind the scenes when you execute a program. We'll use concrete examples for the
+x86-64 architecture, but these informations apply eveywhere and are foundamental knowledge 
+for reverse engineering, binary exploitation, or simply program debugging
+
+### what is data?
+
+Data is just bites, representing information. You can find it in only two places:
+- in memory, which means in your RAM
+- in registers, which are special containers inside your CPU
+
+### memory
+
+Memory is just a very long list of
+contiguous cells, each containing 8 bits of information, and reachable by a numeric address.
+
+Since printing a long list of bytes would take a lot of space,
+when visualizing memory we usually group bytes in rows of 8 or 16.
+You can adjust the slider below to try different visualizations of an example memory dump:
+
+<SliderHexdump
+  client:load 
+  showAscii={false}
+  data={[
+  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+  232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
+  ]}
+  sliderStart={0} />
+
+### registers
+
+Registers are containers for data, located inside your CPU.
+The x86-64 architecture has
+[a lot of registers](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg),
+each with an associated name.
+Some of them have a specific purpose, other are generic containers we can use in our program.
+We mostly interact with these one:
+
+<RegistersTable />
+
+<br/>
+
+As you can see from the table registers that start with the prefix `r` can store 64bit values,
+ and you can usually access their lower portion.
+For example replacing `r` with the prefix `e` gives you
+access to the lower 32 bits of the same register.
+
+### moving data
+
+The instruction `mov` moves data around. It can move data from a register to another,
+from a register to memory, or vice-versa from memory to a register
+
+ These first examples are self-explanatory:
+
+```c
+mov rbx, 0x10  #copies an integer into rbx
+mov rax, rbx   #copies the content of rbx into rax
+```
+
+Moving data to memory requires some extra syntax:<br/>
+Let's say that our goal is to write `0xff` in the memory cell at address `0x10`.
+- First, we put in a register `0x10`, the address to the cell we want to write.
+- Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
+the memory address contained in the register, and not into the register itself.
+
+```c
+mov rax, 0x10
+mov byte ptr [rax], 0xff
+```
+
+What if we wanted to write to memory more than one byte, for example the whole 8 bytes contained in `rbx`?
+This requires a variation of the `ptr` syntax, to specify that we want to write a sequence of 8 bytes to memory.
+
+The interactive example below shows all the possible variations of the `ptr` syntax.
+You can click "run" to see how the memory is affected
+
+<PtrHexdump
+  client:load 
+  showAscii={false}
+  sliderStart={0} />
+
+### the stack
+
+x64, like most architectures, has the concept of stack: an area in memory pointed
+by the special register `rsp`.<br/>
+You can add or remove elements from the top of the stack by using the
+`push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
+You can experiment with the stack in this interactive example.
+Note that this time we are also visualizing some registers
+
+<PushHexdump 
+  client:load
+  centered={false}
+  showAscii={true} />
+<br/>
+
+You will notice that when we push a value, 
+rsp is decreased by 8 to make space for 8 bytes of data.
+then the value is moved to the memory pointed to rsp.
+
+Basically, `push rax` does the same as the following code:
+```c
+sub rsp, 8
+mov qword ptr [rsp], rax
+```
+
+And `pop rax` does the same as the following code
+```c
+mov rax, qword ptr [rsp]
+add rsp, 8
+```
+
+There is a confusing element here: when we put something onto the stack we are
+growing the stack, and yet we are moving towards lower addresses of memory.
+
+With the way we visualize memory this actually looks correct, the stack is growing 
+towards the top.<br/>
+But if we only look at the numeric adresses of elements on the stack newer elements have smaller addresses,
+which looks backwards.<br/>
+Even when you are aware of this, it's common to get confused. The common train of thoughts goes like this:
+"i put a new value on the stack, and it has a smaller address than the previous value, how it is possible?"
+
+
+### Some resources
+
+This article is still under development. My goal is to improve it over time, 
+adding a section that explains stack frames and integrations with a real x86_64 emulator.
+
+If you reached this point, you might be interested in these additional resources:
+
+- pwn.college's assembly module and lectures https://pwn.college/fundamentals/assembly-crash-course
+- the compiler explorer website https://godbolt.org/z/c6brc1df9
+- the official x86_64 reference https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+- unofficial x86_64 instructions reference https://www.felixcloutier.com/x86/
+- simply the best linux syscall table reference https://syscalls.mebeim.net/?table=x86/64/x64/latest
+
+
+
+
+

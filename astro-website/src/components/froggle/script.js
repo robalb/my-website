@@ -1,14 +1,16 @@
 //https://konvajs.org/docs/sandbox/Gestures.html
 
-class Game{
+export class Game{
   /*
   * Initialize an empty game board canvas inside the give container id
-  * containerId:  String
+  * containerId:  DomElement (if not provided, defaults to the element with id "#container")
   * WinCallback: Opt<Function(NumberOfMoves)>
   */
   constructor(containerId="container", winCallback=null){
     console.log("started")
-    const container = document.getElementById(containerId);
+    const container = containerId;
+    if(containerId == "container")
+      containerId = document.getElementById(containerId);
     this.winCallback = winCallback
     this.colors = {
       foxColor: "orange",
@@ -447,7 +449,7 @@ class Game{
 
 }
 
-const games = [
+export const games = [
 
 {
   name: "tutorial 1",
@@ -835,57 +837,3 @@ function addFox(layer, x, y, isVertical=true){
   return s;
 }
 
-
-  document.addEventListener('DOMContentLoaded', function() {
-    main()
-  }, false);
-  function main(){
-    const DOMlevelTxt = document.getElementById("level-txt")
-    const DOMlevelSelect = document.getElementById("level-select")
-    const DOMrestartBt = document.getElementById("restart-bt")
-    const DOMpreviousBt = document.getElementById("previous-bt")
-    const DOMnextBt = document.getElementById("next-bt")
-
-
-    let selected = 0
-   
-    // try to get the selected game from the html
-    if(DOMlevelSelect && parseInt(DOMlevelSelect.value) >= 0){
-      selected = parseInt(DOMlevelSelect.value)
-    }
-
-    const game = new Game();
-
-    function setGame(selected){
-      let g = games[selected]
-      game.initGame(
-        g.frogs, g.foxes, g.rocks
-      )
-      if(DOMlevelTxt)
-        DOMlevelTxt.innerText = " " + g.name
-    }
-
-    setGame(selected)
-
-
-    if(DOMrestartBt)
-      DOMrestartBt.addEventListener("click", c => {
-        setGame(selected)
-      })
-
-    if(DOMpreviousBt)
-      DOMpreviousBt.addEventListener("click", c => {
-        selected --;
-        if(selected < 0)
-        selected = games.length -1;
-        setGame(selected)
-      })
-
-    if(DOMnextBt)
-    DOMnextBt.addEventListener("click", c => {
-      selected ++;
-      if(selected == games.length)
-      selected = 0;
-      setGame(selected)
-    })
-  }

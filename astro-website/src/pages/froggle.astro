@@ -1,7 +1,7 @@
 ---
 // Component Imports
 import SharedLayout from '../components/SharedLayout.astro';
-import Froggle from '../components/froggle/Froggle.astro';
+import Froggle from '../components/froggle/Froggle.svelte';
 
 let title = 'Froggle';
 let description = 'The only daily puzzle where you get to move frogs'
@@ -11,7 +11,7 @@ let permalink = 'https://halb.it/froggle/';
 	<article >
     <header>
       <h1>Froggle</h1>
-        <Froggle />
+        <Froggle client:only />
     </header>
 </article>
 </SharedLayout>
