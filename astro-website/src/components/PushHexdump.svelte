@@ -14,27 +14,107 @@ data = [
   232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
   ]
-startAddress = 0xffffff00
+startAddress = 0x7fffff00
 
 let options = [
-	{bytes: 1, name: "push", reg: "bl   #note: bl is the first byte of register rbx"},
-	{bytes: 2, name: "pop", reg: "bx"},
+	{move: -8, name: "push"},
+	{bytes: 8, name: "pop"},
 ]
+
+let registers = [
+	{color: "blue", name: "rsp", bytes: [0x50, 0xff, 0xff, 0x7f, 0x00, 0x00, 0x00, 0x00], preview: "hex_int"},
+	{color: "none", name: "rax", bytes: [0,0,0,0,0,0,0,0], preview: "hex_int"},
+]
+
+function hex_intPreview(bytes){
+    let hexBytes = bytes.map(byte => byte.toString(16).padStart(2, '0'));
+    hexBytes.reverse();
+    while (hexBytes[0] === '00' && hexBytes.length > 1) {
+        hexBytes.shift();
+    }
+    let hexString = '0x' + hexBytes.join('');
+    return hexString;
+}
+
+function preview(r){
+	if(r.preview == "hex_int")
+		return "("+ hex_intPreview(r.bytes) +")"
+	else
+		return ""
+}
+
+function hexString(arr){
+	return arr.map(i => ("0" + i.toString(16)).slice(-2)).join(" ")
+}
+
+
+
+/* element interaction specific code.
+ This is the code that powers the current snippet logic. it's not related to
+ the more generic register view */
 let selected = options[0];
-let start_addr = 0x20
 let color_regions = {}
+let rsp_ptr_size = 8;
+
+function bytesToInt(bytes){
+	let hexStr = hex_intPreview(bytes)
+	return parseInt(hexStr, 16)
+}
+
+function bytesLEToInt(bytes) {
+    let result = 0;
+    for (let i = bytes.length - 1; i >= 0; i--) {
+        result = (result << 8) + bytes[i];
+    }
+    return result;
+}
+
+function intToBytesLE(number, byteCount=8) {
+    let bytes = [];
+    for (let i = 0; i < byteCount; i++) {
+        bytes.push(number & 0xff);
+        number = number >> 8;
+    }
+    return bytes;
+}
+
 
 function updateRegions(){
+	let rsp_bytes = registers.find(r => r.name == "rsp").bytes
 	color_regions["blue"] = [];
-	for(let i=0; i< selected.bytes; i++)
-		color_regions["blue"].push(start_addr + i)
+	for(let i=0; i< rsp_ptr_size; i++)
+		color_regions["blue"].push(bytesLEToInt(rsp_bytes) + i - startAddress)
+	console.log(color_regions)
 }
 updateRegions()
 
 function run(){
-	for(let i=0; i< selected.bytes; i++)
-		data[start_addr+i] = 0x42;
-	data = data;
+	let rsp = registers.find(r => r.name == "rsp")
+	let rax = registers.find(r => r.name == "rax")
+
+	if(selected.name == "push"){
+		//decrease rsp_ptr
+		let rsp_val = bytesLEToInt(rsp.bytes)
+		rsp_val -= rsp_ptr_size
+		rsp.bytes = intToBytesLE(rsp_val);
+		//set rax to hardcoded code value
+		rax.bytes = [0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42 ]
+		//put rax into pointed bytes
+		for(let i=0; i< rsp_ptr_size; i++){
+			data[rsp_val + i - startAddress] = rax.bytes[i]
+		}
+	}else{
+		let rsp_val = bytesLEToInt(rsp.bytes)
+		//put pointed bytes into rax
+		for(let i=0; i< rsp_ptr_size; i++){
+			rax.bytes[i] = data[rsp_val + i - startAddress]
+		}
+		//increase rsp_ptr
+		rsp.bytes = intToBytesLE(rsp_val+rsp_ptr_size);
+
+	}
+	registers = registers; //force svelte reactivity update
+	updateRegions()
 }
 
 </script>
@@ -57,18 +137,14 @@ function run(){
 
 <div class="regcontainer">
 	<div class="regdump">
+		{#each registers as r}
 		<div class="regdump__entry">
-			<span class="color blue">+</span>
-			<span class="name">rsp</span>
-			<span class="hex">00 00 00 00 00 00 00 00</span>
-			<span class="int">(0xffffff00)</span>
+			<span class={"color " + r.color} >&nbsp</span>
+			<span class="name">{r.name}</span>
+			<span class="hex">{hexString(r.bytes)}</span>
+			<span class="int">{preview(r)}</span>
 		</div>
-		<div class="regdump__entry">
-			<span class="color ">&nbsp;</span>
-			<span class="name">rax</span>
-			<span class="hex">00 00 00 00 00 00 00 00</span>
-			<span class="int">(0x00)</span>
-		</div>
+		{/each}
 	</div>
 </div>
 <br />
