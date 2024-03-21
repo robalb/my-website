@@ -12,18 +12,14 @@ import PtrHexdump from '../../components/PtrHexdump.svelte'
 import PushHexdump from '../../components/PushHexdump.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
 
-It's common knowledge that assembly language is complex.
-After all there must be a reason why
-we have compilers that write it for us, and high-level languages with a completely 
-different syntax, designed to be understandable by humans.
+It's often said that assembly language is complex.
+ After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
+But while it's true that you would have a hard time writing a large project in assembly, the language itself
+is remarcably simple: Assembly is the dialect of the processor,  and at it's essence, all the processor does is moving data.
 
-But while it's true that you would have a hard time writing a large, complex project
-in assembly, the language itself is the simplest you will ever learn:
-Assembly is the language of the processor, and at it's core, all the processor does is moving data.
-
-This guide is not about writing assembly, it's about understanding the way memory moves
+This guide isn't about writing assembly; it's about understanding the way memory moves
 behind the scenes when you execute a program. We'll use concrete examples for the
-x86-64 architecture, but these informations apply eveywhere, and are foundamental knowledge 
+x86-64 architecture, but these informations apply eveywhere and are foundamental knowledge 
 for reverse engineering, binary exploitation, or simply program debugging
 
 ### what is data?

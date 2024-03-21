@@ -205,6 +205,7 @@
         padding: 1px;
         width: 100%;
         justify-content: center;
+        display: flex;
     }
     .regtable__rect--16 span.invisible{
         opacity: 0;
