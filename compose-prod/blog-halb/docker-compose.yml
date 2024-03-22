@@ -6,7 +6,7 @@ networks:
     external: true
 services:
   blog-halb:
-    image: ghcr.io/robalb/my-website:sha-7192bdde6d5868b0d14005b1fcb9bfeaddcc5550
+    image: ghcr.io/robalb/my-website:sha-c1179cf22b3b41594ad5c6cbb03354d0ac108b3d
     restart: unless-stopped
     expose:
       - '80'
