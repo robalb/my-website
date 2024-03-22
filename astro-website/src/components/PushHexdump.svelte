@@ -89,7 +89,6 @@ function updateRegions(){
 	color_regions["blue"] = [];
 	for(let i=0; i< rsp_ptr_size; i++)
 		color_regions["blue"].push(bytesLEToInt(rsp_bytes) + i - startAddress)
-	console.log(color_regions)
 }
 updateRegions()
 
