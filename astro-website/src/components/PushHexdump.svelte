@@ -248,6 +248,7 @@ function run(){
 		background-color: #f0f0f0;
 		padding: 0.5rem;
 		border: 2px solid transparent;
+		color:black;
 	}
 	button:hover{
 		opacity: .4;
