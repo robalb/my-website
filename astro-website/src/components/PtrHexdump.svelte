@@ -89,7 +89,7 @@ function run(){
 		color: black;
 	}
 	button:hover{
-		opacity: .4;
+		/* opacity: .4; */
 	}
 	button:active{
 		border: 0px;
