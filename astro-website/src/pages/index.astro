@@ -5,7 +5,7 @@ import ProjectPreview from '../components/ProjectPreview.astro';
 import SharedLayout from '../components/SharedLayout.astro';
 import Guestbook from '../components/Guestbook.astro';
 
-let description = "Developer. Passionate about cyber security, web development and distributed systems"
+let description = "Developer. Passionate about cybersecurity, web development and cloud architectures"
 let permalink = 'https://halb.it';
 
 // Data Fetching: List all Markdown posts in the repo.
@@ -33,11 +33,8 @@ allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf()
 	<article>
 	<section>
 		<h1>Hi, I'm Alberto.</h1>
-		<p>
-			 I'm a computer science student at UniMib, living in Milan, Italy.<br/>
-			I like to work on <a href="/projects/" >projects</a> that span
-			the topics of cyber security, web development,
-			and distributed systems, occasionally <a href="articles/" >writing</a> about the challenges I encounter.
+		<p style="max-width: 600px">
+		I'm a developer and Computer Science student at UniMib, passionate about cybersecurity, web development, and cloud architectures
 		</p>
 		<div class="socials">
       {/* https://kittygiraudel.com/2020/12/10/accessible-icon-links/ */}
