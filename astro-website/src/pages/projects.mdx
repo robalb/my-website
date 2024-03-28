@@ -1,0 +1,61 @@
+---
+# This is not a blogpost, this is the /orojects page
+layout:  '../layouts/MdPage.astro'
+title: Projects
+subtitle: A selection of open-source projects from my Github profile
+description: A selection of personal projects
+permalink: https://halb.it/projects/
+activePage: projects
+---
+import Picture from '../components/Picture.astro'
+import PictureThemed from '../components/PictureThemed.astro'
+
+
+### Custom VM emulator and debugger
+
+
+
+### Morse code web radio
+
+### Infrastructure
+
+### Students management system
+
+### this website
+
+### Parsers in exotic languages
+
+Back in February 2022, I took a course at my university titled Programming Languages, which I thoroughly enjoyed.
+A more fitting name for the course would have been Exotic Programming Languages,
+as it focused on relatively obscure programming paradigms.
+
+<PictureThemed src="uri-parser-diagram" height={390} alt="" />
+<br/>
+
+The final project consisted of implementing an URI parser in both Lisp and Prolog.
+There were some extravagant requirements: the code had to be written exclusively in Emacs,
+with a line limit of 80 columns, or it would be disqualified.<br/>
+With that said, it was one of those rare situations in software development where all the project
+requirements were defined in advance;
+we had a detailed description of the grammar to implement
+and an extensive set of tests the professor would use on the code.
+
+You don’t get that many chances in life to practice pure test-driven development:
+I took a couple of days to write a ton of unit tests in Python, including tests for Emacs-like
+code formatting and for the 80-line limit. Then, together with two other classmates,
+we started the development. It was a pretty satisfying experience to know that when all tests passed,
+you had the certainty of a full grade.
+
+The code for the parsers and the language-agnostic unit tests is 
+[on github](https://github.com/robalb/uri_parser_project)
+
+The emacs [code formatter tests](https://github.com/robalb/uri_parser_project/blob/master/tests/tests_formatting.py)
+could still be of use to some fellow unimib student 
+looking to develop the project in vim, or some other editor forbidden by the emacs church
+
+
+### sailing regattas Android app
+
+This was yet another university project, that took an unconfortable amount of my time across a couple of months 
+back in 2022
+
