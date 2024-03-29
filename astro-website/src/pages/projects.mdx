@@ -13,6 +13,44 @@ import PictureThemed from '../components/PictureThemed.astro'
 
 ### Custom VM emulator and debugger
 
+I'm currently following [pwn.college](https://pwn.college), the
+Arizona State University course on binary exploitation.
+The reverse engineering challenges are obfuscated with a vm-based custom
+architecture called yan85.
+Although this wasn't stricty required to solve the challenges, I implemented
+a yan85 emulator, assember, disassembler and a TUI debugger that 
+simplified the reverse engineering process
+
+<Picture src="custom-debugger" height={490} alt="" />
+<br />
+
+The tools are available on [github](https://github.com/robalb/custom-vm-emulator).
+I doubt that they will be of use for anyone, since all challenges can be easily solved 
+manually, and the time required to customize this code is longer than the time
+required to solve a challenge.
+
+At the moment i'm still following the course, and practicing binary exploitation by playing CTFs.
+All my experiences on this subject are documented [in these articles](/articles/#pwn)
+
+
+### This website
+
+I created this website in 2022, after years of procrastination. I wanted a place to host CTF writeups, plus I wanted an excuse
+to practice technical writing in english.
+
+The website is built with Astro, a technology that at the time was still in beta.
+Coming from a React background, I was seriously accustomed to the jsx syntax, and I was looking for a framework
+that allowed me to write everything in markdown+jsx, and compiled to static html+css files.
+
+Astro does exactly that, and additionally allows you to add interactive components in your articles,
+written in wathever web framework you prefer.
+If you've ever read an [article by Ciechanowski](https://ciechanow.ski/color-spaces/), You may have an
+idea of the potential of this feature.
+
+So far, I've experimented with interactive elements written in Svelte in an article about
+[visualizing data](/posts/moving-data-x64/) in x86-64 assembly.<br/>
+I'm documenting everything related to this website [in these articles](/articles/this-website), and the code
+is open source on [github](https://github.com/robalb/my-website)
 
 
 ### Morse code web radio
@@ -97,8 +135,6 @@ to solve by hand. The web app successfully solved the problem.
 <br/>
 
 
-### this website
-
 ### Parsers in exotic languages
 
 Back in February 2022, I took a course at my university titled Programming Languages, which I thoroughly enjoyed.
@@ -164,6 +200,8 @@ Both the app code and the API server are available on the [open-roboe github org
 
 Many projects did not survive the test of times.
 
+Around 2016, I learned programming by developing [minecraft pocket edition mods](https://web.archive.org/web/20190301083244/mcpedl.com/?s=robalb)
+In a cursed javascript+java scripting language.
 
 
 
