@@ -32,13 +32,38 @@ It requires websocket communication, authentication, a database, settings synchr
 custom code and ux for the morse chat.<br/>
 For this reason, I've used it over the years as a playground to test various web technologies.
 
-It went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2020, hosted
+It went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2021, hosted
 on an equally complex kubernetes cluster. Keep in mind that these were simpler times, I was not working,
 and I wanted maximum complexity as the main requirement just for an extra challenge.
 
-
-
 ### Infrastructure
+
+Between 2021 and 2022 I realized I was lacking knowledge in infrastructure and devops processes,
+so i took the decision to containerize all my projects, adding CI/CD pipelines based on github actions.
+
+I also took the cursed decision to move everything on a self-managed, single-node k3s cluster, running on
+an OVH vps provisioned via ansible scripts.
+
+<PictureThemed src="helloworld-generic" alt="a diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
+<br />
+
+In its golden age, the cluster was running all my personal projects. SSL certificates were managed by
+Cert-manager, and everything was served by the Traefik ingress.<br />
+I was also managing metrics and logs with a loki-prometheus-grafana stack,
+and managing Continuous deployments via argo CD.
+
+After a year of infrastructure experimentation, i got a part-time job as
+a backend and cloud infrastructure developer. 
+At my job I was already managing unnecessarily complex k8s clusters and pipelines every day,
+so I got rid of the cluster.
+
+Right now, all my projects run on a Hetzner vps.
+All projects are packaged with a docker-compose file, and deployed via ansible.
+They are tightly integrated with a control plane running traefik, a grafana-prometheus-loki stack, and some other
+utilities. the code is available [on github](https://github.com/robalb/my-infra).<br /> 
+I'm working to put everything into a public template that will simplify
+the process of running personal projects on a vps.
+
 
 ### Students management system
 
@@ -54,7 +79,7 @@ Short oral tests on the current class subject, usually scheduled randomly. A com
 That highschool students in Italy learn very quickly to fear.
 
 During my last years of highschool, professors would schedule weekly oral tests,
-but knowing the time it took to properly prepare they didn't choose the victims randomly, admitting
+but knowing the time it took to properly prepare they didn't choose the victims randomly, allowing
 volunteers instead.<br/>
 This basically meant that with some organization, we could schedule weeks in advance all oral exams.
 A leap forward in our quality of life, except that now we had a scheduling problem.
@@ -133,6 +158,14 @@ on the app repository containing new Retrofit client models whenever a new versi
 
 
 Both the app code and the API server are available on the [open-roboe github organization](https://github.com/open-roboe)
+
+
+### Older projects
+
+Many projects did not survive the test of times.
+
+
+
 
 
 
