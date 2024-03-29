@@ -10,6 +10,7 @@ let permalink = 'https://halb.it';
 
 // Data Fetching: List all Markdown posts in the repo.
 let MAX_POSTS = 10
+let MAX_PROJECTS = 6
 let sortedPosts = await Astro.glob('./posts/*.{md,mdx}')
 sortedPosts = sortedPosts
     .sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf())
@@ -25,9 +26,10 @@ let posts = sortedPosts.map(p => ({
   shortDate: new Date(p.frontmatter.publishDate).getFullYear() != currentYear
 }))
 
-//TODO: fetch only the last 10 projects
-let allProjects = await Astro.glob('./projects/*.md');
-allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf() - new Date(b.frontmatter.order).valueOf());
+let projectsPage = await Astro.glob('./projects.mdx')
+let allProjects = projectsPage[0].getHeadings()
+let projects = allProjects.slice(0, MAX_PROJECTS)
+
 ---
 <SharedLayout {description} {permalink} >
 	<article>
@@ -64,7 +66,7 @@ allProjects = allProjects.sort((a, b) => new Date(a.frontmatter.order).valueOf()
 			<span>Latest projects</span>
 			<a href="/projects/">View All <span class="visually-hidden">projects</span></a>
 		</h2>
-		{allProjects.map((p) => <ProjectPreview post={p} />)}
+		{projects.map((p) => <ProjectPreview slug={p.slug} text={p.text} />)}
 	</section>
 </article>
 <footer>

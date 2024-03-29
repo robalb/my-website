@@ -1,20 +1,17 @@
 ---
 export interface Props {
-	post: any;
+	slug: any;
+  text: any;
 }
 
-const { post } = Astro.props;
+const { slug, text } = Astro.props;
 
-let href = "/";
-if(post.frontmatter.source)
-	href = post.frontmatter.source
-else if(post.frontmatter.demo)
-	href = post.frontmatter.demo + "/"
+let href = "/projects/#" + slug;
 
 ---
 
 <a href={href} class="post" >
-	<h3>{post.frontmatter.title}</h3>
+	<h3>{text}</h3>
   <div>
 	github
   </div>
