@@ -17,9 +17,60 @@ import PictureThemed from '../components/PictureThemed.astro'
 
 ### Morse code web radio
 
+This is an old project I started in 2018, during my first years of highschool.<br/>
+It's a realtime morse code chat, currently used by hundreds of radio amateurs around the world to practice
+morse code.
+You can try it live on [morse.halb.it](https://morse.halb.it). The code is available on 
+[github](https://github.com/robalb/morsechat).
+
+<Picture src="morsechat" height={490} alt="" />
+<br/>
+
+It's clearly a pretty niche project, but it has the advantage of being large enough
+to cover all main areas of web development:
+It requires websocket communication, authentication, a database, settings synchronization,
+custom code and ux for the morse chat.<br/>
+For this reason, I've used it over the years as a playground to test various web technologies.
+
+It went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2020, hosted
+on an equally complex kubernetes cluster. Keep in mind that these were simpler times, I was not working,
+and I wanted maximum complexity as the main requirement just for an extra challenge.
+
+
+
 ### Infrastructure
 
 ### Students management system
+
+I started this project in 2020, in the last years of highschool. The website is 
+still online on [pinboards.halb.it](https://pinboards.halb.it), and an archive of the code
+is available on [github](https://github.com/robalb/studentsplanner)
+
+<Picture src="pinboards-1" height={590} alt="" />
+<br/>
+
+This web app was designed to solve the scheduling of interrogazioni:
+Short oral tests on the current class subject, usually scheduled randomly. A common practice 
+That highschool students in Italy learn very quickly to fear.
+
+During my last years of highschool, professors would schedule weekly oral tests,
+but knowing the time it took to properly prepare they didn't choose the victims randomly, admitting
+volunteers instead.<br/>
+This basically meant that with some organization, we could schedule weeks in advance all oral exams.
+A leap forward in our quality of life, except that now we had a scheduling problem.
+
+Every time a professor announced the start of an oral test season, they usually provided details about the
+days of the week and the amount of volunteers they expected.<br/>
+The class then gathered around a large cork pinboard, sketched the tests calendar with the empty slots to fill,
+and started the complex process of finding the optimal candidate for each slot. The process vaguely resembled
+traders fighting on an exchange trading floor.<br/>
+Everyone had other oral exams, personal issues and countless other hard constraints that made this problem difficult
+to solve by hand. The web app successfully solved the problem.
+
+
+<Picture src="pinboards-2" height={490} alt="" />
+<br/>
+
 
 ### this website
 
@@ -50,12 +101,38 @@ The code for the parsers and the language-agnostic unit tests is
 [on github](https://github.com/robalb/uri_parser_project)
 
 The emacs [code formatter tests](https://github.com/robalb/uri_parser_project/blob/master/tests/tests_formatting.py)
-could still be of use to some fellow unimib student 
+could still be of use to some fellow UniMib student 
 looking to develop the project in vim, or some other editor forbidden by the emacs church
 
 
-### sailing regattas Android app
+### Sailing regattas Android app
 
-This was yet another university project, that took an unconfortable amount of my time across a couple of months 
-back in 2022
+This was yet another university group project, that took an unconfortable amount of my time
+back in 2022.
+Our task was to develop an Android app in Java, adhering to Google's recommended best practices.
+
+<Picture src="roboapp-figma" height={300} alt="" />
+<br/>
+
+We decided to create an app for managing sailing regattas. It featured a nautical map displaying a
+customizable regatta track and provided real-time updates on the position of buoys and support boats.
+
+Android java development can be a scarring experience when your requirements are to follow Google's best practices to the letter.
+Navigating through layers of outdated Java app development practices proved
+to be far more complex than any webpack-react-redux or other convoluted web projects I've encountered.
+I still have flashbacks about fighting `ViewModelProviderFactory` patterns, broken xml layout editors, and `LiveData` mixing with `rxJava`
+
+The fact that i'm talking about this project however means that i enjoyed some parts of it.
+In particular, I'm proud of the figma design I created, which we managed to fully implement.
+
+I also enjoyed developing the API server for the app.
+I wrote it in FastAPI, and used the openapi documentation 
+to automatically generate the schema for the Android Retrofit client.<br/>
+Additionally, I established a basic CI/CD pipeline that automatically created a pull request
+on the app repository containing new Retrofit client models whenever a new version of the API was released.
+
+
+Both the app code and the API server are available on the [open-roboe github organization](https://github.com/open-roboe)
+
+
 
