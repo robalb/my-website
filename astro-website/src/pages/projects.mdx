@@ -28,7 +28,7 @@ Although this wasn't stricty required to solve the challenges, I implemented
 a yan85 emulator, assember, disassembler and a TUI debugger that 
 simplified the reverse engineering process
 
-<Picture src="custom-debugger" height={490} alt="" />
+<Picture src="custom-debugger" height={490} alt="Screenshot of a terminal showing a Textual User interface resembling a debugger. the terminal is split in two vertical sections. on the left there is a hexdump, on the right there is a disassembly listing. an ascii arrow points to the current instruction. At the bottom there is a row showing the values of some registers: registers A,B,C,D have a value of 0. register s has a value of 0x5, register f has a value of 0x6, which corresponds to the flags EZ. In the same row, there is a summary of the debugger commands: (s: step, r: reverse step, c: continue, ctrl-c: quit )" />
 <br />
 
 The tools are available on [github](https://github.com/robalb/custom-vm-emulator).
@@ -42,13 +42,13 @@ All my experiences on this subject are documented [in these articles](/articles/
 
 ### Morse code web radio
 
-This is an old project I started in 2018, during my first years of highschool.<br/>
+This is an old project I started in 2018, during my first years of high school.<br/>
 It's a realtime morse code chat, currently used by hundreds of radio amateurs around the world to practice
 morse code.
 You can try it live on [morse.halb.it](https://morse.halb.it). The code is available on 
 [github](https://github.com/robalb/morsechat).
 
-<Picture src="morsechat" height={490} alt="" />
+<Picture src="morsechat" height={490} alt="Screenshot of a webapp. it's a chat, where all text is in morse code. At the bottom there is a single key. At the left side of the chat there is a panel: it shows two online users, one is typing. at the bottom there are some sliders, labelled: wpm, receiver volume, key volume. There is also a switch labelled 'show letters', and a settings buttom" />
 <br/>
 
 It's clearly a pretty niche project, but it has the advantage of being large enough
@@ -63,62 +63,60 @@ and I wanted maximum complexity as the main requirement just for an extra challe
 
 ### Infrastructure
 
-Between 2021 and 2022 I realized I was lacking knowledge in infrastructure and devops processes,
-so I took the decision to containerize all my projects, adding CI/CD pipelines based on github actions.
+Between 2021 and 2022, driven by a curiosity to explore modern infrastructure and DevOps practices,
+I containerized all my projects on Github and integrated CI/CD pipelines based on Github actions.
 
-I also took the cursed decision to move everything on a self-managed, single-node k3s cluster, running on
-an OVH vps provisioned via ansible scripts.
+I also took the cursed decision to move everything to a self-managed, single-node k3s cluster, running on
+an OVH vps provisioned through Ansible scripts.
 
-<PictureThemed src="helloworld-generic" alt="a diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
+<PictureThemed src="helloworld-generic" alt="A diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
 <br />
 
-In its golden age, the cluster was running all my personal projects. SSL certificates were managed by
-Cert-manager, and everything was served by the Traefik ingress.<br />
-I was also managing metrics and logs with a loki-prometheus-grafana stack,
-and managing Continuous deployments via argo CD.
+For a while, the cluster successfully hosted all my personal projects. SSL certificates were managed by
+Cert-manager, and Traefik served as the ingress controller.<br />
+I also efficiently handled metrics and logs using a Loki-Prometheus-Grafana stack,
+and managed Continuous Deployments with Argo CD.
 
 After a year of infrastructure experimentation, i got a part-time job as
 a backend and cloud infrastructure developer. 
 At my job I was already managing unnecessarily complex k8s clusters and pipelines every day,
-so I got rid of the cluster.
+so I got rid of my personal cluster.
 
-Right now, all my projects run on a Hetzner vps.
-All projects are packaged with a docker-compose file, and deployed via ansible.
-They are tightly integrated with a control plane running traefik, a grafana-prometheus-loki stack, and some other
-utilities. the code is available [on github](https://github.com/robalb/my-infra).<br /> 
+Currently, all my projects are hosted on a Hetzner VPS.
+Each project is packaged with a Docker-compose file, and deployed using Ansible.
+Everything is tightly integrated with a control plane running Traefik, a Grafana-Prometheus-Loki stack, and various other
+utilities. The code for this infrastructure is publicly available [on github](https://github.com/robalb/my-infra).<br /> 
 I'm working to put everything into a public template that will simplify
 the process of running personal projects on a vps.
 
 
 ### Students management system
 
-I started this project in 2020, in the last years of highschool. The website is 
+I started this project in 2020, in the last years of high school. The website is 
 still online on [pinboards.halb.it](https://pinboards.halb.it), and an archive of the code
 is available on [github](https://github.com/robalb/studentsplanner)
 
-<Picture src="pinboards-1" height={590} alt="" />
+<Picture src="pinboards-1" height={590} alt="Screenshot of the landing page of pinboards.halb.it" />
 <br/>
 
-This web app was designed to solve the scheduling of interrogazioni:
-Short oral tests on the current class subject, usually scheduled randomly. A common practice 
-That highschool students in Italy learn very quickly to fear.
+This web app was designed to simplify a critical issue:<br/>
+In my high school, most professors followed the common practice of scheduling weekly oral tests.
+It was a feared activity, worsened by the fact that the victims were usually selected randomly.
+It was only towards the final years that they started
+to allow volunteers, aware of the time it took to properly prepare for a test.<br/>
+This shift meant that with a bit of organization, we could schedule all our oral exams weeks in advance -
+A significant improvement in our quality of life!
 
-During my last years of highschool, professors would schedule weekly oral tests,
-but knowing the time it took to properly prepare they didn't choose the victims randomly, allowing
-volunteers instead.<br/>
-This basically meant that with some organization, we could schedule weeks in advance all oral exams.
-A leap forward in our quality of life, except that now we had a scheduling problem.
-
-Every time a professor announced the start of an oral test season, they usually provided details about the
-days of the week and the amount of volunteers they expected.<br/>
+Whenever a professor announced the start of an oral test season,
+they typically provided details about the days of the week and the expected number of volunteers.<br/>
 The class then gathered around a large cork pinboard, sketched the tests calendar with the empty slots to fill,
 and started the complex process of finding the optimal candidate for each slot. The process vaguely resembled
-traders fighting on an exchange trading floor.<br/>
+traders fighting on an stock exchange floor.<br/>
 Everyone had other oral exams, personal issues and countless other hard constraints that made this problem difficult
 to solve by hand. The web app successfully solved the problem.
 
 
-<Picture src="pinboards-2" height={490} alt="" />
+<Picture src="pinboards-2" height={490} alt="Screenshot of the pinboards web app. It shows a calendar, with names in each slot. the calendar is labelled 'Inglese', and has an orange background. There are other calendars with other colors, that are minimized." />
 <br/>
 
 
@@ -128,7 +126,7 @@ Back in February 2022, I took a course at my university titled Programming Langu
 A more fitting name for the course would have been Exotic Programming Languages,
 as it focused on relatively obscure programming paradigms.
 
-<PictureThemed src="uri-parser-diagram" height={390} alt="" />
+<PictureThemed src="uri-parser-diagram" height={390} alt="Railroad diagram of the URI ebpf grammar" />
 <br/>
 
 The final project consisted of implementing an URI parser in both Lisp and Prolog.
@@ -159,7 +157,7 @@ This was yet another university group project, that took an unconfortable amount
 back in 2022.
 Our task was to develop an Android app in Java, adhering to Google's recommended best practices.
 
-<Picture src="roboapp-figma" height={300} alt="" />
+<Picture src="roboapp-figma" height={300} alt="some screens from an android app. The first screen is a login form. The second screen shows a list of regattas. The third screen shows the same page as the previous one, but there are no regattas, and a placeholder text is shown instead. The text says: 'There are no regattas. Regattas are interactive sailing courses that you can design and manage in real time with others. Create a new regatta with the create new regatta button.' The last screen shows a nautical map. a compass on top is pointing north, and a large text says 'Buoy stacchetto 40° N' On the map, a flag connected to a long line is overlayed on top of the water " />
 <br/>
 
 We decided to create an app for managing sailing regattas. It featured a nautical map displaying a
