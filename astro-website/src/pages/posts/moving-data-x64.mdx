@@ -78,10 +78,10 @@ mov rax, rbx   #copies the content of rbx into rax
 ```
 
 Moving data to memory requires some extra syntax:<br/>
-Let's say that our goal is to write `0xff` in the memory cell at address `0x10`.
+Let's say that our goal is to write the byte `0xff` in the memory cell at address `0x10`.
 - First, we put in a register `0x10`, the address to the cell we want to write.
 - Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
-the memory address contained in the register, and not into the register itself.
+the memory address pointed by the register, and not into the register itself.
 
 ```c
 mov rax, 0x10
@@ -105,8 +105,8 @@ x64, like most architectures, has the concept of stack: an area in memory pointe
 by the special register `rsp`.<br/>
 You can add or remove elements from the top of the stack by using the
 `push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
-You can experiment with the stack in this interactive example.
-Note that this time we are also visualizing some registers
+This interactive example allows you to experiment with `push` and `pop`.
+The stack area is highlighted in blue and displayed below, togehther with the contents of the `rsp` and `rax` registers.
 
 <PushHexdump 
   client:load
@@ -114,9 +114,10 @@ Note that this time we are also visualizing some registers
   showAscii={true} />
 <br/>
 
-You will notice that when we push a value, 
-rsp is decreased by 8 to make space for 8 bytes of data.
-then the value is moved to the memory pointed to rsp.
+There are two key elements you should notice by plaing with the example above:
+- `rsp` points to the top of the stack. It is decreased by 8 when we push a value to the stack, and increased by 8 when we pop a value from the stack.
+- Every time we pop a value from the stack that value is not deleted, the area of memory that contains it
+simply stops being part of the stack. The only thing that changes is the memory address pointed by `rsp`.
 
 Basically, `push rax` does the same as the following code:
 ```c

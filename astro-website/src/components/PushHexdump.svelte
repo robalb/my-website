@@ -87,7 +87,7 @@ function intToBytesLE(number, byteCount=8) {
 function updateRegions(){
 	let rsp_bytes = registers.find(r => r.name == "rsp").bytes
 	color_regions["blue"] = [];
-	for(let i=0; i< rsp_ptr_size; i++)
+	for(let i=0; i< data.length; i++)
 		color_regions["blue"].push(bytesLEToInt(rsp_bytes) + i - startAddress)
 }
 updateRegions()
