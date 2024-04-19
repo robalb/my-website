@@ -1,6 +1,6 @@
 ---
 layout: '../../layouts/BlogPost.astro'
-title: moving data - a visual guide to x64 assemly
+title: moving data - a visual guide to x86-64 assemly
 publishDate: 2024-02-18
 description: 
 tags: ['x86-64', 'pwn']
@@ -11,7 +11,7 @@ import SliderHexdump from '../../components/SliderHexdump.svelte'
 import PtrHexdump from '../../components/PtrHexdump.svelte'
 import PushHexdump from '../../components/PushHexdump.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
-import Spoiler from '../../components/Spoiler.svelte'
+import Spoiler from '../../components/Spoiler.astro'
 
 It's often said that assembly language is complex.
  After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
@@ -105,9 +105,9 @@ You will see that this is not the case with numbers.
 
 ### numbers
 
-Integers on the x86-64 architecture are stored in little endian format.
+Integers in the x86-64 architecture are stored in little endian format.
 
-Let's take a decimal number, for example 3405691582.
+Let's take a decimal number, for example 3405691582:
 Converted to binary, that number is `0xcafebabe`.<br/>
 Unlike what we saw with text, those bytes will not be stored in order.
 Instead, little endian architectures will take a number, split it by bytes,
@@ -148,7 +148,9 @@ contiguous cells, each containing 8 bits of information, and reachable by a nume
 Since printing a long list of bytes would take a lot of space,
 when visualizing memory we usually group bytes in rows of 8 or 16.
 It's also common to include a column to the side that shows the ascii letter associated to each byte.
-You can adjust the slider below to try different visualizations of an example memory dump:
+
+The memory dump below was taken from a program that was running on my computer. 
+Use the slider to adjust the number of bytes you wanto to show in a row.
 
 <SliderHexdump
   client:load 
@@ -173,10 +175,9 @@ We mostly interact with these one:
 
 <br/>
 
-As you can see from the table registers that start with the prefix `r` can store 64bit values,
- and you can usually access their lower portion.
-For example replacing `r` with the prefix `e` gives you
-access to the lower 32 bits of the same register.
+As you can see from the table above, registers that start with the prefix `r` can store 8 bytes of data.
+There are registers that give you access to the lower bytes of larger registers.
+for example `eax` gives you access to the lower 4 bytes of `rax`.
 
 ### moving data
 

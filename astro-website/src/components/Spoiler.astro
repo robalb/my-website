@@ -1,7 +1,10 @@
-<script>
-    export let text = ""
-</script>
+---
+export interface Props {
+	text: string;
+}
+const { text } = Astro.props;
 
+---
 
 <details>
     <summary>
