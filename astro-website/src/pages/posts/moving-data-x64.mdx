@@ -24,7 +24,57 @@ for reverse engineering, binary exploitation, or simply program debugging
 
 ### what is data?
 
-Data is just bites, representing information. You can find it in only two places:
+Data is just bits, representing information.
+It could really be any kind of information, but we are only interested in
+text, and integers.
+
+We are now in the uncomfortable position were we have to talk about 
+sequences of bits,
+which is something that circuits understand very well, but not humans. <br/>
+For example, can you tell the difference between
+`1101010101110` and `1101010101110` ?
+
+<spoiler text="Show answer">
+Ok, the two sequences are identical, but I bet you could not see that in a glance.
+</spoiler>
+
+In order to visualize binary data in a more human friendly way, we use 
+hexadecimal numbers, which associate a number or a letter
+between A and F to a group of 4 bits.
+
+A long sequence of bits can be represented in this way:
+
+```
+0010 0101 0111 1101 1111
+
+ 2    5    7    d    f
+```
+
+Note that in order to avoid confusion with decimal numbers, it's common to prefix
+hexadecimal numbers with `0x`.
+For example, `0x1234` is not the same
+thing as the decimal number `1234`
+
+### text
+
+You probably know that text is usually stored as a sequence of bytes,
+where every byte represent a letter.
+for example, the letter 'a' will become `0x61`
+
+### numbers
+
+Integers on the x86-64 architecture are stored in little endian format.
+
+that means that when you write a number, let's say:
+`1337`
+
+
+
+
+Now that we know how to represent text and numbers, we need some place
+to store them.
+Like all kind of data, we can store it in only two places:
+
 - in memory, which means in your RAM
 - in registers, which are special containers inside your CPU
 
@@ -115,7 +165,7 @@ The stack area is highlighted in blue and displayed below, togehther with the co
 <br/>
 
 There are two key elements you should notice by plaing with the example above:
-- `rsp` points to the top of the stack. It is decreased by 8 when we push a value to the stack, and increased by 8 when we pop a value from the stack.
+- `rsp` points to the top of the stack. It is decreased by 8 when we push a value, and increased by 8 when we pop a value.
 - Every time we pop a value from the stack that value is not deleted, the area of memory that contains it
 simply stops being part of the stack. The only thing that changes is the memory address pointed by `rsp`.
 
@@ -138,11 +188,12 @@ With the way we visualize memory this actually looks correct, the stack is growi
 towards the top.<br/>
 But if we only look at the numeric adresses of elements on the stack newer elements have smaller addresses,
 which looks backwards.<br/>
-Even when you are aware of this, it's common to get confused. The common train of thoughts goes like this:
+Even when you are aware of this, it's common to get confused
+and end up thinking:
 "i put a new value on the stack, and it has a smaller address than the previous value, how it is possible?"
 
 
-### Some resources
+### Further Reading
 
 This article is still under development. My goal is to improve it over time, 
 adding a section that explains stack frames and integrations with a real x86_64 emulator.
