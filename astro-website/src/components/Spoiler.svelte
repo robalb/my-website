@@ -1,0 +1,59 @@
+<script>
+    export let text = ""
+</script>
+
+
+<details>
+    <summary>
+        <span>
+        {text}
+        </span>
+    </summary>
+    <slot />
+</details>
+
+<style>
+    details:not(details[open=""]) {
+        color:red;
+        margin-bottom: 2rem;
+    }
+    summary {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: normal;
+        padding: 0.4rem 0.6rem 0.4rem;
+        border: 1px solid var(--light-border-color);
+        color: var(--bright-font-color);
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 8px;
+        background: var(--reverse);
+        cursor: pointer;
+    }
+
+    summary:hover{
+        background: var(--reverse);
+        border: 1px solid var(--primary);
+        color: var(--primary);
+    }
+    details[open=""] summary{
+        /*
+        TODO: is display:none breaking the accessibility? this should be tested.
+        as an alternative this can be replaced with the visually hidden block below
+        */
+        display: none;
+
+        /*visually hidden*/
+        /* 
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0; */
+    }
+
+</style>

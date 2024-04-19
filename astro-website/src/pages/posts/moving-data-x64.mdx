@@ -11,11 +11,13 @@ import SliderHexdump from '../../components/SliderHexdump.svelte'
 import PtrHexdump from '../../components/PtrHexdump.svelte'
 import PushHexdump from '../../components/PushHexdump.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
+import Spoiler from '../../components/Spoiler.svelte'
 
 It's often said that assembly language is complex.
  After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
 But while it's true that you would have a hard time writing a large project in assembly, the language itself
-is remarcably simple: Assembly is the dialect of the processor,  and at it's essence, all the processor does is moving data.
+is remarcably simple. That's because Assembly is the language of the processor, 
+and at it's essence, all the processor does is moving data.
 
 This guide isn't about writing assembly; it's about understanding the way memory moves
 behind the scenes when you execute a program. We'll use concrete examples for the
@@ -25,23 +27,21 @@ for reverse engineering, binary exploitation, or simply program debugging
 ### what is data?
 
 Data is just bits, representing information.
-It could really be any kind of information, but we are only interested in
-text, and integers.
+Any kind of information can be encoded in a sequence of bits, however the examples in
+this article will only focus on text and integers.
 
-We are now in the uncomfortable position were we have to talk about 
-sequences of bits,
-which is something that circuits understand very well, but not humans. <br/>
+But before we talk about any kind of encoding, we have to introduce a new notation:
+The issue is that while circuits understand sequences of bits very well, humans don't.
 For example, can you tell the difference between
-`1101010101110` and `1101010101110` ?
+`1101010101111110` and `1101010101111110` ?
 
-<spoiler text="Show answer">
-Ok, the two sequences are identical, but I bet you could not see that in a glance.
-</spoiler>
+<Spoiler text="Show answer">
+Ok, the two sequences are identical, but I bet you couldn't immediately see that.
+</Spoiler>
 
 In order to visualize binary data in a more human friendly way, we use 
 hexadecimal numbers, which associate a number or a letter
-between A and F to a group of 4 bits.
-
+between A and F to a group of 4 bits.<br/>
 A long sequence of bits can be represented in this way:
 
 ```
@@ -53,13 +53,54 @@ A long sequence of bits can be represented in this way:
 Note that in order to avoid confusion with decimal numbers, it's common to prefix
 hexadecimal numbers with `0x`.
 For example, `0x1234` is not the same
-thing as the decimal number `1234`
+thing as the decimal number `1234`.<br/>
+I'm not going to explain how conversions between decimal, binary, and hexadecimal numbers work,
+The only assumption i'm making in this article is that you know that.<br/>
+If you have a python terminal, you can perform these conversions very easily:
+
+```python
+al@thinkpad:~/$ python
+>>>
+>>> 0b0010 #print the binary number 0010 in decimal
+2
+>>> 0x1234 #print the hex number 1234 in decimal
+4660
+>>> hex(0b00100101011111011111)
+'0x257df'
+>>> hex(4660)
+'0x1234'
+```
+
+One last convention you should know is that
+a group of hexadecimal numbers have name:
+
+
+ a 4 bits (for example: `f`) -> nibble
+  8 bits ff -> byte
+  16 bits ffff -> word
+  32 bits ffffffff -> dword (a double word)
+  54 bits ffffffffffffffff -> qword (a quadruple word)
+
+
 
 ### text
 
-You probably know that text is usually stored as a sequence of bytes,
+[You probably know](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
+ that there are different ways to encode text. The easiest one is ascii,
+ where text is stored as a sequence of bytes,
 where every byte represent a letter.
-for example, the letter 'a' will become `0x61`
+for example, the letter 'c' is stored as the byte `0x63`,
+The letter 'o' is `0x6f`, 
+The text `ciao` is stored as the sequence of bytes `63 69 61 6f`.
+You can find a table of all ascii letters in the
+[linux man pages](https://man.archlinux.org/man/core/man-pages/ascii.7.en).
+
+Text is a very good example of how data is usually encoded
+it the same order as you normally write it.
+For example, 'ciao' is stored as the byte for c, followed by the byte for i, and so on.
+You will see that this is not the case with numbers.
+
+
 
 ### numbers
 
