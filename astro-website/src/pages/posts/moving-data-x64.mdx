@@ -19,7 +19,7 @@ But while it's true that you would have a hard time writing a large project in a
 is remarcably simple. That's because Assembly is the language of the processor, 
 and at it's essence, all the processor does is moving data.
 
-This guide isn't about writing assembly; it's about understanding the way memory moves
+This guide is not about writing assembly; it's about understanding the way memory moves
 behind the scenes when you execute a program. We'll use concrete examples for the
 x86-64 architecture, but these informations apply eveywhere and are foundamental knowledge 
 for reverse engineering, binary exploitation, or simply program debugging
@@ -27,8 +27,8 @@ for reverse engineering, binary exploitation, or simply program debugging
 ### what is data?
 
 Data is just bits, representing information.
-Any kind of information can be encoded in a sequence of bits, however the examples in
-this article will only focus on text and integers.
+A sequence of bits can encode any kind of information, however this article will only focus
+on text and integers.
 
 But before we talk about any kind of encoding, we have to introduce a new notation:
 The issue is that while circuits understand sequences of bits very well, humans don't.
@@ -72,31 +72,32 @@ al@thinkpad:~/$ python
 ```
 
 One last convention you should know is that
-a group of hexadecimal numbers have name:
+a group of bits has a name, based on how long it is:
 
-
- a 4 bits (for example: `f`) -> nibble
-  8 bits ff -> byte
-  16 bits ffff -> word
-  32 bits ffffffff -> dword (a double word)
-  54 bits ffffffffffffffff -> qword (a quadruple word)
+| N. of bits   | example hex value | name                   |
+| ------------ | ----------------- | ---------------------- |
+| 4            | f                 | nibble                 |
+| 8            | ff                | byte                   |
+| 16           | ffff              | word                   |
+| 32           | fffffff           | dword (double word)    |
+| 64           | fffffffffffff     | qword (quadruple word) |
 
 
 
 ### text
 
 [You probably know](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
- that there are different ways to encode text. The easiest one is ascii,
- where text is stored as a sequence of bytes,
-where every byte represent a letter.
-for example, the letter 'c' is stored as the byte `0x63`,
+ that there are different ways to encode text. The simplest encoding is ascii,
+ where text is stored as a sequence of bytes
+and every byte represent a letter.<br/>
+For example, the letter 'c' is stored as the byte `0x63`,
 The letter 'o' is `0x6f`, 
 The text `ciao` is stored as the sequence of bytes `63 69 61 6f`.
 You can find a table of all ascii letters in the
 [linux man pages](https://man.archlinux.org/man/core/man-pages/ascii.7.en).
 
 Text is a very good example of how data is usually encoded
-it the same order as you normally write it.
+in the same order as you normally write it.
 For example, 'ciao' is stored as the byte for c, followed by the byte for i, and so on.
 You will see that this is not the case with numbers.
 
@@ -106,11 +107,31 @@ You will see that this is not the case with numbers.
 
 Integers on the x86-64 architecture are stored in little endian format.
 
-that means that when you write a number, let's say:
-`1337`
+Let's take a decimal number, for example 3405691582.
+Converted to binary, that number is `0xcafebabe`.<br/>
+Unlike what we saw with text, those bytes will not be stored in order.
+Instead, little endian architectures will take a number, split it by bytes,
+and store those bytes in a reversed order.
+
+```
+0xcafebabe
+
+will be store as:
+
+be ba fe ca
+```
+
+For example, let's say that you encounter the byte sequence `02 ff 00 00 00 00 00 00`,
+what decimal number is it?
+
+<Spoiler text="Show answer">
+- we need to take all the bytes, in reverse order. that's `0x000000000000ff02`
+- exaclty like in decimal, leading zeros are meaningles, so we can remove them. we get `0xff02`
+- using python, we can convert it to decimal. we get: `65282`
+</Spoiler>
 
 
-
+### where is data?
 
 Now that we know how to represent text and numbers, we need some place
 to store them.
@@ -126,11 +147,12 @@ contiguous cells, each containing 8 bits of information, and reachable by a nume
 
 Since printing a long list of bytes would take a lot of space,
 when visualizing memory we usually group bytes in rows of 8 or 16.
+It's also common to include a column to the side that shows the ascii letter associated to each byte.
 You can adjust the slider below to try different visualizations of an example memory dump:
 
 <SliderHexdump
   client:load 
-  showAscii={false}
+  showAscii={true}
   data={[
   80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
   232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
