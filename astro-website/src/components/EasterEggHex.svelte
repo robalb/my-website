@@ -26,6 +26,7 @@ function handleChange(e){
       if(i >= 152){
         //don't know what to do with this
         smashing = true
+        window.location.href = "/crash"
       }
     }
 }
