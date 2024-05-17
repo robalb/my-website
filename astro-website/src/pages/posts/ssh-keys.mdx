@@ -8,6 +8,7 @@ permalink: https://halb.it/posts/ssh-keys/
 
 ---
 import Picture from '../../components/Picture.astro'
+import Spoiler from '../../components/Spoiler.astro'
 
 This is the opinionated way I manage my ssh keys. <br/>
 
@@ -26,7 +27,7 @@ This command will generate a brand new key:<br/>
 `ssh-keygen -t ed25519 -C "key description" -f ~/.ssh/test_key`<br/>
 The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
-<comment style="display:none">
+<Spoiler text="what is a key?">
 
 ### what is a key?
 
@@ -62,7 +63,7 @@ to authenticate automatically, without you having to type any password.
 
 You can also [add an ssh public key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to your github account. It will allow your local git client to automatically authenticate to github. Gitlab and other services have similar options.
 
-</comment>
+</Spoiler>
 
 
 ### the case for using dedicated ssh keys
