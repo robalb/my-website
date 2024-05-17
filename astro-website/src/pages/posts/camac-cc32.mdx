@@ -14,17 +14,19 @@ information required to write C programs that interface to CAMAC systems, withou
 
 ## What is a CAMAC system?
 
-CAMAC is a [modular crate system](https://en.wikipedia.org/wiki/Modular_crate_electronics) used in the nuclear and particle physics industry for data aquisition. <br/> In practical terms a CAMAC system is a metallic cabinet, called a **CRATE**, in which electronic modules can be inserted.
+CAMAC is an ancient [modular crate system](https://en.wikipedia.org/wiki/Modular_crate_electronics) 
+used in the nuclear and particle physics industry for data aquisition. <br/> 
+In practical terms a CAMAC system is a metallic cabinet, called a **CRATE**, in which electronic modules can be inserted.
 
-A CRATE has 24 stations, numbered 1-24 in which a module can be inserted.<br/>
+A CRATE has 24 stations, numbered 1-24 in which modules can be inserted.<br/>
 station 25, the rightmost station, is reserved for a **CRATE CONTROLLER** whose
 purpose is to issue **CAMAC COMMANDS** to the modules and transfer information between a computer and the modules.
 
 In this article we are going to focus on a specific CRATE CONTROLLER: the
 [PCI-CC32](https://manualzz.com/doc/o/a55u3/manual-cc32-controller)
-from ARW Elektroniks Which connects to a Linux computer.
+from ARW Elektroniks Which connects to a Linux computer. This happens to be the setup in a nuclear physics lab at UniMib.
 
-<Picture src="camac-crate" height={490} alt="A bright red web page showing an error message: Your request have been blocked! We detected an attept to attack this website.  mod_insecurity online protection™ blocked your request.  Your request have been logged. Logged requests: 17265 " />
+<Picture src="camac-crate" height={490} alt="A metallic cabinet containing electronic equipment." />
 
 _Highlighted in this picture: A CAMAC CRATE in the wild. Station 12, 16, and 21 are occupied by some modules.
 Station 24-25 is occupied by the CRATE CONTROLLER. You can see the cable that connects it to the computer._
@@ -76,26 +78,22 @@ As always, the way a module reacts to Z, I, or C commands is described in its do
 
 ### Controlling a CAMAC crate with a C program
 
-> We are going to assume that the libcc32 library and driver are already correcly installed on your computer. In other words: Someone already installed everything, you only need to figure out how things work. This is common in most lab setups.
-
+We are starting with the assumption that the libcc32 library and driver are already correcly installed on your computer. 
+In other words: Someone already set up everything, you only need to figure out how things work.
 
 #### connecting to the crate
 
-In Linux everything is represented as a file. That's right, even the internet is a file! You shouldn't be surprised that this includes CAMAC crates.<br/>
-When a crate is connected to the computer it appears as a special file in the `/dev` folder, usually called cc32_1.
-If you have multiple crates connected to your computer, you will see multiple files in the `/dev` folder.
-You can find them by running the command `ls /dev` in a terminal.
+When the libcc32 driver is installed on the computer and a camac crate is connected,
+the crate should appear as a special file in the `/dev` folder, usually called cc32_1.
+If you have multiple crates connected to your computer, you will see multiple files with a similar name in the `/dev` folder.
 
-If you've ever written a C program that reads from a file these concepts will be very familiar to you:
-Normally, when you want to interact with a file you need to open a connection to it and store it in a special FILE variable, also
-referred to as FILE handle.
+The first step is therefore to identify the name of the crate. You can do it by running the command `ls /dev`.
+In our example the crate is associated to a device file called `cc32_1`.
 
-Similarly, if you want to interact with a crate you need to open a connection to it and store it in a special CC32_HANDLE variable.
-
-In practical terms this can be done with the following code
-
+The next step is to write a c program that connects to that crate, does nothing, then quits.
 
 ```c
+// program.c
 #include "libcc32.h"
 
 //the device file where your CAMAC CRATE can be accessed
@@ -115,7 +113,7 @@ int main(int argc, char *argv){
 
   /*
    *
-   * put the rest of the code here
+   * we'll put the rest of the code here
    *
    */
 
@@ -123,15 +121,25 @@ int main(int argc, char *argv){
   cc32_close(&handle); 
 }
 
+```
+
+This program should compile and close without errors.
 
 ```
+gcc program.c -o program
+
+./program
+```
+
+
 
 #### Read and Write commands
 
 Once you have an open connection to the crate, you can use the functions defined in the library to execute two type of commands:
 
 - **WRITE** commands: they are composed of N, A, F, and the additional data that you want to write into the selected module.<br/>
-  Use write commands for all function codes >= 16, even if they don't expect any data: just set the data parameter to 0, it will be ignored.
+  They are called write commands, but that's just a bad naming choice. You are actually supposed to use them for all
+  function codes >= 16, even if they don't expect any data: just set the data parameter to 0, it will be ignored.
   ```c
   /**
    Write 16 bits to an adress made out of N,A,F
@@ -147,7 +155,8 @@ Once you have an open connection to the crate, you can use the functions defined
   cc32_write_word(handle, N, A, F, data);
   ```
 - **READ** commands: they are composed of N, A, F, and they return some data from the selected module<br/>
-  Use read commands for all function codes < 16, even if they don't return any data
+  They are called read commands, but that's also just a bad naming choice. You are supposed to use them for
+  all function codes < 16, even if they don't return any data.
   ```c
   /**
    Read 24 bits from an adress made out of N,A,F and get the Q and X responses
@@ -168,7 +177,7 @@ Once you have an open connection to the crate, you can use the functions defined
    Note: This number will never be negative
    
    This function may fail at reading data
-   The reading was successfull only if the Q and X responses are both equal 1
+   The reading was successfull only if the Q and X responses are both set to 1 by the function.
   */
   unsigned long data = cc32_read_long_qx(handle, N, A, F, &Q, &X);
   ```

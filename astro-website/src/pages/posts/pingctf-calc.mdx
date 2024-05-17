@@ -113,12 +113,13 @@ Next, we can convert all invalid characters into Unicode sequences:
 \u{03c}img\u{020}src\u{3d}1\u{020}onerror\u{3d}alert\u{020}\u{3E} = 1+1
 ```
 
-Inject it into the page, and...<br/>
+Inject it into the page, and voilà we successfully injected html:<br/>
 
 ```html
 <div id="output">Invalid Identifier name: <img src=1 onerror=alert(1)></div>
 ```
-Boom! The image is created, but we get a CSP error
+
+There is only one issue: The image is created, but we get a CSP error
 
 ### The correct solution
 
@@ -131,14 +132,9 @@ style-src-elem 'self';
 script-src 'self' 'unsafe-eval';
 ```
 
-The policy blocks any kind of attack on the `innerHTML` flaw, including the Identifier trick we covered and other similar ones that exploited returned strings or inconsistencies in parsing comments.
+The policy blocks any kind of attack on the `innerHTML` flaw, 
+including the Identifier trick we covered and a similar one that exploited returned strings and inconsistencies in parsing comments.
 
-In the end, the correct solution involved a logic error that made it possible to bypass the AST validation. A full writeup of the exploit is [available here](https://gist.github.com/egonny/4dbf5151f99059ae58cf9390c7cc3830)
-
-To solve this challenge i lost a lot of time looking at parser inconsistencies without realizing that the CSP was making them completely useless, eventually losing a lot of precious time.<br/> I didn't manage to solve the challenge in time, but I definitely learned some useful lessons along the way.
-
-
-
-
-
+In the end, the correct solution involved a logic error that made it possible to bypass the AST validation.
+A full writeup of the exploit is [available here](https://gist.github.com/egonny/4dbf5151f99059ae58cf9390c7cc3830)
 
