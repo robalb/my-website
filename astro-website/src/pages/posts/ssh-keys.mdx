@@ -13,21 +13,21 @@ import Spoiler from '../../components/Spoiler.astro'
 This is the opinionated way I manage my ssh keys. <br/>
 
 
-If you are not familiar with the topic, but you use software like ssh or git
-this article explains useful information that will solve you some googling one day. This is all you need to know:
+If you are not familiar with the topic but you use software like ssh or git,
+I suggest you to learn more about it. This is the kind of knowledge that saves time. The quick recap is this:
 
 
-- Ssh keys are a safer alternative to passwords for authenticating to an ssh remote server. 
+- Ssh keys are a safer alternative to passwords for authenticating to ssh
 
 - [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols) to connect to remote repositories. This makes ssh keys the recommended (and the easiest) way to authenticate to git servers like github
 
 ### generating a key
 
 This command will generate a brand new key:<br/>
-`ssh-keygen -t ed25519 -C "key description" -f ~/.ssh/test_key`<br/>
+`ssh-keygen -t ed25519 -f ~/.ssh/test_key -C "key description"`<br/>
 The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
-<Spoiler text="what is a key?">
+<div style="display:none" text="what is a key?">
 
 ### what is a key?
 
@@ -63,7 +63,7 @@ to authenticate automatically, without you having to type any password.
 
 You can also [add an ssh public key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to your github account. It will allow your local git client to automatically authenticate to github. Gitlab and other services have similar options.
 
-</Spoiler>
+</div>
 
 
 ### the case for using dedicated ssh keys
