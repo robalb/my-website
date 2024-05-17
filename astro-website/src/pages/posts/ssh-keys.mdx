@@ -14,81 +14,140 @@ This is the opinionated way I manage my ssh keys. <br/>
 
 
 If you are not familiar with the topic but you use software like ssh or git,
-I suggest you to learn more about it. This is the kind of knowledge that saves time. The quick recap is this:
+I suggest you to learn more about it. It will simplify your life. The quick recap is this:
 
 
-- Ssh keys are a safer alternative to passwords for authenticating to ssh
+- Ssh keys are a safer alternative to passwords for authenticating to ssh.
+- an ssh key is actually a key pair: The private key stays on your computer. The public key can be shared, and it's comparable to a padlock, that can be opened with the private key.
 
 - [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols) to connect to remote repositories. This makes ssh keys the recommended (and the easiest) way to authenticate to git servers like github
 
-### generating a key
+
+### You shouldn't always use ssh keys
+
+If you are manually setting ssh keys to access 
+cloud infrastructure, chances are there are better ways to manage authentication
+that better integrate with the existing IAM layer.
+
+For example, Google cloud offers [Os login](https://cloud.google.com/compute/docs/oslogin) which binds a Google identity to linux user accounts on a VM.
+Compared to basic access, this system will allow you to:
+- provide fine grained authorization using Google IAM
+- integrate two-step verification
+- integrate audit logging
+- you won't need to keep inventory of existing ssh keys
+
+AWS offers similar features with [EC2 Instance connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-eic.html), and i'm sure other clouds have similar systems.<br/>
+Off course this discussion applies only to cloud infrastructure, ssh keys remain
+a convenient tool in al other situations.
+
+### Generating a key
 
 This command will generate a brand new key:<br/>
 `ssh-keygen -t ed25519 -f ~/.ssh/test_key -C "key description"`<br/>
 The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
-<div style="display:none" text="what is a key?">
+In 2024, ed25519 is the preferred algorithm. It's widely supported, and it produces keys that are much shorter than rsa 4096, while remaining as safe.
 
-### what is a key?
+The key description will be part of the public key, and is therefore something that you share.
+A good description should help you - and whomever you share the key with - to
+understand where the private key is stored, and who is the owner.
+Something like `Alberto Ventafridda work_thinkpad`
 
-The key is actually a key pair.
-If you inspect the contents of your `.ssh` folder after running the key generation command, you will find these two new files:
-```
-test_key
-test_key.pub
-```
+I like to generate a dedicated ssh key for every service that requires it.
+With this practice your ssh folder will grow pretty quickly, which is why 
+it's important to give a descriptive name to the key file, for example `github_work`.<br/>
+You might be wondering what's the point of having dedicated ssh keys, when it's absolutely safe to use the same key for multiple services. Allow me to explain:
 
-They are both text files.
-The first one contains The private key, it should look like this:
-
-```
------BEGIN OPENSSH PRIVATE KEY-----
-d2hhdCBhIG5lcmQuIHdoeSBhcmUgeW91IHJlYWRpbmcgdGhpcz8KCgpkMmhoZENCaElHNW
-xjbVF1SUhkb2VTQmhjbVVnZVc5MUlISmxZV1JwYm1jZ2RHaHBjdz09CgoKZDJoaGRDQmhJ
-RzVsY21RdUlIZG9lU0JoY21VZ2VXOTFJSEpsWVdScGJtY2dkR2hwY3dwa01taG9aRU5DYU
-VsSE5XeGpiVkYxU1Voa2IyVlRRbWhqYlZWblpWYzVNVWxJU214WlYxSndZbTFqWjJSSGFI
-QmpkejA5CgoK==
------END OPENSSH PRIVATE KEY-----
-```
-
-The second file contains the public key, it should look like this:
-```
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdfizrm/YFxBOR23rJMQjHOI8m2zqm3a6wMl41tMehg key description
-```
-
-Private and public keys are always generated in pair, and work in pair like a padlock and its key.
-The idea is that you can copy the public key to a remote ssh server (usually in the file `~/.ssh/authorized_keys`),
-and when you connect to it your ssh client will use the private key
-to authenticate automatically, without you having to type any password.
-
-You can also [add an ssh public key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to your github account. It will allow your local git client to automatically authenticate to github. Gitlab and other services have similar options.
-
-</div>
-
-
-### the case for using dedicated ssh keys
+### The case for using dedicated ssh keys
 
 When ssh tries to authenticate via public key, [it sends the server all your public keys](https://github.com/FiloSottile/whoami.filippo.io?tab=readme-ov-file#how-it-works), one by one, until the server accepts one.
-This is a minor information disclosure issue, since public keys can then be used to link someone's presence to [private infrastructure](https://rushter.com/blog/public-ssh-keys/), or github accounts. <br/>
+This is a minor information disclosure issue, since public keys can then be used by a potential attacker to link someone's presence to [private infrastructure](https://rushter.com/blog/public-ssh-keys/), or github accounts. <br/>
 You can see this in action by running running ssh with the `-v` flag, or by connecting to<br/>
 `ssh whoami.filippo.io`
 
 For this reason, I like to generate a dedicated ssh key for every service that requires it,
 and explicitly associated the key to the host in the `.ssh/config` file.
+You can see an example here:
+
+```toml
+#~/.ssh/config
+
+#some ssh server
+Host homelab.halb.com
+  User admin
+  IdentitiesOnly yes
+  PubkeyAuthentication yes
+  IdentityFile ~/.ssh/id_homelab
+
+# By default, don't send any ssh public key to avoid
+# information disclosure to potential attackers.
+# This block must be at the END of the config file
+Host *
+  PubkeyAuthentication no
+  IdentitiesOnly yes
+  IdentityFile ~/nonexistent
+  User ubuntu
+```
+
+This practice will also solve another potential issue:
+When your client tries to authenticate with all possible keys in your `.ssh`
+folder, and there are too many of them, you will exceed the remote server
+`MaxAuthTries` limit and get the error `Too many Authentication Failures`.
+Since we are not sending any key at all, except for the ones we explicitly bind
+to a host, our client will never encounter this error.
+
+
+### Using ssh alias
+
+You can create host aliases for the hostnames that are too long to type.
+For example:
+
+```toml
+#~/.ssh/config
+
+Host vps
+  HostName a.very.long.hostname.com
+  IdentitiesOnly yes
+  PubkeyAuthentication yes
+  IdentityFile ~/.ssh/id_vps
+
+```
+
+In this example, to connect to the server you can simply type `ssh vps`
+
 
 ### managing multiple github accounts
 
-The nice bonus of manually associating keys to hosts is that this 
-makes it very easy to authenticate to multiple github accounts.<br/>
+The practice of manually associating keys to hosts makes it very
+easy to authenticate to multiple github accounts. You just have to create
+a host alias.
+
 For example, I created a host alias for my work github account called `github.com.work`. <br/>
 Every time I need to clone a github repository from my work account, i simply run
 `git clone git@github.com.work:organization/repository.git` and my ssh client will automatically
-use the correct key
+use the correct key. This is the ssh config:
 
+```toml
+#~/.ssh/config
+
+#personal github.com
+Host github.com
+  IdentitiesOnly yes
+  PubkeyAuthentication yes
+  IdentityFile ~/.ssh/id_personal_github
+
+#work github.com (example usage: git clone git@github.com.work:your-repo.git)
+Host github.com.work
+  HostName github.com
+  IdentitiesOnly yes
+  PubkeyAuthentication yes
+  IdentityFile ~/.ssh/id_work_github
+
+```
 
 ### putting everything together
 
-This is an example of ssh config that integrates everything
+This is an example of ssh config that integrates everything I've mentioned so far:
 
 
 ```toml
