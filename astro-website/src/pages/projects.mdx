@@ -10,7 +10,8 @@ activePage: projects
 import Picture from '../components/Picture.astro'
 import PictureThemed from '../components/PictureThemed.astro'
 
-- [custom vm emulator and debugger](#custom-vm-emulator-and-debugger)
+- [Custom vm emulator and debugger](#custom-vm-emulator-and-debugger)
+- [This website](#this-website)
 - [Morse code web radio](#morse-code-web-radio)
 - [Infrastructure](#infrastructure)
 - [Students management system](#students-management-system)
@@ -39,6 +40,20 @@ required to solve a challenge.
 At the moment i'm still following the course, and practicing binary exploitation by playing CTFs.
 All my experiences on this subject are documented [in these articles](/articles/#pwn)
 
+### This website
+
+This website is part of an ongoing effort to improve my technical writing skills.<br/>
+As Stephen King said, writing is refined thinking. I believe that stronger technical writing
+strictly correlates to better engineering.
+
+From a technical point of view, although the main focus is on the writing,
+I like to customize my articles with interactive elements, taking some extra time to curate 
+the visual aestethics and the accessibility of the pages.
+All the meta-articles about the development of the website are tracked unde the tag [this website](/articles/#this-website).
+The base design is a fork of [Tania Rascia's blog](https://github.com/taniarascia/taniarascia.com),
+relying heavily on the [new moon](https://github.com/taniarascia/new-moon) dark theme. <br/>
+The source code is available on [github](https://github.com/robalb/my-website/)
+
 
 ### Morse code web radio
 
@@ -57,34 +72,29 @@ It requires websocket communication, authentication, a database, settings synchr
 custom code and ux for the morse chat.<br/>
 For this reason, I've used it over the years as a playground to test various web technologies.
 
-It went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2021, hosted
-on an equally complex kubernetes cluster. Keep in mind that these were simpler times, I was not working,
-and I wanted maximum complexity as the main requirement just for an extra challenge.
+It went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2021, 
+running on an equally unnecessary kubernetes cluster. Right now, it's being rewritten 
+as a golang webserver
 
 ### Infrastructure
 
 Between 2021 and 2022, driven by a curiosity to explore modern infrastructure and DevOps practices,
 I containerized all my projects on Github and integrated CI/CD pipelines based on Github actions.
 
-I also took the cursed decision to move everything to a self-managed, single-node k3s cluster, running on
+I also took the cursed decision to move everything to a self-managed k3s cluster, running on
 an OVH vps provisioned through Ansible scripts.
 
 <PictureThemed src="helloworld-generic" alt="A diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
 <br />
 
-For a while, the cluster successfully hosted all my personal projects. SSL certificates were managed by
-Cert-manager, and Traefik served as the ingress controller.<br />
-I also efficiently handled metrics and logs using a Loki-Prometheus-Grafana stack,
-and managed Continuous Deployments with Argo CD.
-
 After a year of infrastructure experimentation, i got a part-time job as
 a backend and cloud infrastructure developer. 
-At my job I was already managing unnecessarily complex k8s clusters and pipelines every day,
+At my new job I was already managing unnecessarily complex k8s clusters and pipelines every day,
 so I got rid of my personal cluster.
 
 Currently, all my projects are hosted on a Hetzner VPS.
 Each project is packaged with a Docker-compose file, and deployed using Ansible.
-Everything is tightly integrated with a control plane running Traefik, a Grafana-Prometheus-Loki stack, and various other
+Everything is tightly integrated with a "base layer" running Traefik, a Grafana-Prometheus-Loki stack, and various other
 utilities. The code for this infrastructure is publicly available [on github](https://github.com/robalb/my-infra).<br /> 
 I'm working to put everything into a public template that will simplify
 the process of running personal projects on a vps.

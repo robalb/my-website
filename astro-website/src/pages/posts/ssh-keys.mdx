@@ -14,13 +14,13 @@ This is the opinionated way I manage my ssh keys. <br/>
 
 
 If you are not familiar with the topic but you use software like ssh or git,
-I suggest you to learn more about it. It will simplify your life. The quick recap is this:
-
+I suggest you to [learn more](https://wiki.archlinux.org/title/SSH_keys) about it. 
+This quick recap is all you need to know to follow along:
 
 - Ssh keys are a safer alternative to passwords for authenticating to ssh.
-- an ssh key is actually a key pair: The private key stays on your computer. The public key can be shared, and it's comparable to a padlock, that can be opened with the private key.
+- an ssh key is actually a key pair: The private key stays on your computer. The public key can be shared, and it's comparable to a padlock that can be opened with the private key.
 
-- [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols) to connect to remote repositories. This makes ssh keys the recommended (and the easiest) way to authenticate to git servers like github
+- [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols) to connect to remote repositories. This makes ssh keys the recommended (and the easiest) way to [authenticate to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or other git servers.
 
 
 ### You shouldn't always use ssh keys
@@ -38,11 +38,11 @@ Compared to basic access, this system will allow you to:
 
 AWS offers similar features with [EC2 Instance connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-eic.html), and i'm sure other clouds have similar systems.<br/>
 Off course this discussion applies only to cloud infrastructure, ssh keys remain
-a convenient tool in al other situations.
+a convenient tool in all other situations.
 
 ### Generating a key
 
-This command will generate a brand new key:<br/>
+This command will generate a brand new key pair:<br/>
 `ssh-keygen -t ed25519 -f ~/.ssh/test_key -C "key description"`<br/>
 The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
@@ -183,3 +183,4 @@ Host *
   User ubuntu
 
 ```
+
