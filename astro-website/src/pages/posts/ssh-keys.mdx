@@ -1,9 +1,9 @@
 ---
 layout: '../../layouts/BlogPost.astro'
-title: managing ssh keys
+title: privacy-focused ssh keys management
 publishDate: 2024-05-16
 description: 
-tags: ['ssh', 'devops']
+tags: ['ssh', 'devops', 'privacy']
 permalink: https://halb.it/posts/ssh-keys/
 
 ---
@@ -11,11 +11,8 @@ import Picture from '../../components/Picture.astro'
 import Spoiler from '../../components/Spoiler.astro'
 
 This is the opinionated way I manage my ssh keys. <br/>
-
-
-If you are not familiar with the topic but you use software like ssh or git,
-I suggest you to [learn more](https://wiki.archlinux.org/title/SSH_keys) about it. 
-This quick recap is all you need to know to follow along:
+If you use SSH or Git but aren't familiar with [SSH keys](https://wiki.archlinux.org/title/SSH_keys), learning about them will simplify your workflow.
+This quick recap is all you need to get started:
 
 - Ssh keys are a safer alternative to passwords for authenticating to ssh.
 - an ssh key is actually a key pair: The private key stays on your computer. The public key can be shared, and it's comparable to a padlock that can be opened with the private key.
@@ -23,35 +20,19 @@ This quick recap is all you need to know to follow along:
 - [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols) to connect to remote repositories. This makes ssh keys the recommended (and the easiest) way to [authenticate to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or other git servers.
 
 
-### You shouldn't always use ssh keys
-
-If you are manually setting ssh keys to access 
-cloud infrastructure, chances are there are better ways to manage authentication
-that better integrate with the existing IAM layer.
-
-For example, Google cloud offers [Os login](https://cloud.google.com/compute/docs/oslogin) which binds a Google identity to linux user accounts on a VM.
-Compared to basic access, this system will allow you to:
-- provide fine grained authorization using Google IAM
-- integrate two-step verification
-- integrate audit logging
-- you won't need to keep inventory of existing ssh keys
-
-AWS offers similar features with [EC2 Instance connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-eic.html), and i'm sure other clouds have similar systems.<br/>
-Off course this discussion applies only to cloud infrastructure, ssh keys remain
-a convenient tool in all other situations.
-
 ### Generating a key
 
 This command will generate a brand new key pair:<br/>
 `ssh-keygen -t ed25519 -f ~/.ssh/test_key -C "key description"`<br/>
-The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
-In 2024, ed25519 is the preferred algorithm. It's widely supported, and it produces keys that are much shorter than rsa 4096, while remaining as safe.
+- `-t ed25519` Sets the algorithm. In 2024 ed25519 is the preferred choice; It's widely supported, and it produces keys that are much shorter than rsa 4096, while remaining as safe.
 
-The key description will be part of the public key, and is therefore something that you share.
-A good description should help you - and whomever you share the key with - to
+- `-C "key description"` Sets the key description. It will be part of the public key, and is therefore something that you share.
+A good description should help you - and whoever you share the key with - to
 understand where the private key is stored, and who is the owner.
 Something like `Alberto Ventafridda work_thinkpad`
+
+- `-f ~/.ssh/test_key` Sets the path where the key pair will be saved. The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
 I like to generate a dedicated ssh key for every service that requires it.
 With this practice your ssh folder will grow pretty quickly, which is why 
@@ -95,6 +76,41 @@ folder, and there are too many of them, you will exceed the remote server
 `MaxAuthTries` limit and get the error `Too many Authentication Failures`.
 Since we are not sending any key at all, except for the ones we explicitly bind
 to a host, our client will never encounter this error.
+
+### The case for storing ssh keys unencrypted 
+
+I don't protect my ssh keys with a password for a simple reason:
+
+Since ssh keys are stored on my pc, a password protects only against the scenario where my pc is physically stolen, which is not in my threat model.<br/>
+Hackers don't break into homes to steal computers, for the simple reason that they don't have to.
+It's much more likely that I will accidentally run malicious code on my pc, and in that situation
+the password protection is useless; The malicious code will simply wait until I type the password
+to steal the keys.
+
+If your threat model includes the pc getting stolen, then full-disk encryption might be a more
+effective solution.<br/>
+And If your threat model includes spyware running on your pc and stealing the key, then a very effective solutions might be to store the ssh key on an external hardware device, such as a [FIDO2 key](https://developers.yubico.com/SSH/Securing_SSH_with_FIDO2.html). FIDO2 keys are a
+particularly cool solution because they can behave like a SIM, but for ssh authentication. The ssh keys will never leave the external device.
+
+### The case for avoiding ssh keys on the cloud
+
+I want to mention very briefly this topic because I've seen a lot of ssh keys misuse in this area:
+If you are manually setting ssh keys to access 
+cloud infrastructure, chances are there are better ways to manage authentication
+that better integrate with the existing IAM layer.
+
+For example, Google cloud offers [Os login](https://cloud.google.com/compute/docs/oslogin) which binds a Google identity to linux user accounts on a VM.
+Compared to basic access, this system will allow you to:
+- provide fine grained authorization using Google IAM
+- integrate two-step verification
+- integrate audit logging
+- you won't need to keep inventory of existing ssh keys
+
+AWS offers similar features with [EC2 Instance connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-eic.html), and I'm sure other clouds have similar systems.<br/>
+All these cloud providers offer an authentication / access control layer on top of all their services, which becomes completely useless the moment you bypass it with your own hardcoded SSH keys.
+
+Of course this discussion applies only to cloud infrastructure; ssh keys remain
+a convenient tool in all other situations.
 
 
 ### Using ssh alias
