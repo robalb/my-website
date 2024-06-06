@@ -1,0 +1,65 @@
+---
+layout: '../../layouts/BlogPost.astro'
+title: saving my git email from spam
+publishDate: 2024-06-5
+description: 
+tags: ['git', 'devops', 'privacy']
+permalink: https://halb.it/posts/github-email/
+
+---
+import Picture from '../../components/Picture.astro'
+import Spoiler from '../../components/Spoiler.astro'
+
+
+Some weeks ago, I received spam messages from what I believe were people
+scraping github repositories for emails.<br/>
+Before that event I never gave too much tought to the email I was using in my commits,
+but in retrospect it's obvious that in a public repository the email used to create a commit
+will be publicly visible.
+
+Every time you create a commit, the email you set in the git configuration
+will be used for the commit description.
+You can see these emails by navigating into a local repository and running the command `git show`.
+
+In fact, it's even easier than that. If you are a scammer
+scraping github repositories for emails, you don’t have to clone the whole repository: 
+just add `.patch` to a commit url to see the full patch info, which includes the commit email.
+for example: https://github.com/torvalds/linux/commit/c3f38fa61af77b49866b006939479069cd451173.patch
+contains the following header:
+
+```
+From c3f38fa61af77b49866b006939479069cd451173 Mon Sep 17 00:00:00 2001
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Sun, 2 Jun 2024 15:44:56 -0700
+Subject: [PATCH] Linux 6.10-rc2
+
+---
+ ...
+```
+
+### the wrong solution
+
+My initial solution was to change the email in my public repositories with a fake one:
+
+`git config user.email fake.email@noreply.halb.it`
+
+This worked fine, until one day I realized the terrible mistake i had done: 
+commits created with an email address that is not associated to my github account
+will not show up in the contribution graph.
+With this solutions all my green squares were missing!
+
+### github email aliases
+
+Github has a cool option that replaces your private email
+with a noreply github email, which looks like this: `14497532+username@users.noreply.github.com`.
+You just have to enable "keep my email address private" in the email settings. 
+You can read the details in the github guide for
+[setting your email privacy](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address).
+
+With this solution your email will remain private without loosing
+precious green squares in the contribution graph.
+
+
+
+
+

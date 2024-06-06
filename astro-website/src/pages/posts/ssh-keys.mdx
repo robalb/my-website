@@ -46,7 +46,7 @@ This is a minor information disclosure issue, since public keys can then be used
 You can see this in action by running running ssh with the `-v` flag, or by connecting to<br/>
 `ssh whoami.filippo.io`
 
-For this reason, I like to generate a dedicated ssh key for every service that requires it,
+To avoid this disclosure I like to generate a dedicated ssh key for every service that requires it,
 and explicitly associated the key to the host in the `.ssh/config` file.
 You can see an example here:
 
@@ -77,20 +77,6 @@ folder, and there are too many of them, you will exceed the remote server
 Since we are not sending any key at all, except for the ones we explicitly bind
 to a host, our client will never encounter this error.
 
-### The case for storing ssh keys unencrypted 
-
-I don't protect my ssh keys with a password for a simple reason:
-
-Since ssh keys are stored on my pc, a password protects only against the scenario where my pc is physically stolen, which is not in my threat model.<br/>
-Hackers don't break into homes to steal computers, for the simple reason that they don't have to.
-It's much more likely that I will accidentally run malicious code on my pc, and in that situation
-the password protection is useless; The malicious code will simply wait until I type the password
-to steal the keys.
-
-If your threat model includes the pc getting stolen, then full-disk encryption might be a more
-effective solution.<br/>
-And If your threat model includes spyware running on your pc and stealing the key, then a very effective solutions might be to store the ssh key on an external hardware device, such as a [FIDO2 key](https://developers.yubico.com/SSH/Securing_SSH_with_FIDO2.html). FIDO2 keys are a
-particularly cool solution because they can behave like a SIM, but for ssh authentication. The ssh keys will never leave the external device.
 
 ### The case for avoiding ssh keys on the cloud
 
