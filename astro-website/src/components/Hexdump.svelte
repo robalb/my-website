@@ -1,4 +1,5 @@
 <script>
+  //TODO: a11y arrow keys https://svelte.dev/repl/328a064fd64843f68418e04d2db09f35?version=3.18.1
   export let centered = true;
   export let bytesPerRow = 8;
   export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
