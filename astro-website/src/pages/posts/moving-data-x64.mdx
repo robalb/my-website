@@ -179,6 +179,27 @@ As you can see from the table above, registers that start with the prefix `r` ca
 There are registers that give you access to the lower bytes of larger registers.
 for example `eax` gives you access to the lower 4 bytes of `rax`.
 
+### Finally, some code
+
+We are assuming that you are familiar with some programming language, it doesn't matter which one.
+Assembly code syntax is similar to the programming language concepts you know:
+a sequence of instructions, usually one on every line, that will be executed in order.
+
+The x86-64 assembly syntax has two different dialects: AT&T and Intel.
+All the code snippets in this article are using the Intel syntax.
+Just to give you an example, this is a snippet of assembly code. You don't have to understand it
+
+```yaml
+# this is a comment
+push    rbp
+mov     rbp, rsp
+mov     DWORD PTR [rbp-4], edi
+mov     eax, DWORD PTR [rbp-4]
+add     eax, 0x42
+pop     rbp
+ret
+```
+
 ### moving data
 
 The instruction `mov` moves data around. It can move data from a register to another,
@@ -186,26 +207,29 @@ from a register to memory, or vice-versa from memory to a register
 
  These first examples are self-explanatory:
 
-```c
-mov rbx, 0x10  #copies an integer into rbx
+```python
+mov rbx, 0x10  #copies the integer 0x10 into rbx
 mov rax, rbx   #copies the content of rbx into rax
 ```
 
 Moving data to memory requires some extra syntax:<br/>
-Let's say that our goal is to write the byte `0xff` in the memory cell at address `0x10`.
-- First, we put in a register `0x10`, the address to the cell we want to write.
-- Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
-the memory address pointed by the register, and not into the register itself.
+The following snippet writes the byte `0xff` in the memory cell at address `0x10`.
 
 ```c
 mov rax, 0x10
 mov byte ptr [rax], 0xff
 ```
 
-What if we wanted to write to memory more than one byte, for example the whole 8 bytes contained in `rbx`?
-This requires a variation of the `ptr` syntax, to specify that we want to write a sequence of 8 bytes to memory.
+Let's break it down:
+- First, we put in a register `0x10`, the address to the cell we want to write.
+- Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
+the memory address pointed by the register, and not into the register itself.
 
-The interactive example below shows all the possible variations of the `ptr` syntax.
+Notice how in that example we moved a single byte, and we used the syntax `byte ptr`.
+If you want to move more than a byte, you must define the proper pointer size, for example
+`qword ptr` will move 8 bytes.
+
+The interactive example below allows you to experiment with all possible variations of the pointer syntax.
 You can click "run" to see how the memory is affected
 
 <PtrHexdump
