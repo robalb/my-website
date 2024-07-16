@@ -8,11 +8,14 @@ permalink: https://halb.it/posts/moving-data-x64/
 ---
 import Picture from '../../components/Picture.astro'
 import SliderHexdump from '../../components/SliderHexdump.svelte'
-import PtrHexdump from '../../components/PtrHexdump.svelte'
 import PushHexdump from '../../components/PushHexdump.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
 import Spoiler from '../../components/Spoiler.astro'
+
+
 import GdbEmbed from '../../components/GdbEmbed.svelte'
+import PtrHexdump from '../../components/PtrHexdump.svelte'
+import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
 
 It's often said that assembly language is complex.
  After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
@@ -232,7 +235,7 @@ You can change that in `word`, `dword` or `qword` if you want to move a differen
 The interactive example below allows you to experiment with all possible variations of the pointer syntax.
 You can click "run" to see how the memory is affected
 
-<GdbEmbed />
+<PtrSyntaxEmbed client:load />
 
 <PtrHexdump
   client:load 

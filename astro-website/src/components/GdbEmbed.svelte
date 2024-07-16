@@ -1,43 +1,73 @@
 <script>
   import Hexdump from './Hexdump.svelte'
 
-  export let centered = true;
+  export let codePanel = true;
+  export let registersPanel = true;
+  export let memoryPanel = true;
+
   export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
   export let strData = "";
   export let showAscii = true;
   export let startAddress = 0;
+  export let colorRegions = {};
 
-data = [
-  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
-  0, 0, 0, 0, 0, 0, 0, 0
-  ]
 </script>
 
 
 <div class="embed">
 
-  <section class="embed__panel --round_top" aria-labelledby="">
+  {#if codePanel}
+  <section
+      class="embed__panel --round_top"
+      class:--round_bottom={!registersPanel && !memoryPanel}
+      aria-labelledby="">
     <!-- <div class="embed__dragline"></div> -->
-    <div class="embed__panel_bar --round_top">
+    <div
+        class="embed__panel_bar --round_top"
+        class:--round_bottom={!registersPanel && !memoryPanel}
+      >
       <p>code</p>
     </div>
     <div class="embed__content">
-
+      <pre><code class="language-assembly"><slot/></code></pre>
+    </div>
+    <div class="embed__code_controls_box">
+      <div class="embed__code_controls">
+        <button>run</button>
+      </div>
     </div>
   </section>
+  {/if}
 
-  <section class="embed__panel" aria-labelledby="">
-    <div class="embed__dragline"></div>
-    <div class="embed__panel_bar">
+  {#if registersPanel}
+  <section
+      class="embed__panel"
+      class:--round_top={!codePanel}
+      class:--round_bottom={!memoryPanel}
+      aria-labelledby="">
+    <div 
+        class="embed__panel_bar"
+        class:--round_top={!codePanel}
+        class:--round_bottom={!memoryPanel} >
       <p>registers</p>
     </div>
     <div class="embed__content">
-
+      <pre>
+        <code>
+$rax   : 0x0
+$rdx   : 0x0
+$rsp   : 0x007fffffffdba0  →  0x0000000000000001
+        </code>
+      </pre>
     </div>
   </section>
+  {/if}
 
-  <section class="embed__panel --round_bottom" aria-labelledby="">
-    <div class="embed__dragline"></div>
+  {#if memoryPanel}
+  <section
+      class="embed__panel --round_bottom"
+      class:--round_top={!codePanel && !memoryPanel}
+      aria-labelledby="">
     <div class="embed__panel_bar">
       <p>memory</p>
     </div>
@@ -50,10 +80,11 @@ data = [
         {strData}
         {showAscii}
         {startAddress}
-        colorRegions={[]}
+        {colorRegions}
       />
     </div>
   </section>
+  {/if}
 
 </div>
 
@@ -72,29 +103,13 @@ data = [
 .embed{
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 8px;
-  /* display: flex; */
-  /* flex-direction:row; */
-
   margin-bottom: 100px;
-}
-
-.embed__dragline{
-  height: 4px;
-  width: 100%;
-  background-color:var(--drag-line-color);
 }
 
 .embed__panel {
   display: flex;
   flex-direction:column;
   background-color: var(--panel-bg-color);
-
-  &.--round_top {
-    border-radius: 8px 8px 0 0;
-  }
-  &.--round_bottom {
-    border-radius: 0 0 8px 8px;
-  }
 }
 
 .embed__panel_bar {
@@ -124,7 +139,50 @@ data = [
 }
 
 .embed__content {
-  /* padding-bottom: 1rem; */
+  padding-bottom: 1rem;
+
+  & pre{
+    overflow: auto;
+    color: white;
+    padding: 1rem;
+    padding-bottom: .5rem;
+    margin: 0;
+  }
+
+  & code {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.embed__code_controls_box {
+		height:0;
+}
+.embed__code_controls {
+
+    & button{
+      position: relative;
+      top: -80px;
+      right: 10px;
+      background-color: #f0f0f0;
+      padding: 0.5rem;
+      border: 2px solid transparent;
+      color: black;
+    }
+    & button:hover{
+      /* opacity: .4; */
+    }
+    & button:active{
+      border: 0px;
+    }
+}
+
+/* global modifiers, not following BEM rules */
+.--round_top{
+  border-radius: 8px 8px 0 0;
+}
+.--round_bottom{
+  border-radius: 0 0 8px 8px;
 }
 
 
