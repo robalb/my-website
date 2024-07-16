@@ -7,6 +7,7 @@
   export let showAscii = true;
   export let startAddress = 0;
   export let colorRegions = {};
+  export let unstyled = false;
 
   let hoveredIndex = -1;
 
@@ -78,6 +79,7 @@
   <div
     class="hexdump"
     class:hexdump--center={centered}
+    class:hexdump--unstyled={unstyled}
     class:hexdump--bytes-16={bytesPerRow === 16}
     class:hexdump--bytes-8={bytesPerRow === 8}
     class:hexdump--bytes-4={bytesPerRow === 4}
@@ -150,6 +152,13 @@
     --ascii-bg-color: var(--default-bg-color);
 
     --divider-bar-color: #818a9d;
+    --border-color: var(--light-border-color);
+  }
+  .hexdump--unstyled {
+    --addr-bg-color: transparent;
+    --hex-bg-color: transparent;
+    --ascii-bg-color: transparent;
+    --border-color: transparent;
   }
 
   .hexdump {
@@ -220,19 +229,19 @@
   /*border*/
   .hexdump__address {
     border-radius: 8px 0 0 8px;
-    border-left: 1px solid var(--light-border-color);
-    border-top: 1px solid var(--light-border-color);
-    border-bottom: 1px solid var(--light-border-color);
+    border-left: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
   }
   .hexdump__hex {
-    border-top: 1px solid var(--light-border-color);
-    border-bottom: 1px solid var(--light-border-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
   }
   .hexdump__ascii {
     border-radius: 0 8px 8px 0;
-    border-top: 1px solid var(--light-border-color);
-    border-bottom: 1px solid var(--light-border-color);
-    border-right: 1px solid var(--light-border-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
   }
 
   /*custom section colors */

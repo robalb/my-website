@@ -1,5 +1,16 @@
 <script>
   import Hexdump from './Hexdump.svelte'
+
+  export let centered = true;
+  export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
+  export let strData = "";
+  export let showAscii = true;
+  export let startAddress = 0;
+
+data = [
+  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+  0, 0, 0, 0, 0, 0, 0, 0
+  ]
 </script>
 
 
@@ -31,6 +42,16 @@
       <p>memory</p>
     </div>
     <div class="embed__content">
+      <Hexdump
+        bytesPerRow={16}
+        centered={false}
+        unstyled={true}
+        {data}
+        {strData}
+        {showAscii}
+        {startAddress}
+        colorRegions={[]}
+      />
     </div>
   </section>
 
@@ -42,6 +63,8 @@
   --drag-line-color: transparent;
   --controls-bg-color: #1c1e24;
   --controls-fg-color: #d0d5df;
+  --controls-border-color: rgba(255, 255, 255, .4); /*light*/
+  --controls-border-color: rgba(255, 255, 255, .2); /*dark*/
   --panel-bg-color: #20232a;
   --panel-fg-color: white;
 }
@@ -76,8 +99,9 @@
 
 .embed__panel_bar {
   background-color: var(--controls-bg-color);
-  border-top: 1px solid rgba(255,255,255, .2);
-  border-bottom: 1px solid rgba(255,255,255, .2);
+  border-top: 1px solid var(--controls-border-color);
+  border-bottom: 1px solid var(--controls-border-color);
+
   height: 2rem;
   padding-left: 1rem;
 
@@ -100,7 +124,7 @@
 }
 
 .embed__content {
-  padding: 2rem;
+  /* padding-bottom: 1rem; */
 }
 
 
