@@ -43,6 +43,9 @@ function run(){
 
 </script>
 
+<div class="t">
+
+<h3>Code</h3>
 <pre class="language-plaintext">
 	<code class="language-plaintext">mov rbx, 0x4242424242424242
 	mov rax, 0x20
@@ -60,6 +63,7 @@ function run(){
 
 
 
+<h3>memory</h3>
 <div class="hexcontainer">
 	 {#key color_regions}
   <Hexdump
@@ -74,7 +78,14 @@ function run(){
   {/key}
 </div>
 
+</div>
+
 <style>
+  div.t{
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 4px;
+  }
 	div.pos{
 		float:right;
 		height:0;

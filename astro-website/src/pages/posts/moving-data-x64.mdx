@@ -12,6 +12,7 @@ import PtrHexdump from '../../components/PtrHexdump.svelte'
 import PushHexdump from '../../components/PushHexdump.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
 import Spoiler from '../../components/Spoiler.astro'
+import GdbEmbed from '../../components/GdbEmbed.svelte'
 
 It's often said that assembly language is complex.
  After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
@@ -226,11 +227,12 @@ Let's break it down:
 the memory address pointed by the register, and not into the register itself.
 
 Notice how in that example we moved a single byte, and we used the syntax `byte ptr`.
-If you want to move more than a byte, you must define the proper pointer size, for example
-`qword ptr` will move 8 bytes.
+You can change that in `word`, `dword` or `qword` if you want to move a different amount of bytes.
 
 The interactive example below allows you to experiment with all possible variations of the pointer syntax.
 You can click "run" to see how the memory is affected
+
+<GdbEmbed />
 
 <PtrHexdump
   client:load 
