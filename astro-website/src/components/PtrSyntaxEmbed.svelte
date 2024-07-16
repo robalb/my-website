@@ -44,6 +44,9 @@ function run(){
 </script>
 
 <GdbEmbed
+    on:runClick={run}
+    on:resetClick={()=>{}}
+    registersPanel={false}
     {data}
     {strData}
     {showAscii}
@@ -92,26 +95,4 @@ mov <select bind:value={selected} on:change={updateRegions}>
 <!--   {/key} -->
 <!-- </div> -->
 
-
-<style>
-	div.pos{
-		float:right;
-		height:0;
-	}
-	button{
-		position: relative;
-		top: -80px;
-		right: 10px;
-		background-color: #f0f0f0;
-		padding: 0.5rem;
-		border: 2px solid transparent;
-		color: black;
-	}
-	button:hover{
-		/* opacity: .4; */
-	}
-	button:active{
-		border: 0px;
-	}
-</style>
 

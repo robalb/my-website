@@ -1,5 +1,6 @@
 <script>
   import Hexdump from './Hexdump.svelte'
+  import { createEventDispatcher } from 'svelte';
 
   export let codePanel = true;
   export let registersPanel = true;
@@ -10,6 +11,16 @@
   export let showAscii = true;
   export let startAddress = 0;
   export let colorRegions = {};
+
+	const dispatch = createEventDispatcher();
+	function onRun() {
+		dispatch('runClick', 'button1')
+	}
+	function onReset() {
+		dispatch('resetClick', 'button2');
+	}
+
+
 
 </script>
 
@@ -33,7 +44,8 @@
     </div>
     <div class="embed__code_controls_box">
       <div class="embed__code_controls">
-        <button>run</button>
+        <button on:click={onReset}>reset</button>
+        <button on:click={onRun}>run</button>
       </div>
     </div>
   </section>
@@ -157,23 +169,30 @@ $rsp   : 0x007fffffffdba0  →  0x0000000000000001
 
 .embed__code_controls_box {
 		height:0;
+    width: 100%;
+    display: flex;
+    justify-content:flex-end;
 }
+
 .embed__code_controls {
+      position: relative;
+      top: -50px;
+      margin-right: 1rem;
 
     & button{
-      position: relative;
-      top: -80px;
-      right: 10px;
       background-color: #f0f0f0;
       padding: 0.5rem;
-      border: 2px solid transparent;
+      border: 2px solid #f0f0f0;
+      border-radius:8px;
       color: black;
     }
     & button:hover{
       /* opacity: .4; */
     }
     & button:active{
-      border: 0px;
+      border-top: 0px;
+      border-bottom: 0px;
+      border-color: transparent;
     }
 }
 
