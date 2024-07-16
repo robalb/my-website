@@ -6,17 +6,8 @@
 */
 import GdbEmbed from './GdbEmbed.svelte'
 
-export let centered = true;
-export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
-export let strData = "";
-export let showAscii = true;
-export let startAddress = 0;
-export let colorRegions = {};
-
-data = [
-  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
-  0, 0, 0, 0, 0, 0, 0, 0
-  ]
+let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
+let startAddress = 0;
 
 let options = [
 	{bytes: 1, name: "byte", reg: "bl"},
@@ -27,6 +18,17 @@ let options = [
 let selected = options[0];
 let start_addr = 0x20
 let color_regions = {}
+
+function init(){
+  data = [
+    80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+    0, 0, 0, 0, 0, 0, 0, 0
+    ]
+selected = options[0];
+color_regions = {}
+
+}
+init();
 
 function updateRegions(){
 	color_regions["blue"] = [];
@@ -45,11 +47,10 @@ function run(){
 
 <GdbEmbed
     on:runClick={run}
-    on:resetClick={()=>{}}
+    on:resetClick={init}
     registersPanel={false}
     {data}
-    {strData}
-    {showAscii}
+    showAscii={true}
     {startAddress}
     colorRegions={color_regions}
 >
@@ -63,36 +64,4 @@ mov <select bind:value={selected} on:change={updateRegions}>
   {/each}
   </select> ptr [rax], {selected.reg}
 </GdbEmbed>
-
-<!-- <pre class="language-plaintext"> -->
-<!-- 	<code class="language-plaintext">mov rbx, 0x4242424242424242 -->
-<!-- 	mov rax, 0x20 -->
-<!-- 	mov <select bind:value={selected} on:change={updateRegions}> -->
-<!-- 		{#each options as option} -->
-<!-- 			<option value={option}> -->
-<!-- 				{option.name} -->
-<!-- 			</option> -->
-<!-- 		{/each} -->
-<!-- 		</select> ptr [rax], {selected.reg}</code> -->
-<!-- </pre> -->
-<!-- <div class="pos"> -->
-<!-- 	<button on:click={run}>run</button> -->
-<!-- </div> -->
-
-
-
-<!-- <div class="hexcontainer"> -->
-<!-- 	 {#key color_regions} -->
-<!--   <Hexdump -->
-<!--     bytesPerRow={16} -->
-<!--     {centered} -->
-<!--     {data} -->
-<!--     {strData} -->
-<!--     {showAscii} -->
-<!--     {startAddress} -->
-<!--     colorRegions={color_regions} -->
-<!--   /> -->
-<!--   {/key} -->
-<!-- </div> -->
-
 
