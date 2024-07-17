@@ -11,6 +11,7 @@ import SliderHexdump from '../../components/SliderHexdump.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
 import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
 import StackEmbed from '../../components/StackEmbed.svelte'
+import EndiannessEmbed from '../../components/EndiannessEmbed.svelte'
 
 It's often said that assembly language is complex. Most people are scared of it, everyone avoids it.
  After all, there's a reason why high-level languages and compilers were invented, right?<br/>
@@ -90,10 +91,9 @@ contains all the names that you will encounter while working with the x86-64 arc
 There are a lot of different ways to encode text, and I recommend that you 
 read the [bare minimum foundamentals](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
 , it's a very interesting topic in itself.
-But in this article we'll only focus on ASCII encoding, which is extremely simple. 
-All you need to know is this:
+In this article however we'll only focus on ASCII encoding, which is extremely simple:
 
-In ASCII, text is stored as a seqence of bytes. every byte represents a character,
+All you need to know is that text is stored as a seqence of bytes. every byte represents a character,
 so there are `127` possible characters between numbers, english letters and puctuation.
 You can find a table of all the ascii characters in the
 [linux man pages](https://man.archlinux.org/man/core/man-pages/ascii.7.en).
@@ -215,7 +215,32 @@ but we choose that number carefully to hide the issue. In the next example, you 
 You can enter either Decimal or Hex numbers, prefix Hex numbers with `0x`.<br/>
 Can you spot the issue?
 
-<PtrSyntaxEmbed client:load />
+<EndiannessEmbed client:load /><br/>
+
+You should have noticed that the bytes that compose a number are stored
+in reverse order compared to the way we read and write them.
+Both humans and computers use a positional number system to represent integers, where
+the same digit has a different weight depending on its position.<br/>
+When we represent numbers, we put the most significant digits to the left:
+
+```
+  1337
+  |  |
+  |  Least significant digit
+  Most significant digit
+
+  0xcafebabe
+    |     |
+    |     Least significant byte
+    Most significant byte
+```
+In other words, we write the most significant value first.
+In little endian architectures the least significant value is written first instead.
+
+This topic is explained in details on [wikipedia](https://en.wikipedia.org/wiki/Endianness), with some
+useful diagrams that will solve any doubts you might have.<br/>
+Endianness is only related to the way the processor handles numbers. Note how 
+other kind of data, such as text, is usually encoded in the same order as you would expect.
 
 ### the stack
 
@@ -223,8 +248,8 @@ x64, like most architectures, has the concept of stack: an area in memory pointe
 by the special register `rsp`.<br/>
 You can add or remove elements from the top of the stack by using the
 `push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
-This interactive example allows you to experiment with `push` and `pop`.
-The stack area is highlighted in blue and displayed below, togehther with the contents of the `rsp` and `rax` registers.
+In this interactive example
+the stack area is highlighted in blue, and the contents of the `rsp` and `rax` registers are displayed.
 
 <StackEmbed client:load /><br/>
 
