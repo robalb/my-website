@@ -12,13 +12,14 @@ import RegistersTable from '../../components/RegistersTable.svelte'
 import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
 import StackEmbed from '../../components/StackEmbed.svelte'
 
-It's often said that assembly language is complex.
- After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
-But while it's true that you would have a hard time writing a large project in assembly, the language itself
-is remarcably simple. That's because Assembly is the language of the processor, 
+It's often said that assembly language is complex. Most people are scared of it, everyone avoids it.
+ After all, there's a reason why high-level languages and compilers were invented, right?<br/>
+But while it's true that you would have a hard time writing a large project in assembly, 
+the language itself is surprisingly simple.
+That's because Assembly is the native language of the processor, 
 and at it's essence, all the processor does is moving data.
 
-This guide is not about writing assembly; it's about understanding the way memory moves
+This guide is not about writing assembly; it's about understanding the way data moves
 behind the scenes when you execute a program. We'll use concrete examples for the
 x86-64 architecture, but these informations apply eveywhere and are foundamental knowledge 
 for reverse engineering, binary exploitation, or simply program debugging
@@ -64,14 +65,15 @@ al@thinkpad:~/$ python
 2
 >>> 0x1234 #print the hex number 1234 in decimal
 4660
->>> hex(0b00100101011111011111)
+>>> hex(0b00100101011111011111) #print a binary number in hex
 '0x257df'
->>> hex(4660)
+>>> hex(4660) #print a decimal number in hex
 '0x1234'
 ```
 
-One last convention you should know is that
-a group of bits has a name, based on how long it is:
+One more thing: we call a group of 8 bits a `byte`, but that's not the only 
+group of bits with a name. The following table
+contains all the names that you will encounter while working with the x86-64 architecture:
 
 | N. of bits   | example hex value | name                   |
 | ------------ | ----------------- | ---------------------- |
@@ -85,49 +87,20 @@ a group of bits has a name, based on how long it is:
 
 ### text
 
-[You probably know](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
- that there are different ways to encode text. The simplest encoding is ascii,
- where text is stored as a sequence of bytes
-and every byte represent a letter.<br/>
+There are a lot of different ways to encode text, and I recommend that you 
+read the [bare minimum foundamentals](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
+, it's a very interesting topic in itself.
+But in this article we'll only focus on ASCII encoding, which is extremely simple. 
+All you need to know is this:
+
+In ASCII, text is stored as a seqence of bytes. every byte represents a character,
+so there are `127` possible characters between numbers, english letters and puctuation.
+You can find a table of all the ascii characters in the
+[linux man pages](https://man.archlinux.org/man/core/man-pages/ascii.7.en).
+
 For example, the letter 'c' is stored as the byte `0x63`,
 The letter 'o' is `0x6f`, 
 The text `ciao` is stored as the sequence of bytes `63 69 61 6f`.
-You can find a table of all ascii letters in the
-[linux man pages](https://man.archlinux.org/man/core/man-pages/ascii.7.en).
-
-Text is a very good example of how data is usually encoded
-in the same order as you normally write it.
-For example, 'ciao' is stored as the byte for c, followed by the byte for i, and so on.
-You will see that this is not the case with numbers.
-
-
-
-### numbers
-
-Integers in the x86-64 architecture are stored in little endian format.
-
-Let's take a decimal number, for example 3405691582:
-Converted to binary, that number is `0xcafebabe`.<br/>
-Unlike what we saw with text, those bytes will not be stored in order.
-Instead, little endian architectures will take a number, split it by bytes,
-and store those bytes in a reversed order.
-
-```
-0xcafebabe
-
-will be store as:
-
-be ba fe ca
-```
-
-For example, let's say that you encounter the byte sequence `02 ff 00 00 00 00 00 00`,
-what decimal number is it?
-
-<Spoiler text="Show answer">
-- we need to take all the bytes, in reverse order. that's `0x000000000000ff02`
-- exaclty like in decimal, leading zeros are meaningles, so we can remove them. we get `0xff02`
-- using python, we can convert it to decimal. we get: `65282`
-</Spoiler>
 
 
 ### where is data?
@@ -220,7 +193,7 @@ mov byte ptr [rax], 0xff
 ```
 
 Let's break it down:
-- First, we put in a register `0x10`, the address to the cell we want to write.
+- First, we put in a register `0x10`, the address of the cell we want to write to.
 - Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
 the memory address pointed by the register, and not into the register itself.
 
@@ -232,6 +205,17 @@ You can click "run" to see how the memory is affected
 
 <PtrSyntaxEmbed client:load />
 
+
+### a sidenote on endianness
+
+We managed to reach this point by ignoring an important fact: x86-64 is a little endian architecture,
+which means that numbers are not stored in the way you would expect.<br/>
+In the previous example, you saw what the number `0x4242424242424242` looks like in memory,
+but we choose that number carefully to hide the issue. In the next example, you can choose the number you want.
+You can enter either Decimal or Hex numbers. prefix Hex numbers with `0x`.<br/>
+Can you spot the issue?
+
+<PtrSyntaxEmbed client:load />
 
 ### the stack
 
