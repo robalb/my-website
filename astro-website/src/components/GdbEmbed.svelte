@@ -7,6 +7,7 @@
   export let memoryPanel = true;
 
   export let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
+  export let registers = [];
   export let strData = "";
   export let showAscii = true;
   export let startAddress = 0;
@@ -20,6 +21,26 @@
 		dispatch('resetClick', 'button2');
 	}
 
+  function hex_intPreview(bytes){
+      let hexBytes = bytes.map(byte => byte.toString(16).padStart(2, '0'));
+      hexBytes.reverse();
+      while (hexBytes[0] === '00' && hexBytes.length > 1) {
+          hexBytes.shift();
+      }
+      let hexString = '0x' + hexBytes.join('');
+      return hexString;
+  }
+
+  function preview(r){
+    if(r.preview == "hex_int")
+      return hex_intPreview(r.bytes)
+    else
+      return ""
+  }
+
+  function hexString(arr){
+    return arr.map(i => ("0" + i.toString(16)).slice(-2)).join(" ")
+  }
 
 
 </script>
@@ -64,13 +85,8 @@
       <p>registers</p>
     </div>
     <div class="embed__content">
-      <pre>
-        <code>
-$rax   : 0x0
-$rdx   : 0x0
-$rsp   : 0x007fffffffdba0  →  0x0000000000000001
-        </code>
-      </pre>
+      <pre><code class="language-assembly embed__registers">{#each registers as r}<span class={"name " + r.color}>{r.name}</span>  : <span class="hex">[{hexString(r.bytes)}]</span><span class="int">{preview(r)}</span> 
+{/each}</code></pre>
     </div>
   </section>
   {/if}
@@ -110,12 +126,16 @@ $rsp   : 0x007fffffffdba0  →  0x0000000000000001
   --controls-border-color: rgba(255, 255, 255, .2); /*dark*/
   --panel-bg-color: #20232a;
   --panel-fg-color: white;
+
+  --reg-blue-color: #6ab0f3;
+  --reg-red-color: #fca369;
+  --reg-hexdump-color: #818a9d;
+  --reg-int-color: white;
 }
 
 .embed{
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 8px;
-  margin-bottom: 100px;
 }
 
 .embed__panel {
@@ -186,14 +206,30 @@ $rsp   : 0x007fffffffdba0  →  0x0000000000000001
       border-radius:8px;
       color: black;
     }
-    & button:hover{
-      /* opacity: .4; */
-    }
     & button:active{
       border-top: 0px;
       border-bottom: 0px;
       border-color: transparent;
     }
+}
+
+.embed__registers {
+  & .name {
+    color: var(--reg-blue-color);
+  }
+  & .blue{
+    color: var(--reg-blue-color);
+  }
+  & .red{
+    color: var(--reg-red-color);
+  }
+  & .hex {
+    display: none;
+    color: var(--reg-hexdump-color);
+  }
+  & .int {
+    color: var(--reg-int-color);
+  }
 }
 
 /* global modifiers, not following BEM rules */

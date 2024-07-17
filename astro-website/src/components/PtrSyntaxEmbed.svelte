@@ -1,7 +1,9 @@
 <script>
 /**
  * This is an interactive element specifically created
- * for the moving-data-x64 article
+ * for the moving-data-x64 article.
+ * It showcases how the "mov ptr [src] dest" x86-64
+ * assembly syntax works, wiht a live example
  * 
 */
 import GdbEmbed from './GdbEmbed.svelte'
@@ -24,9 +26,9 @@ function init(){
     80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
     0, 0, 0, 0, 0, 0, 0, 0
     ]
-selected = options[0];
-color_regions = {}
-
+  selected = options[0];
+  color_regions = {}
+  updateRegions()
 }
 init();
 
@@ -34,8 +36,9 @@ function updateRegions(){
 	color_regions["blue"] = [];
 	for(let i=0; i< selected.bytes; i++)
 		color_regions["blue"].push(start_addr + i)
+  color_regions["blue"] = color_regions["blue"]
+  color_regions = color_regions
 }
-updateRegions()
 
 function run(){
 	for(let i=0; i< selected.bytes; i++)

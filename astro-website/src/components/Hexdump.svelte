@@ -92,6 +92,7 @@
       {/each}
     </div>
     <div class="hexdump__hex hexdump__responsivecol" on:mouseover={handleHover}>
+      {#key colorRegions}
       {#each data as d, i}
         <span
           data-range={range(d)}
@@ -102,12 +103,14 @@
           >{("0" + d.toString(16)).slice(-2)}</span
         >
       {/each}
+      {/key}
     </div>
     {#if showAscii}
     <div
       class="hexdump__ascii hexdump__responsivecol"
       on:mouseover={handleHover}
     >
+      {#key colorRegions}
       {#each data as d, i}
         <span
           data-ascii={ascii(d) != "."}
@@ -117,6 +120,7 @@
           class:highlight={i == hoveredIndex}>{ascii(d)}</span
         >
       {/each}
+      {/key}
     </div>
     {/if}
   </div>
@@ -276,20 +280,16 @@
 
   /* hover states */
   .hexdump .highlight {
-    background-color: gold !important;
-    color: black !important;
+    outline: 1px solid gold;
   }
   .hexdump__hex span:hover {
-    background-color: gold;
-    color: black;
+    outline: 1px solid gold;
   }
   .hexdump__ascii span:hover {
-    background-color: gold;
-    color: black;
+    outline: 1px solid gold;
   }
   .hexdump__address div:hover {
-    background-color: gold;
-    color: black;
+    outline: 1px solid gold;
   }
 
   /* responsiveness based on "\a" and media queries */

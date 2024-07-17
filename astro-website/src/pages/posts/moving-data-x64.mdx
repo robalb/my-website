@@ -6,16 +6,11 @@ description:
 tags: ['x86-64', 'pwn']
 permalink: https://halb.it/posts/moving-data-x64/
 ---
-import Picture from '../../components/Picture.astro'
-import SliderHexdump from '../../components/SliderHexdump.svelte'
-import PushHexdump from '../../components/PushHexdump.svelte'
-import RegistersTable from '../../components/RegistersTable.svelte'
 import Spoiler from '../../components/Spoiler.astro'
-
-
-import GdbEmbed from '../../components/GdbEmbed.svelte'
-import PtrHexdump from '../../components/PtrHexdump.svelte'
+import SliderHexdump from '../../components/SliderHexdump.svelte'
+import RegistersTable from '../../components/RegistersTable.svelte'
 import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
+import StackEmbed from '../../components/StackEmbed.svelte'
 
 It's often said that assembly language is complex.
  After all, there's a reason why high-level languages and compilers exist—to spare us the intricacies, right?<br/>
@@ -191,7 +186,7 @@ a sequence of instructions, usually one on every line, that will be executed in 
 
 The x86-64 assembly syntax has two different dialects: AT&T and Intel.
 All the code snippets in this article are using the Intel syntax.
-Just to give you an example, this is a snippet of assembly code. You don't have to understand it
+The following snippet is an example of how the syntax looks like, don't worry about what it does for now.
 
 ```yaml
 # this is a comment
@@ -237,10 +232,6 @@ You can click "run" to see how the memory is affected
 
 <PtrSyntaxEmbed client:load />
 
-<PtrHexdump
-  client:load 
-  showAscii={false}
-  sliderStart={0} />
 
 ### the stack
 
@@ -251,11 +242,7 @@ You can add or remove elements from the top of the stack by using the
 This interactive example allows you to experiment with `push` and `pop`.
 The stack area is highlighted in blue and displayed below, togehther with the contents of the `rsp` and `rax` registers.
 
-<PushHexdump 
-  client:load
-  centered={false}
-  showAscii={true} />
-<br/>
+<StackEmbed client:load /><br/>
 
 There are two key elements you should notice by plaing with the example above:
 - `rsp` points to the top of the stack. It is decreased by 8 when we push a value, and increased by 8 when we pop a value.
