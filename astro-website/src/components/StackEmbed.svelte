@@ -2,8 +2,8 @@
 /**
  * This is an interactive element specifically created
  * for the moving-data-x64 article.
- * It showcases how the "mov ptr [src] dest" x86-64
- * assembly syntax works, wiht a live example
+ * It showcases how the stack works when "push" or "pop" is executed
+ * in the x86-64 architecture
  * 
 */
 import GdbEmbed from './GdbEmbed.svelte'
