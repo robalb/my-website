@@ -56,7 +56,7 @@ function init(){
   data = Array(14*8).fill(0)
   let text = "Example text"
   text.split("").forEach((c,i) => data[i] = c.charCodeAt(0))
-  imm = "0xfeedc0de12345678"
+  imm = "0xcafebabe11"
   error = ""
 }
 init();

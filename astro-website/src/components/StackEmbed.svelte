@@ -10,6 +10,7 @@ import GdbEmbed from './GdbEmbed.svelte'
 
 let data = [0, 0, 0, 0, 0xca, 0xfe, 0xba, 0xbe];
 let startAddress = 0x7fffff00;
+let endAddress = 0x7fffffd8;
 
 let options = [
 	{move: -8, name: "push"},
@@ -21,7 +22,7 @@ let registers = [
 	{color: "blue", name: "rax", bytes: [0,0,0,0,0,0,0,0], preview: "hex_int"},
 ]
 
-let selected = options[0];
+let selected = options[1];
 let color_regions = {}
 let rsp_ptr_size = 8;
 
@@ -71,6 +72,7 @@ function run(){
 	if(selected.name == "push"){
 		//decrease rsp_ptr
 		let rsp_val = bytesLEToInt(rsp.bytes)
+    if(rsp_val <= startAddress) return
 		rsp_val -= rsp_ptr_size
 		rsp.bytes = intToBytesLE(rsp_val);
 		//set rax to hardcoded code value
@@ -81,6 +83,7 @@ function run(){
 		}
 	}else{
 		let rsp_val = bytesLEToInt(rsp.bytes)
+    if(rsp_val >= endAddress) return
 		//put pointed bytes into rax
 		for(let i=0; i< rsp_ptr_size; i++){
 			rax.bytes[i] = data[rsp_val + i - startAddress]
