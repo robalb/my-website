@@ -50,10 +50,9 @@ You can try it live on [morse.halb.it](https://morse.halb.it). The code is avail
 <Picture src="morsechat" height={490} alt="Screenshot of a webapp. it's a chat, where all text is in morse code. At the bottom there is a single key. At the left side of the chat there is a panel: it shows two online users, one is typing. at the bottom there are some sliders, labelled: wpm, receiver volume, key volume. There is also a switch labelled 'show letters', and a settings buttom" />
 <br/>
 
-It's clearly a pretty niche project, but it has the advantage of being large enough
-to cover all main areas of web development:
-It requires websocket communication, authentication, a database, settings synchronization,
-custom code and ux for the morse chat.<br/>
+It's a pretty niche project, which is complex enough to span all main areas of web development.
+It requires a database, real-time communication, authentication, and some custom ux and frontend functionality
+that makes everything interesting.<br/>
 For this reason, I've used it over the years as a playground to test various web technologies.
 
 It went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2021, 
@@ -71,12 +70,10 @@ an OVH vps provisioned through Ansible scripts.
 <PictureThemed src="helloworld-generic" alt="A diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
 <br />
 
-After a year of infrastructure experimentation, i got a part-time job as
-a backend and cloud infrastructure developer. 
-At my new job I was already managing unnecessarily complex k8s clusters and pipelines every day,
-so I got rid of my personal cluster.
+Since 2024, after more than a year working in the field of Devops and Cloud Infrastructure
+development, I no longer have the requirement of artificial complexity in my personal projects.
 
-Currently, all my projects are hosted on a Hetzner VPS.
+Right now all my projects are hosted on a Hetzner VPS.
 Each project is packaged with a Docker-compose file, and deployed using Ansible.
 Everything is tightly integrated with a "base layer" running Traefik, a Grafana-Prometheus-Loki stack, and various other
 utilities. The code for this infrastructure is publicly available [on github](https://github.com/robalb/my-infra).<br /> 
@@ -107,7 +104,11 @@ The class then gathered around a large cork pinboard, sketched the tests calenda
 and started the complex process of finding the optimal candidate for each slot. The process vaguely resembled
 traders fighting on an stock exchange floor.<br/>
 Everyone had other oral exams, personal issues and countless other hard constraints that made this problem difficult
-to solve by hand. The web app successfully solved the problem.
+to solve by hand.
+
+This webapp was a scheduling system designed to solve a very specific need for the time,
+and it was incredibly succesful at that. It was written as a react webapp + php api, with some interesting
+experimentations in the integration between react and php
 
 
 <Picture src="pinboards-2" height={490} alt="Screenshot of the pinboards web app. It shows a calendar, with names in each slot. the calendar is labelled 'Inglese', and has an orange background. There are other calendars with other colors, that are minimized." />
@@ -132,10 +133,11 @@ we had a detailed description of the grammar to implement
 and an extensive set of tests the professor would use on the code.
 
 You don’t get that many chances in life to practice pure test-driven development:
-I took a couple of days to write a ton of unit tests in Python, including tests for Emacs-like
+I took a couple of days to write a ton of language-agnostic unit tests in Python, including tests for Emacs-like
 code formatting and for the 80-line limit. Then, together with two other classmates,
-we started the development. It was a pretty satisfying experience to know that when all tests passed,
-you had the certainty of a full grade.
+we started the actual development.
+It was a pretty satisfying experience to know that when all tests passed,
+we had the certainty of a full grade.
 
 The code for the parsers and the language-agnostic unit tests is 
 [on github](https://github.com/robalb/uri_parser_project)
@@ -149,30 +151,33 @@ looking to develop the project in vim, or some other editor forbidden by the ema
 
 This was yet another university group project, that took an unconfortable amount of my time
 back in 2022.
-Our task was to develop an Android app in Java, adhering to Google's recommended best practices.
+The task was to develop an Android app in Java, adhering to Google's recommended best practices.
 
 <Picture src="roboapp-figma" height={300} alt="some screens from an android app. The first screen is a login form. The second screen shows a list of regattas. The third screen shows the same page as the previous one, but there are no regattas, and a placeholder text is shown instead. The text says: 'There are no regattas. Regattas are interactive sailing courses that you can design and manage in real time with others. Create a new regatta with the create new regatta button.' The last screen shows a nautical map. a compass on top is pointing north, and a large text says 'Buoy stacchetto 40° N' On the map, a flag connected to a long line is overlayed on top of the water " />
 <br/>
 
-We decided to create an app for managing sailing regattas. It featured a nautical map displaying a
+I worked with a group that developed an app for managing robotic buoys used in sailing regattas.
+A pretty niche application, with interesting project requirements.
+It featured a nautical map displaying a
 customizable regatta track and provided real-time updates on the position of buoys and support boats.
 
+I designed the figma design of the app, based on the new material design guidelines. 
+I'm particularly proud that we managed to fully implement it.
+
+I also wrote the app backend using FastAPI, and used the openapi documentation 
+to automatically generate the schema for the Android Retrofit client.<br/>
+Additionally, I established a basic CI/CD pipeline that automatically updated the 
+app repository with new Retrofit client models whenever a new version of the API was released.
+
+Both the app code and the API server are available on the [open-roboe github organization](https://github.com/open-roboe)
+
+It's worth mentioning that
 Android java development can be a scarring experience when your requirements are to follow Google's best practices to the letter.
 Navigating through layers of outdated Java app development practices proved
 to be far more complex than any webpack-react-redux or other convoluted web projects I've encountered.
-I still have flashbacks about fighting `ViewModelProviderFactory` patterns, broken xml layout editors, and `LiveData` mixing with `rxJava`
-
-The fact that i'm talking about this project however means that i enjoyed some parts of it.
-In particular, I'm proud of the figma design I created, which we managed to fully implement.
-
-I also enjoyed developing the API server for the app.
-I wrote it in FastAPI, and used the openapi documentation 
-to automatically generate the schema for the Android Retrofit client.<br/>
-Additionally, I established a basic CI/CD pipeline that automatically created a pull request
-on the app repository containing new Retrofit client models whenever a new version of the API was released.
+I still have vivid memories about fighting `ViewModelProviderFactory` patterns, broken xml layout editors, and `LiveData` mixing with `rxJava`
 
 
-Both the app code and the API server are available on the [open-roboe github organization](https://github.com/open-roboe)
 
 
 ### Older projects
