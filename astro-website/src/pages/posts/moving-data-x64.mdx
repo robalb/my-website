@@ -141,15 +141,20 @@ The x86-64 architecture has
 [a lot of registers](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg),
 each with an associated name.
 Some of them have a specific purpose, other are generic containers we can use in our program.
-We mostly interact with these one:
+We mostly interact with these:
 
 <RegistersTable />
 
 <br/>
 
-As you can see from the table above, registers that start with the prefix `r` can store 8 bytes of data.
-There are registers that give you access to the lower bytes of larger registers.
-for example `eax` gives you access to the lower 4 bytes of `rax`.
+In order to understand these tables, we'll look at the register `rax`, displayed in the first row.
+`rax` is a generic register that contains 8 bytes of data: from byte 0 to byte 7
+as indicated by the byte numbers at the top of the table.
+
+The register `eax` gives you access to the
+lower 4 bytes of `rax`; reading or writing into `eax` is the same as reading or writing 
+the bytes from 0 to 3 of `rax`.<br/>
+Similarly, `ax` gives you access to the lower 2 bytes, and `al` to the lowest byte.
 
 ### Finally, some code
 
@@ -275,11 +280,11 @@ growing the stack, and yet we are moving towards lower addresses of memory.
 
 With the way we visualize memory this actually looks correct, the stack is growing 
 towards the top.<br/>
-But if we only look at the numeric adresses of elements on the stack newer elements have smaller addresses,
+But if we only look at the numeric adresses of elements on the stack, newer elements have smaller addresses,
 which looks backwards.<br/>
 Even when you are aware of this, it's common to get confused
 and end up thinking:
-"i put a new value on the stack, and it has a smaller address than the previous value, how it is possible?"
+"i put a new value on the stack, but it has a smaller address than the previous value, what is going on?"
 
 ### Further Reading
 

@@ -141,18 +141,70 @@
         </div>
 
 
-
     </div>
+<!-- </div> -->
+
+
+
+
+<!-- <div class="regtablecontainer"> -->
+    <div class="regtable">
+
+        <div class="regtable__scale">
+            <span>07</span>
+            <span>06</span>
+            <span>05</span>
+            <span>04</span>
+            <br/>
+            <span>03</span>
+            <span>02</span>
+            <br/>
+            <span>01</span>
+            <span>00</span>
+        </div>
+
+    {#each [8,9,10,11,12,13,14,15] as reg}
+        <div class="regtable__rect">
+            <span>r{reg}</span>
+            <div class="regtable__rect">
+                <span>r{reg}d</span>
+                <div class="regtable__rect regtable__rect--grouping">
+                    r{reg}w
+                    <div class="regtable__rect regtable__rect--16">
+                        <span class="invisible">--</span>
+                        <span>r{reg}8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/each}
+
+  </div>
 </div>
 
 
 
 <style>
+    .regtablecontainer{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
     .regtable{
+        width: 100%;
         display: flex;
         flex-direction: column;
         gap: 0.1rem;
         align-items: center;
+        margin: 1rem 0;
+    }
+    @media screen and (min-width: 400px){
+      .regtable{
+        width: auto;
+        min-width: 354px;
+        margin: 1rem;
+      }
     }
 
     .regtable__scale{
@@ -198,11 +250,13 @@
         margin-left: 10px;
         width: 100%;
         background: white;
+        overflow: hidden;
     }
     .regtable__rect--16 span{
+      font-size:.8rem;
         border: 1px solid black;
         background: white;
-        padding: 1px;
+        /* padding: 1px; */
         width: 100%;
         justify-content: center;
         display: flex;
