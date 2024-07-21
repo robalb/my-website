@@ -8,6 +8,7 @@ permalink: https://halb.it/posts/x64-moving-data/
 ---
 import Spoiler from '../../components/Spoiler.astro'
 import SliderHexdump from '../../components/SliderHexdump.svelte'
+import SliderAlign from '../../components/SliderAlign.svelte'
 import RegistersTable from '../../components/RegistersTable.svelte'
 import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
 import StackEmbed from '../../components/StackEmbed.svelte'
@@ -20,7 +21,7 @@ when they are executed.
 
 - [introduction](/posts/x64-introduction/) 
 - [moving data](/posts/x64-moving-data/) (you are here)
-- [stack frames](/posts/x64-stackframes)
+- stack frames
 
 ### Visualizing memory
 
@@ -37,7 +38,10 @@ Use the slider to adjust the number of bytes you want to see in a single row.
   client:load 
   showAscii={true}
   data={[
-  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+  0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x20,
+  0x61, 0x73, 0x63, 0x69, 0x69, 0x20, 0x74, 0x65,
+  0x78, 0x74, 
+  0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
   232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
   ]}
@@ -148,7 +152,7 @@ by the special register `rsp`.<br/>
 You can add or remove elements from the top of the stack by using the
 `push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
 In this interactive example
-the stack area is highlighted in blue, and the contents of the `rsp` and `rax` registers are displayed.
+the stack area is highlighted in blue, together with the value of the `rsp` and `rax` registers.
 
 <StackEmbed client:load /><br/>
 
@@ -183,7 +187,7 @@ and end up thinking:
 ### a side note on alignment
 
 I don't think memory alignment can be explained in a better way than 
-what [this article does](https://web.archive.org/web/20080607055623/http://www.ibm.com/developerworks/library/pa-dalign/), so check it out. We'll only focus on how memory alignment impacts
+what [this article does](https://web.archive.org/web/20080607055623/http://www.ibm.com/developerworks/library/pa-dalign/), so check it out. Here we'll only focus on how memory alignment impacts
 the way we visualize the stack:<br/>
 Every time you push or pop something from the stack, you move the stack pointer
 8 bytes up or down. If you observe carefully the 
@@ -191,13 +195,17 @@ previous example, you'll also notice that the addresses in the stack pointer are
 always multiples of 8: they always end with either `0` or `8`.
 
 This kind of alignment is done on purpose for performance reasons, and you will encounter it everywhere.
-As a consequence, when we visualize memory in a hexdump we always start from addresses multiples
+As a consequence, when we visualize memory in a hexdump it's common to start from addresses multiples
 of 8 or 16, so that data will fit properly in a row.
 
-this snippet of code is the same as the previous one, but with the
-hexdump starting at unaligned memory addresses, which makes everything hard to follow
+This is a hexdump taken from the stack memory of a function. Two different variables are highlighted:
+one is the 32-bit integer `0xcafebabe`, the other is a stack canary, which we'll see in another article.
+You can adjust the slider to change the start address in the hexdump.
 
-<StackEmbed client:load align={true} /><br/>
+<SliderAlign
+  client:load 
+  showAscii={true}
+  /><br/>
 
 
 ### Further Reading
@@ -207,7 +215,7 @@ If you reached this point, you might be interested in the next articles:
 
 - [introduction](/posts/x64-introduction/)  
 - [moving data](/posts/x64-moving-data/) (you are here)
-- [stack frames](/posts/x64-stackframes)
+- stack frames
 
 Additional resources:
 
