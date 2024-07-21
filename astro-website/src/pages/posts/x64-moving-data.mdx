@@ -65,7 +65,7 @@ Use the slider to adjust the number of bytes you want to see in a single row.
   My hope is that this will lower the steep learning curve of those tools.
 
 
-### moving data
+### Moving data
 
 The first instruction we are going to see is `mov`, which moves data around. It can move data from a register to another,
 from a register to memory, or vice-versa from memory to a register
@@ -99,7 +99,7 @@ You can click "run" to see how the memory is affected
 <PtrSyntaxEmbed client:load />
 
 
-### a sidenote on endianness
+### A sidenote on endianness
 
 We managed to reach this point by ignoring an important fact: x86-64 is a little endian architecture,
 which means that numbers are not stored in the way you would expect.<br/>
@@ -145,7 +145,7 @@ format instead, you can read more about them
 , or in 
 [this visual guide by Ciechanowski](https://ciechanow.ski/exposing-floating-point/)
 
-### the stack
+### The stack
 
 x64, like most architectures, has the concept of stack: an area in memory pointed
 by the special register `rsp`.<br/>
@@ -184,7 +184,7 @@ Even when you are aware of this, it's common to get confused
 and end up thinking:
 "i put a new value on the stack, but it has a smaller address than the previous value, what is going on?"
 
-### a side note on alignment
+### Memory alignment
 
 I don't think memory alignment can be explained in a better way than 
 what [this article does](https://web.archive.org/web/20080607055623/http://www.ibm.com/developerworks/library/pa-dalign/), so check it out. Here we'll only focus on how memory alignment impacts
