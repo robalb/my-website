@@ -1,0 +1,307 @@
+---
+layout: '../../layouts/BlogPost.astro'
+title: An interactive guide to x86-64 assembly - stack frames
+publishDate: 2024-07-30
+description: 
+tags: ['x86-64', 'pwn']
+permalink: https://halb.it/posts/x64-stack-frames/
+---
+import Spoiler from '../../components/Spoiler.astro'
+import SliderHexdump from '../../components/SliderHexdump.svelte'
+import RegistersTable from '../../components/RegistersTable.svelte'
+import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
+import StackEmbed from '../../components/StackEmbed.svelte'
+import EndiannessEmbed from '../../components/EndiannessEmbed.svelte'
+
+It's often said that assembly language is complex. Most people are scared of it, everyone avoids it.
+ After all, there's a reason why high-level languages and compilers were invented, right?<br/>
+But while it's true that you would have a hard time writing a large project in assembly, 
+the language itself is surprisingly simple.
+That's because Assembly is the native language of the processor, 
+and at it's essence, all the processor does is moving data.
+
+This guide is not about writing assembly; it's about understanding the way data moves
+behind the scenes when you execute a program. We'll use concrete examples for the
+x86-64 architecture, but these informations apply eveywhere and are foundamental knowledge 
+for reverse engineering, binary exploitation, or just writing better code.
+
+### what is data?
+
+Data is just bits, representing information.
+A sequence of bits can encode any kind of information, however this article will only focus
+on text and integers.
+
+But before we talk about any kind of encoding, we have to introduce a new notation:
+The issue is that while circuits understand sequences of bits very well, humans don't.
+For example, can you tell the difference between
+`1101010101111110` and `1101010101111110` ?
+
+<Spoiler text="Show answer">
+Ok, the two sequences are identical, but I bet you couldn't immediately see that.
+</Spoiler>
+
+In order to visualize binary data in a more human friendly way, we use 
+hexadecimal numbers, which associate a number or a letter
+between A and F to a group of 4 bits.<br/>
+A long sequence of bits can be represented in this way:
+
+```
+0010 0101 0111 1101 1111
+
+ 2    5    7    d    f
+```
+
+Note that in order to avoid confusion with decimal numbers, it's common to prefix
+hexadecimal numbers with `0x`.
+For example, `0x1234` is not the same
+thing as the decimal number `1234`.<br/>
+I'm not going to explain how conversions between decimal, binary, and hexadecimal numbers work,
+The only assumption i'm making in this article is that you know that.<br/>
+If you have a python terminal, you can perform these conversions very easily:
+
+```python
+al@thinkpad:~/$ python
+>>>
+>>> 0b0010 #print the binary number 0010 in decimal
+2
+>>> 0x1234 #print the hex number 1234 in decimal
+4660
+>>> hex(0b00100101011111011111) #print a binary number in hex
+'0x257df'
+>>> hex(4660) #print a decimal number in hex
+'0x1234'
+```
+
+One more thing: we call a group of 8 bits a `byte`, but that's not the only 
+group of bits with a name. The following table
+contains all the names that you will encounter while working with the x86-64 architecture:
+
+| N. of bits   | example hex value | name                   |
+| ------------ | ----------------- | ---------------------- |
+| 4            | f                 | nibble                 |
+| 8            | ff                | byte                   |
+| 16           | ffff              | word                   |
+| 32           | fffffff           | dword (double word)    |
+| 64           | fffffffffffff     | qword (quadruple word) |
+
+
+
+### text
+
+There are a lot of different ways to encode text, and I recommend that you 
+read the [bare minimum foundamentals](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/)
+, it's a very interesting topic in itself.
+In this article however we'll only focus on ASCII encoding, which is extremely simple:
+
+All you need to know is that text is stored as a seqence of bytes. every byte represents a character,
+so there are `127` possible characters between numbers, english letters and puctuation.
+You can find a table of all the ascii characters in the
+[linux man pages](https://man.archlinux.org/man/core/man-pages/ascii.7.en).
+
+For example, the letter 'c' is stored as the byte `0x63`,
+The letter 'o' is `0x6f`, 
+The text `ciao` is stored as the sequence of bytes `63 69 61 6f`.
+
+
+### where is data?
+
+Now that we know how to represent text and numbers, we need some place
+to store them.
+Like all kind of data, we can store it in only two places:
+
+- in memory, which means in your RAM
+- in registers, which are special containers inside your CPU
+
+### memory
+
+Memory is just a very long list of
+contiguous cells, each containing 8 bits of information, and reachable by a numeric address.
+
+Since printing a long list of bytes would take a lot of space,
+when visualizing memory we usually group bytes in rows of 8 or 16.
+It's also common to include a column to the side that shows the ascii letter associated to each byte.
+
+The memory dump below was taken from a program that was running on my computer. 
+Use the slider to adjust the number of bytes you wanto to show in a row.
+
+<SliderHexdump
+  client:load 
+  showAscii={true}
+  data={[
+  80, 97, 103, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+  232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
+  ]}
+  sliderStart={0} />
+
+### registers
+
+Registers are containers for data, located inside your CPU.
+The x86-64 architecture has
+[a lot of registers](https://en.wikipedia.org/wiki/X86#/media/File:Table_of_x86_Registers_svg.svg),
+each with an associated name.
+Some of them have a specific purpose, other are generic containers we can use in our program.
+We mostly interact with these:
+
+<RegistersTable />
+
+<br/>
+
+In order to understand these tables, we'll look at the register `rax`, displayed in the first row.
+`rax` is a generic register that contains 8 bytes of data: from byte 0 to byte 7
+as indicated by the byte numbers at the top of the table.
+
+The register `eax` gives you access to the
+lower 4 bytes of `rax`; reading or writing into `eax` is the same as reading or writing 
+the bytes from 0 to 3 of `rax`.<br/>
+Similarly, `ax` gives you access to the lower 2 bytes, and `al` to the lowest byte.
+
+### Finally, some code
+
+We are assuming that you are familiar with some programming language, it doesn't matter which one.
+Assembly code syntax is similar to the programming language concepts you know:
+a sequence of instructions, usually one on every line, that will be executed in order.
+
+The x86-64 assembly syntax has two different dialects: AT&T and Intel.
+All the code snippets in this article are using the Intel syntax.
+The following snippet is an example of how the syntax looks like, don't worry about what it does for now.
+
+```yaml
+# this is a comment
+push    rbp
+mov     rbp, rsp
+mov     DWORD PTR [rbp-4], edi
+mov     eax, DWORD PTR [rbp-4]
+add     eax, 0x42
+pop     rbp
+ret
+```
+
+### moving data
+
+The instruction `mov` moves data around. It can move data from a register to another,
+from a register to memory, or vice-versa from memory to a register
+
+ These first examples are self-explanatory:
+
+```python
+mov rbx, 0x10  #copies the integer 0x10 into rbx
+mov rax, rbx   #copies the content of rbx into rax
+```
+
+Moving data to memory requires some extra syntax:<br/>
+The following snippet writes the byte `0xff` in the memory cell at address `0x10`.
+
+```c
+mov rax, 0x10
+mov byte ptr [rax], 0xff
+```
+
+Let's break it down:
+- First, we put in a register `0x10`, the address of the cell we want to write to.
+- Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
+the memory address pointed by the register, and not into the register itself.
+
+Notice how in that example we moved a single byte, and we used the syntax `byte ptr`.
+You can change that in `word`, `dword` or `qword` if you want to move a different amount of bytes.
+
+The interactive example below allows you to experiment with all possible variations of the pointer syntax.
+You can click "run" to see how the memory is affected
+
+<PtrSyntaxEmbed client:load />
+
+
+### a sidenote on endianness
+
+We managed to reach this point by ignoring an important fact: x86-64 is a little endian architecture,
+which means that numbers are not stored in the way you would expect.<br/>
+In the previous example, you saw what the number `0x4242424242424242` looks like in memory,
+but we choose that number carefully to hide the issue. In the next example, you can choose the number you want.
+You can enter either Decimal or Hex numbers, prefix Hex numbers with `0x`.<br/>
+Can you spot the issue?
+
+<EndiannessEmbed client:load /><br/>
+
+You should have noticed that the bytes that compose a number are stored
+in reverse order compared to the way we read and write them.
+Both humans and computers use a positional number system to represent integers, where
+the same digit has a different weight depending on its position.<br/>
+When we represent numbers, we put the most significant digits to the left:
+
+```
+  1337
+  |  |
+  |  Least significant digit
+  Most significant digit
+
+  0xcafebabe
+    |     |
+    |     Least significant byte
+    Most significant byte
+```
+In other words, we write the most significant value first.
+In little endian architectures the least significant value is written first instead.
+
+This topic is explained in details on [wikipedia](https://en.wikipedia.org/wiki/Endianness), with some
+useful diagrams that will solve any doubts you might have.<br/>
+Endianness is only related to the way the processor handles numbers. Note how 
+other kind of data, such as text, is usually encoded in the same order as you would expect.
+
+### the stack
+
+x64, like most architectures, has the concept of stack: an area in memory pointed
+by the special register `rsp`.<br/>
+You can add or remove elements from the top of the stack by using the
+`push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
+In this interactive example
+the stack area is highlighted in blue, and the contents of the `rsp` and `rax` registers are displayed.
+
+<StackEmbed client:load /><br/>
+
+There are two key elements you should notice by plaing with the example above:
+- `rsp` points to the top of the stack. It is decreased by 8 when we push a value, and increased by 8 when we pop a value.
+- Every time we pop a value from the stack that value is not deleted, the area of memory that contains it
+simply stops being part of the stack. The only thing that changes is the memory address pointed by `rsp`.
+
+Basically, `push rax` does the same as the following code:
+```c
+sub rsp, 8
+mov qword ptr [rsp], rax
+```
+
+And `pop rax` does the same as the following code
+```c
+mov rax, qword ptr [rsp]
+add rsp, 8
+```
+
+There is a confusing element here: when we put something onto the stack we are
+growing the stack, and yet we are moving towards lower addresses of memory.
+
+With the way we visualize memory this actually looks correct, the stack is growing 
+towards the top.<br/>
+But if we only look at the numeric adresses of elements on the stack, newer elements have smaller addresses,
+which looks backwards.<br/>
+Even when you are aware of this, it's common to get confused
+and end up thinking:
+"i put a new value on the stack, but it has a smaller address than the previous value, what is going on?"
+
+### Further Reading
+
+This article is still under development. My goal is to improve it over time, 
+adding a section that explains stack frames and integrations with a real x86_64 emulator.
+
+If you reached this point, you might be interested in these additional resources:
+
+- pwn.college's assembly module and lectures https://pwn.college/fundamentals/assembly-crash-course
+- the compiler explorer website https://godbolt.org/z/c6brc1df9
+- the official x86_64 reference https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+- unofficial x86_64 instructions reference https://www.felixcloutier.com/x86/
+- simply the best linux syscall table reference https://syscalls.mebeim.net/?table=x86/64/x64/latest
+
+
+
+
+
+
+
