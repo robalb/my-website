@@ -47,7 +47,7 @@ showing {bytes_per_row} byte{bytes_per_row > 1 ? "s": ""} per row </p>
   align-items: center;
 }
 .hexcontainer {
-  max-height: 400px;
+  max-height: 350px;
   overflow: scroll;
 }
 
@@ -64,7 +64,7 @@ input[type="range"] {
 	color: var(--primary);
 	--thumb-height: 1.125em;
 	--track-height: 0.125em;
-	--track-color: rgba(0, 0, 0, 0.2);
+	--track-color: rgba(0, 0, 0, 0.4);
 	--brightness-hover: 180%;
 	--brightness-down: 80%;
 	--clip-edges: 0.125em;
