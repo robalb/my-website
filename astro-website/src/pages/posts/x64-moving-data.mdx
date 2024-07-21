@@ -48,14 +48,14 @@ Use the slider to adjust the number of bytes you want to see in a single row.
   Most resources online explain low-level topics (such as 
   stack frames, data alignment, or buffer overflows) using
   [abstract diagrams](https://stackoverflow.com/a/40106523/9169799).
-  But when you will approach these topics in practice, they will materialize
-  via tools like gdb, that visualize data in a completely different way compared to the diagrams.<br/>
+  But when you will approach these topics in practice, you will use
+  tools like gdb, that visualize data in a completely different way compared to the diagrams.<br/>
   For example, this is a screenshot of my setup when 
-  [running gdb with the python pwntools library](/posts/pwntools-gdb):
+  [running gdb with GEF and the python pwntools library](/posts/pwntools-gdb):
 
 <Picture src="gdb-tips" height={450} alt="Screenshot of a tmux terminal split vertically into two panes. The pane on the left is an interactive python shell. It has received the input: p.send(bytearray(key)). The pane on the right is a gdb session whth the gef plugin enabled. You can see registers, stack and current instruction for a process called ./babyrev_level6.0. The program is about to run a call to glibc readline" /><br/>
 
-  All the visualizations in thi article emulate the way data is visualized in real-world
+  All the visualizations in this article emulate the way data is visualized in real-world
   scenarios, with tools like gdb or [PWNDBG](https://github.com/pwndbg/pwndbg/),
   popular in CTF competitions.
   My hope is that this will lower the steep learning curve of those tools.
@@ -100,36 +100,41 @@ You can click "run" to see how the memory is affected
 We managed to reach this point by ignoring an important fact: x86-64 is a little endian architecture,
 which means that numbers are not stored in the way you would expect.<br/>
 In the previous example, you saw what the number `0x4242424242424242` looks like in memory,
-but we choose that number carefully to hide the issue. In the next example, you can choose the number you want.
-You can enter either Decimal or Hex numbers, prefix Hex numbers with `0x`.<br/>
-Can you spot the issue?
+but we choose that number carefully to hide the issue. In the next example, you can enter the number you want.<br/>
+Can you spot what's happening?
 
 <EndiannessEmbed client:load /><br/>
 
-You should have noticed that the bytes that compose a number are stored
-in reverse order compared to the way we read and write them.
-Both humans and computers use a positional number system to represent integers, where
-the same digit has a different weight depending on its position.<br/>
-When we represent numbers, we put the most significant digits to the left:
+In case you missed it, numbers are being saved with their bytes in an inverted order:
+For example, the number `0xcafe` is composed of the byte `ca` followed by `fe`,
+but it will be saved as the byte `fe` followed by the byte `ca`.
 
-```
-  1337
+What's going on here is that
+both humans and computers use a positional number system to represent integers,
+but with a different order.<br/>
+When we (humans using Hindu-Arabic numerals) represent numbers,
+we write the most significant value first, and continue in descending order.
+This is the same as Big endian architectures.
+
+```python
+  human-readable decimal number
+  1337 
   |  |
-  |  Least significant digit
-  Most significant digit
+  |  Least significant digit 
+  Most significant digit 
 
-  0xcafebabe
+  human-readable hex number
+  0xcafebabe  
     |     |
     |     Least significant byte
     Most significant byte
 ```
-In other words, we write the most significant value first.
-In little endian architectures the least significant value is written first instead.
+Little endian architectures write the least significant value first instead, and continue in ascending order.
 
-This topic is explained in details on [wikipedia](https://en.wikipedia.org/wiki/Endianness), with some
+This topic is explained in depth on [wikipedia](https://en.wikipedia.org/wiki/Endianness), with some
 useful diagrams that will solve any doubts you might have.<br/>
-Endianness is only related to the way the processor handles integers. Note how 
-other kinds of data, such as text, are usually encoded in the same order as you would expect.
+Endianness is only related to the way the processor handles integers. 
+Other kinds of data, such as text, are usually encoded in the same order as you would expect.
 Floating point numbers are stored in a completely different
 format instead, you can read more about them 
 [in this great article](https://fabiensanglard.net/floating_point_visually_explained/)
@@ -174,6 +179,26 @@ which looks backwards.<br/>
 Even when you are aware of this, it's common to get confused
 and end up thinking:
 "i put a new value on the stack, but it has a smaller address than the previous value, what is going on?"
+
+### a side note on alignment
+
+I don't think memory alignment can be explained in a better way than 
+what [this article does](https://web.archive.org/web/20080607055623/http://www.ibm.com/developerworks/library/pa-dalign/), so check it out. We'll only focus on how memory alignment impacts
+the way we visualize the stack:<br/>
+Every time you push or pop something from the stack, you move the stack pointer
+8 bytes up or down. If you observe carefully the 
+previous example, you'll also notice that the addresses in the stack pointer are 
+always multiples of 8: they always end with either `0` or `8`.
+
+This kind of alignment is done on purpose for performance reasons, and you will encounter it everywhere.
+As a consequence, when we visualize memory in a hexdump we always start from addresses multiples
+of 8 or 16, so that data will fit properly in a row.
+
+this snippet of code is the same as the previous one, but with the
+hexdump starting at unaligned memory addresses, which makes everything hard to follow
+
+<StackEmbed client:load align={true} /><br/>
+
 
 ### Further Reading
 
