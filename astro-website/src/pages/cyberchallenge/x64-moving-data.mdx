@@ -1,0 +1,238 @@
+---
+layout: '../../layouts/BlogPostNoHeader.astro'
+title: An interactive guide to x86-64 assembly - moving data
+publishDate: 2024-07-22
+description: 
+tags: ['x86-64', 'pwn']
+permalink: https://halb.it/cyberchallenge/x64-moving-data/
+---
+import Spoiler from '../../components/Spoiler.astro'
+import SliderHexdump from '../../components/SliderHexdump.svelte'
+import SliderAlign from '../../components/SliderAlign.svelte'
+import RegistersTable from '../../components/RegistersTable.svelte'
+import PtrSyntaxEmbed from '../../components/PtrSyntaxEmbed.svelte'
+import StackEmbed from '../../components/StackEmbed.svelte'
+import EndiannessEmbed from '../../components/EndiannessEmbed.svelte'
+import Picture from '../../components/Picture.astro'
+
+This is the second part of a series of interactive articles on the x86-64 architecture.
+This part will focus on the first assembly instructions, visualizing the way data moves in memory
+when they are executed.
+
+- [introduction](/cyberchallenge/x64-introduction/) 
+- [moving data](/cyberchallenge/x64-moving-data/) (you are here)
+- stack frames
+
+### Visualizing memory
+
+In the [previous post](/cyberchallenge/x64-introduction)
+we introduced some basics on data, encodings, and the places
+where data is stored: registers and memory.
+We also introduced a common way to visualize memory, that will be used extensively
+in this article: hex dumps.
+
+The example below shows a hexdump of some example data taken from the stack frame of a process.
+Use the slider to adjust the number of bytes you want to see in a single row.
+
+<SliderHexdump
+  client:load 
+  showAscii={true}
+  data={[
+  0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x20,
+  0x61, 0x73, 0x63, 0x69, 0x69, 0x20, 0x74, 0x65,
+  0x78, 0x74, 
+  0, 0, 0, 0, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 64, 220, 255, 255, 1, 0, 0, 0, 88, 220, 255, 255, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 232, 4, 190, 18, 120, 233, 111, 224, 88, 220, 255, 255, 255, 127, 0, 0, 233, 81, 85, 85, 85, 85, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 64, 208, 255, 247, 255, 127, 0, 0, 232, 4, 28, 164, 135, 22, 144, 31,
+  232, 4, 52, 40, 253, 6, 144, 31, 0, 0, 0, 0, 255, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 66, 158, 135, 93, 202, 47, 126, 0, 0, 0, 0, 0, 0, 0, 0, 64, 158, 194, 247, 255, 127, 0, 0, 104, 220, 255, 255, 255, 127, 0, 0, 152, 125, 85, 85, 85, 85, 0, 0, 224, 226, 255, 247, 255, 127, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 85, 85, 85, 85, 0, 0 
+  ]}
+  sliderStart={0} /><br/>
+
+  The reason I want you to familiarize with this visualization is also the rationale behind
+  this series of articles:
+  Most resources online explain low-level topics (such as 
+  stack frames, data alignment, or buffer overflows) using
+  [abstract diagrams](https://stackoverflow.com/a/40106523/9169799).
+  But when you will approach these topics in practice, you will use
+  tools like gdb, that visualize data in a completely different way compared to the diagrams.<br/>
+  For example, this is a screenshot of my setup when 
+  [running gdb with GEF and the python pwntools library](/posts/pwntools-gdb):
+
+<Picture src="gdb-tips" height={450} alt="Screenshot of a tmux terminal split vertically into two panes. The pane on the left is an interactive python shell. It has received the input: p.send(bytearray(key)). The pane on the right is a gdb session whth the gef plugin enabled. You can see registers, stack and current instruction for a process called ./babyrev_level6.0. The program is about to run a call to glibc readline" /><br/>
+
+  All the visualizations in this article emulate the way data is visualized in real-world
+  scenarios, with tools like gdb or [PWNDBG](https://github.com/pwndbg/pwndbg/),
+  popular in CTF competitions.
+  My hope is that this will lower the steep learning curve of those tools.
+
+
+### Moving data
+
+The first instruction we are going to see is `mov`, which moves data around. It can move data from a register to another,
+from a register to memory, or vice-versa from memory to a register
+
+ These first examples are self-explanatory:
+
+```python
+mov rbx, 0x10  #copies the integer 0x10 into rbx
+mov rax, rbx   #copies the content of rbx into rax
+```
+
+Moving data to memory requires some extra syntax:<br/>
+The following snippet writes the byte `0xff` in the memory cell at address `0x10`.
+
+```c
+mov rax, 0x10
+mov byte ptr [rax], 0xff
+```
+
+Let's break it down:
+- First, we put in a register `0x10`, the address of the cell we want to write to.
+- Then we perform a mov instruction with square brackets around the register name, to indicate that we want to move `0xff` in
+the memory address pointed by the register, and not into the register itself.
+
+Notice how in that example we moved a single byte, and we used the syntax `byte ptr`.
+You can change that in `word`, `dword` or `qword` if you want to move a different amount of bytes.
+
+The interactive example below allows you to experiment with all possible variations of the pointer syntax.
+You can click "run" to see how the memory is affected
+
+<PtrSyntaxEmbed client:load />
+
+
+### A sidenote on endianness
+
+We managed to reach this point by ignoring an important fact: x86-64 is a little endian architecture,
+which means that numbers are not stored in the way you would expect.<br/>
+In the previous example, you saw what the number `0x4242424242424242` looks like in memory,
+but we choose that number carefully to hide the issue. In the next example, you can enter the number you want.<br/>
+Can you spot what's happening?
+
+<EndiannessEmbed client:load /><br/>
+
+In case you missed it, numbers are being saved with their bytes in an inverted order:
+For example, the number `0xcafe` is composed of the byte `ca` followed by `fe`,
+but it will be saved as the byte `fe` followed by the byte `ca`.
+
+What's going on here is that
+both humans and computers use a positional number system to represent integers,
+but with a different order.<br/>
+When we (humans using Hindu-Arabic numerals) represent numbers,
+we write the most significant value first, and continue in descending order.
+This is the same as Big endian architectures.
+
+```python
+  human-readable decimal number
+  1337 
+  |  |
+  |  Least significant digit 
+  Most significant digit 
+
+  human-readable hex number
+  0xcafebabe  
+    |     |
+    |     Least significant byte
+    Most significant byte
+```
+Little endian architectures write the least significant value first instead, and continue in ascending order.
+
+This topic is explained in depth on [wikipedia](https://en.wikipedia.org/wiki/Endianness), with some
+useful diagrams that will solve any doubts you might have.<br/>
+Endianness is only related to the way the processor handles integers. 
+Other kinds of data, such as text, are usually encoded in the same order as you would expect.
+Floating point numbers are stored in a completely different
+format instead, you can read more about them 
+[in this great article](https://fabiensanglard.net/floating_point_visually_explained/)
+, or in 
+[this visual guide by Ciechanowski](https://ciechanow.ski/exposing-floating-point/)
+
+### The stack
+
+x64, like most architectures, has the concept of stack: an area in memory pointed
+by the special register `rsp`.<br/>
+You can add or remove elements from the top of the stack by using the
+`push` and `pop` instructions. This is the most common interaction, but it's also valid to directly adjust the value of `rsp`.
+In this interactive example
+the stack area is highlighted in blue, together with the value of the `rsp` and `rax` registers.
+
+<StackEmbed client:load /><br/>
+
+There are two key elements you should notice by plaing with the example above:
+- `rsp` points to the top of the stack. It is decreased by 8 when we push a value, and increased by 8 when we pop a value.
+- Every time we pop a value from the stack that value is not deleted, the area of memory that contains it
+simply stops being part of the stack. The only thing that changes is the memory address pointed by `rsp`.
+
+Basically, `push rax` does the same as the following code:
+```c
+sub rsp, 8
+mov qword ptr [rsp], rax
+```
+
+And `pop rax` does the same as the following code
+```c
+mov rax, qword ptr [rsp]
+add rsp, 8
+```
+
+There is a confusing element here: when we put something onto the stack we are
+growing the stack, and yet we are moving towards lower addresses of memory.
+
+With the way we visualize memory this actually looks correct, the stack is growing 
+towards the top.<br/>
+But if we only look at the numeric adresses of elements on the stack, newer elements have smaller addresses,
+which looks backwards.<br/>
+Even when you are aware of this, it's common to get confused
+and end up thinking:
+"i put a new value on the stack, but it has a smaller address than the previous value, what is going on?"
+
+### Memory alignment
+
+I don't think memory alignment can be explained in a better way than 
+what [this article does](https://web.archive.org/web/20080607055623/http://www.ibm.com/developerworks/library/pa-dalign/), so check it out. Here we'll only focus on how memory alignment impacts
+the way we visualize the stack:<br/>
+Every time you push or pop something from the stack, you move the stack pointer
+8 bytes up or down. If you observe carefully the 
+previous example, you'll also notice that the addresses in the stack pointer are 
+always multiples of 8: they always end with either `0` or `8`.
+
+This kind of alignment is done on purpose for performance reasons, and you will encounter it everywhere.
+As a consequence, when we visualize memory in a hexdump it's common to start from addresses multiples
+of 8 or 16, so that data will fit properly in a row.
+
+This is a hexdump taken from the stack memory of a function. Two different variables are highlighted:
+one is the 32-bit integer `0xcafebabe`, the other is a stack canary, which we'll see in another article.
+You can adjust the slider to change the start address in the hexdump.
+
+<SliderAlign
+  client:load 
+  showAscii={true}
+  /><br/>
+
+What I'm trying to show here is that everything is relative.
+What you see is always an abstract representation of the actual data,
+and it's up to you to visualize it in a way that matches
+your mental model.
+
+
+### Further Reading
+
+This article is still under development, and it's improving over time.<br/>
+If you reached this point, you might be interested in the next articles:
+
+- [introduction](/cyberchallenge/x64-introduction/)  
+- [moving data](/cyberchallenge/x64-moving-data/) (you are here)
+- stack frames
+
+Additional resources:
+
+- pwn.college's assembly module and lectures https://pwn.college/fundamentals/assembly-crash-course
+- the compiler explorer website https://godbolt.org/z/c6brc1df9
+- [the official x86_64 reference](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
+- unofficial x86_64 instructions reference https://www.felixcloutier.com/x86/
+- the best linux syscall table reference https://syscalls.mebeim.net/?table=x86/64/x64/latest
+
+
+
+
+
+
+

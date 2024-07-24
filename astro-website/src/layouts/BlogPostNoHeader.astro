@@ -1,0 +1,18 @@
+---
+import SharedLayout from '../components/SharedLayout.astro';
+import BlogPost from '../components/BlogPost.astro';
+
+const { content } = Astro.props;
+const {
+	title, description, permalink,
+	subtitle, lang="en", publishDate, author, tags, heroImage, alt
+	} = content;
+const isBlog = true
+const showHeader = false
+---
+<SharedLayout {title} {description} {permalink} {lang} {isBlog} {showHeader}>
+	<BlogPost {title} {subtitle} {author} {tags} {heroImage} {publishDate} {alt}>
+		<slot />
+	</BlogPost>
+</SharedLayout>
+
