@@ -102,18 +102,20 @@ Browsers today are running newer versions of the standard, which means that this
 We don't have to go very far to find [this useful issue](https://github.com/jquery/esprima/issues/1985
 ) for our exploit.
  According to the report, any identifier character specified using `\UnicodeEscapeSequence` is accepted by esprima as part of that identifier.<br/>
- This is exactly what we need! This means that we can create an identifier containing HTML tags:
+ This is exactly what we need! 
+ We can write an HTML tag that will trigger an xss:
 ```
 <img src=1 onerror=alert(1)> = 1
 ```
 
-Next, we can convert all invalid characters into Unicode sequences:
+Then, we can convert all the characters that would not be valid in a javascript
+identifier, and convert them into unicode escale sequences:
 
 ```
 \u{03c}img\u{020}src\u{3d}1\u{020}onerror\u{3d}alert\u{020}\u{3E} = 1+1
 ```
 
-Inject it into the page, and voilà we successfully injected html:<br/>
+Inject the payload into the input box, and voilà we successfully injected html:<br/>
 
 ```html
 <div id="output">Invalid Identifier name: <img src=1 onerror=alert(1)></div>
