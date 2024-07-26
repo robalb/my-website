@@ -603,9 +603,9 @@ article li a:hover {
 /* article images. responsive, but fith fixed height. and with dark-light support*/
 article img {
   display: block;
-  /* min-height: 300px; */
-  width: auto;
   max-width: 100%;
+  height: auto;
+  margin: 0 auto;
   object-fit: contain; 
 }
 /* light-dark-image hack */

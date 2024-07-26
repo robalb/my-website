@@ -2,7 +2,7 @@
 export interface Props {
 	alt: string;
 	src: string;
-    height?: integer;
+  height?: number;
 }
  /**
  * This component allows you to integrate a simple png located in assets/posts/
@@ -19,11 +19,22 @@ export interface Props {
  * <Picture src="filename-without-extension" alt="yolo swagz" />
  */
 
-const { alt, src, height=600 } = Astro.props;
+const { alt, src, height=null } = Astro.props;
 
 const base = (await import(`../assets/posts/${src}.png`)).default
+
+let w = base.width
+let h = base.height
+//if a custom height is provided, that means that
+// we want to scale the image to a fixed height.
+//adjust the width to maintain the image proportions
+if(height){
+  w = Math.floor(w * height / h)
+  h = height
+}
+//note: the image is styled in style.css, "article img"
 
 ---
 
 
-<img src={base.src} height={height} style="margin: 0 auto;" alt={alt} />
+<img src={base.src} height={h} width={w} alt={alt} />

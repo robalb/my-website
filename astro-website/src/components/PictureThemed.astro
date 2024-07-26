@@ -2,7 +2,7 @@
 export interface Props {
 	alt: string;
 	src: string;
-  height?: integer;
+  height?: number;
 }
 /**
  * This component allows you to integrate two pngs: ...-dark.png and ...-light.png
@@ -21,22 +21,33 @@ export interface Props {
  * <Picture src="filename-without-extension" alt="yolo swagz" />
  */
 
-const { alt, src, height=400 } = Astro.props;
+const { alt, src, height=null } = Astro.props;
 
 //https://github.com/withastro/astro/issues/3373
-const baseDark = (await import(`../assets/posts/${src}-dark.png`)).default.src
-const baseLight = (await import(`../assets/posts/${src}-light.png`)).default.src
-const webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default.src
-const webpLight = (await import(`../assets/posts/${src}-light.webp`)).default.src
+const baseDark = (await import(`../assets/posts/${src}-dark.png`)).default
+const baseLight = (await import(`../assets/posts/${src}-light.png`)).default
+const webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default
+const webpLight = (await import(`../assets/posts/${src}-light.webp`)).default
 
+//we assume that all images have the same ratio
+let w = baseDark.width
+let h = baseDark.height
+//if a custom height is provided, that means that
+// we want to scale the image to a fixed height.
+//adjust the width to maintain the image proportions
+if(height){
+  w = Math.floor(w * height / h)
+  h = height
+}
+//note: the image is styled in style.css, "article img"
 ---
 
 <picture >
-  <source srcset={webpDark}   type="image/webp" />
-  <img src={baseDark} height={height} style="margin: 0 auto;" class="dark" alt={alt} />
+  <source srcset={webpDark.src}   type="image/webp" />
+  <img src={baseDark.src} height={h} width={w}  class="dark" alt={alt} />
 </picture>
 
 <picture >
-  <source srcset={webpLight}  type="image/webp" />
-  <img src={baseLight} height={height} style="margin: 0 auto;" class="light" alt={alt} />
+  <source srcset={webpLight.src}  type="image/webp" />
+  <img src={baseLight.src} height={h} width={w}  class="light" alt={alt} />
 </picture>
