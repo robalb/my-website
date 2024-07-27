@@ -1,0 +1,110 @@
+---
+export interface Props {
+	alt: string;
+	src: string;
+  height?: number;
+}
+/**
+ * This component allows you to integrate images from src/assets/posts
+ * by providing the resource name without extensions.
+ *
+ * usage:
+ * ---
+ * import Picture from '../../components/Picture.astro'
+ *
+ * <Picture src="filename-without-extension" alt="yolo swagz" />
+ * 
+ * note: you can provide an optional height if you want to scale down the image.
+ *       Keep in mind that it's better if the images are already in the
+ *       proper size.
+ *
+ * let's say that the file name of your picture is "test":
+ * There two ways to provide the file: normal, or dark/light.
+ *
+ * in normal mode, you must provide:
+ * test.png 
+ * test.webp (optional, if provided the png will be used as fallback using the picture html element)
+ *
+ * in light/dark mode, you must provide:
+ * test-light.png
+ * test-dark.png
+ * test-light.webp (optional, if provided the png will be used as fallback using the picture html element)
+ * test-dark.webp (optional, if provided the png will be used as fallback using the picture html element)
+ * 
+ * multiple variants of the same image, such as light/dark or png/webp
+ * must maintain the same aspect ratio
+ */
+
+const { alt, src, height=null } = Astro.props;
+
+//all possible images we will try to load
+let base
+let webp
+let baseDark
+let baseLight
+let webpDark
+let webpLight
+
+//the defined height or width of the image
+//we assume that all images have the same ratio
+let w = 0
+let h = 0
+
+//https://github.com/withastro/astro/issues/3373
+try{
+  base = (await import(`../assets/posts/${src}.png`)).default
+  w = base.width
+  h = base.height
+}catch{}
+
+try{
+  webp = (await import(`../assets/posts/${src}.webp`)).default
+}catch{}
+
+try{
+  baseDark = (await import(`../assets/posts/${src}-dark.png`)).default
+  baseLight = (await import(`../assets/posts/${src}-light.png`)).default
+  w = baseDark.width
+  h = baseDark.height
+}catch{}
+
+try{
+  webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default
+}catch{}
+try{
+  webpLight = (await import(`../assets/posts/${src}-light.webp`)).default
+}catch{}
+
+
+//if a custom height is provided, that means that
+// we want to scale the image to a fixed height.
+//adjust the width to maintain the image proportions
+if(height){
+  w = Math.floor(w * height / h)
+  h = height
+}
+//note: the image is styled in style.css, "article img"
+---
+
+
+{base && /* png + webp */
+  <picture >
+    {webp && <source srcset={webp.src}   type="image/webp" />}
+    <img src={base.src} height={h} width={w}  class="dark" alt={alt} />
+  </picture>
+}
+
+{ (baseDark && baseLight) && /* png + webp (darkmode/lightmode) */
+  <Fragment>
+    <picture >
+      {webpDark && <source srcset={webpDark.src}   type="image/webp" />}
+      <img id="a" src={baseDark.src} height={h} width={w}  class="dark" alt={alt} />
+    </picture>
+
+    <picture >
+      {webpLight && <source srcset={webpLight.src}  type="image/webp" />}
+      <img src={baseLight.src} height={h} width={w}  class="light" alt={alt} />
+    </picture>
+  </Fragment>
+
+}

@@ -28,6 +28,16 @@ const baseDark = (await import(`../assets/posts/${src}-dark.png`)).default
 const baseLight = (await import(`../assets/posts/${src}-light.png`)).default
 const webpDark = (await import(`../assets/posts/${src}-dark.webp`)).default
 const webpLight = (await import(`../assets/posts/${src}-light.webp`)).default
+try{
+const x = (await import(`../assets/posts/${src}-lightx.webp`)).default
+console.log(x)
+}
+catch{
+console.log("nop")
+
+}
+
+
 
 //we assume that all images have the same ratio
 let w = baseDark.width

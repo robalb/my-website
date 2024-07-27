@@ -6,14 +6,14 @@ description: writeup for the challenge calc - PingCTF 2023
 tags: ['writeup', 'web', 'AST', 'js']
 permalink: https://halb.it/posts/pingctf-calc/
 ---
-import PictureThemed from '../../components/PictureThemed.astro'
+import Picture from '../../components/PictureTest.astro'
 
 PingCTF 2023 had an interesting web challenge, called calc. The solution involved a simple logic bug, but there were some unintended workarounds based on inconsistencies in the esprima.js parser that i think are worth sharing
 
 ## the challenge
 
 
-<PictureThemed src="calc" height={450} alt="Screenshot of a website with a green background and a white container in the middle, titled 'calculator'. In the container there is a textarea containing the code 'a = 1+1;b=a'. Immediately under the textarea, a small text reads: 'result from evaluating the code a=1+1;b=a is 4'. under the small text there is a green button labelled 'calculate', and on its left there is a link labelled Report" />
+<Picture src="calc" height={450} alt="Screenshot of a website with a green background and a white container in the middle, titled 'calculator'. In the container there is a textarea containing the code 'a = 1+1;b=a'. Immediately under the textarea, a small text reads: 'result from evaluating the code a=1+1;b=a is 4'. under the small text there is a green button labelled 'calculate', and on its left there is a link labelled Report" />
 <br/>
 
 This is a classic xss challenge, where you have to find a reflected xss and send the malicious link to a bot to steal its cookies.
