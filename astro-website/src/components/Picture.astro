@@ -92,7 +92,7 @@ if(height){
 {base && /* png + webp */
   <picture >
     {webp && <source srcset={webp.src}   type="image/webp" />}
-    <img src={base.src} height={h} width={w}  class="dark" alt={alt} />
+    <img src={base.src} height={h} width={w}  alt={alt} />
   </picture>
 }
 
