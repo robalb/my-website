@@ -8,7 +8,6 @@ permalink: https://halb.it/projects/
 activePage: projects
 ---
 import Picture from '../components/Picture.astro'
-import PictureThemed from '../components/PictureThemed.astro'
 
 - [Custom vm emulator and debugger](#custom-vm-emulator-and-debugger)
 - [Morse code web radio](#morse-code-web-radio)
@@ -67,7 +66,7 @@ I containerized all my projects on Github and integrated CI/CD pipelines based o
 I also took the cursed decision to move everything to a self-managed k3s cluster, running on
 an OVH vps provisioned through Ansible scripts.
 
-<PictureThemed src="helloworld-generic" alt="A diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
+<Picture height="400" src="helloworld-generic" alt="A diagram of a CI/CD pipeline involving github actions, a docker registry, argoCD and kubernetes" />
 <br />
 
 Since 2024, after more than a year working in the field of Devops and Cloud Infrastructure
@@ -121,7 +120,7 @@ Back in February 2022, I took a course at my university titled Programming Langu
 A more fitting name for the course would have been Exotic Programming Languages,
 as it focused on relatively obscure programming paradigms.
 
-<PictureThemed src="uri-parser-diagram" height={390} alt="Railroad diagram of the URI ebpf grammar" />
+<Picture src="uri-parser-diagram" height={390} alt="Railroad diagram of the URI ebpf grammar" />
 <br/>
 
 The final project consisted of implementing an URI parser in both Lisp and Prolog.
@@ -153,7 +152,7 @@ This was yet another university group project, that took an unconfortable amount
 back in 2022.
 The task was to develop an Android app in Java, adhering to Google's recommended best practices.
 
-<Picture src="roboapp-figma" height={300} alt="some screens from an android app. The first screen is a login form. The second screen shows a list of regattas. The third screen shows the same page as the previous one, but there are no regattas, and a placeholder text is shown instead. The text says: 'There are no regattas. Regattas are interactive sailing courses that you can design and manage in real time with others. Create a new regatta with the create new regatta button.' The last screen shows a nautical map. a compass on top is pointing north, and a large text says 'Buoy stacchetto 40° N' On the map, a flag connected to a long line is overlayed on top of the water " />
+<Picture src="roboapp-figma" alt="some screens from an android app. The first screen is a login form. The second screen shows a list of regattas. The third screen shows the same page as the previous one, but there are no regattas, and a placeholder text is shown instead. The text says: 'There are no regattas. Regattas are interactive sailing courses that you can design and manage in real time with others. Create a new regatta with the create new regatta button.' The last screen shows a nautical map. a compass on top is pointing north, and a large text says 'Buoy stacchetto 40° N' On the map, a flag connected to a long line is overlayed on top of the water " />
 <br/>
 
 I worked with a group that developed an app for managing robotic buoys used in sailing regattas.
