@@ -1,7 +1,6 @@
 ---
-setup: |
-  import Layout from '../../layouts/BlogPost.astro'
-  import PictureThemed from '../../components/PictureThemed.astro'
+
+layout: '../../layouts/BlogPost.astro'
 title: the python internals behind a pyjail challenge
 publishDate: 2023-11-2
 description: writeup and python internals walktrough - bluehens ctf 2023
@@ -18,7 +17,8 @@ https://flagbot.ch/posts/pyaucalc/
 Pyjails are common ctf puzzles.
 The premise of these challenges is very simple:
 user input is read from a python script running in a remote environment.
-It is sanitized, and then it's executed using `exec`
+It is sanitized, and then it's executed using 
+[exec](https://docs.python.org/3/library/functions.html#exec)
 
 Solving these challenges is usually a great lesson in python internals, and a reminder that no matter how much effort you put into sanitizing data, executing untrusted user code in complex environments is always a bad idea.
 

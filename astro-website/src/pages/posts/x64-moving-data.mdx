@@ -72,15 +72,15 @@ from a register to memory, or vice-versa from memory to a register
 
  These first examples are self-explanatory:
 
-```python
-mov rbx, 0x10  #copies the integer 0x10 into rbx
-mov rax, rbx   #copies the content of rbx into rax
+```nasm
+mov rbx, 0x10  ;copies the integer 0x10 into rbx
+mov rax, rbx   ;copies the content of rbx into rax
 ```
 
 Moving data to memory requires some extra syntax:<br/>
 The following snippet writes the byte `0xff` in the memory cell at address `0x10`.
 
-```c
+```nasm
 mov rax, 0x10
 mov byte ptr [rax], 0xff
 ```
@@ -120,7 +120,7 @@ When we (humans using Hindu-Arabic numerals) represent numbers,
 we write the most significant value first, and continue in descending order.
 This is the same as Big endian architectures.
 
-```python
+```nasm
   human-readable decimal number
   1337 
   |  |
@@ -162,13 +162,13 @@ There are two key elements you should notice by plaing with the example above:
 simply stops being part of the stack. The only thing that changes is the memory address pointed by `rsp`.
 
 Basically, `push rax` does the same as the following code:
-```c
+```nasm
 sub rsp, 8
 mov qword ptr [rsp], rax
 ```
 
 And `pop rax` does the same as the following code
-```c
+```nasm
 mov rax, qword ptr [rsp]
 add rsp, 8
 ```
