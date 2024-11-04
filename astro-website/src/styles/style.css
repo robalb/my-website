@@ -120,7 +120,6 @@ body {
   line-height: 1.65;
   color: var(--font-color);
   background: var(--background-color);
-  transition: color 1.5s;
   color-scheme: light dark; 
 }
 

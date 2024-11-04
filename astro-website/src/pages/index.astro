@@ -5,7 +5,7 @@ import ProjectPreview from '../components/ProjectPreview.astro';
 import SharedLayout from '../components/SharedLayout.astro';
 import Guestbook from '../components/Guestbook.astro';
 
-let description = "Developer. Passionate about cybersecurity, web development and cloud architectures"
+let description = "Hi, I'm Alberto. I'm a wearer of many hats with a passion for Cybersecurity, web development, and Cloud architectures."
 let permalink = 'https://halb.it';
 
 // Data Fetching: List all Markdown posts in the repo.
@@ -34,9 +34,9 @@ let projects = allProjects.slice(0, MAX_PROJECTS)
 <SharedLayout {description} {permalink} >
 	<article>
 	<section>
-		<h1>Hi, I'm Alberto.</h1>
+		<h1>Hey, i'm Alberto</h1>
 		<p style="max-width: 600px">
-		I'm a developer and Computer Science student at UniMib, passionate about cybersecurity, web development, and cloud architectures
+		I'm a wearer of many hats with a passion for Cybersecurity, web development, and cloud architectures. You've reached my website.
 		</p>
 		<div class="socials">
       {/* https://kittygiraudel.com/2020/12/10/accessible-icon-links/ */}
@@ -80,7 +80,6 @@ let projects = allProjects.slice(0, MAX_PROJECTS)
 		padding-bottom: 3rem;
 	}
 	h1{
-		font-size: 3rem;
 		margin-bottom: 0.75rem;
 	}
 	.socials{

@@ -8,7 +8,9 @@ permalink: https://halb.it/projects/
 activePage: projects
 ---
 import Picture from '../components/Picture.astro'
+import x64_src from '../assets/posts/x64.jpg'
 
+- [Browser-based x86-64 assembly playground]()
 - [Custom vm emulator and debugger](#custom-vm-emulator-and-debugger)
 - [Morse code web radio](#morse-code-web-radio)
 - [Infrastructure](#infrastructure)
@@ -16,6 +18,39 @@ import Picture from '../components/Picture.astro'
 - [Parsers in exotic languages](#parsers-in-exotic-languages)
 - [Sailing regattas Android app](#sailing-regattas-android-app)
 - [Older projects](#older-projects)
+
+### Browser-based x86-64 Assembly playground
+
+I recently created [x64.halb.it](https://x64.halb.it), a webapp designed to run, learn, and 
+debug x86-64 assembly directly from your browser.
+
+The development has been an interesting technical challenge; A whole x86-64 linux environment
+is emulated client-side in a WebAssembly port of the blink emulator.
+There is no backend server, everything runs locally in your browser
+in a runtime that weights ~200Kb, less than the screenshot below.
+You can find the source code on [github](https://github.com/robalb/x86-64-playground)
+
+<img src={x64_src.src} />
+<br />
+
+I created the website during my tutoring for the cyberchallenge course at unimib, where I taught binary exploitation
+in weekly training sessions.
+In that course, students with potentially no experience with linux, terminals or debuggers were taught
+core concepts like memory layouts and stack frames, and were then expected to immediately put this
+knowledge into practice by exploiting basic buffer overflows.
+
+I noticed that a lot of people were struggling to map the abstract concepts they learned into the 
+practical tools they were expected to use, fighting both the concepts and the huge learning curve of gdb,
+linux,terminals et all.
+
+This website is therefore trying to provide a middle ground between abstract explanations of stack layout and
+assembly and the actual tools used on the field. It displays information in the same way as
+gdb+pwngdb, and it provides a user friendly debugger-like interface that runs in the familiar
+environment of the browser.
+
+
+
+
 
 ### Custom VM emulator and debugger
 
@@ -170,14 +205,6 @@ app repository with new Retrofit client models whenever a new version of the API
 
 Both the app code and the API server are available on the [open-roboe github organization](https://github.com/open-roboe)
 
-It's worth mentioning that
-Android java development can be a scarring experience when your requirements are to follow Google's best practices to the letter.
-Navigating through layers of outdated Java app development practices proved
-to be far more complex than any webpack-react-redux or other convoluted web projects I've encountered.
-I still have vivid memories about fighting `ViewModelProviderFactory` patterns, broken xml layout editors, and `LiveData` mixing with `rxJava`
-
-
-
 
 ### Older projects
 
@@ -185,8 +212,8 @@ Around 2015, I learned programming by developing [minecraft pocket edition mods]
 using a cursed javascript+java scripting language.
 
 Since then, I've created several web projects that got lost in time,
-along with miscellaneous stuff that is not worth its own section such 
-as a website for [my old high school](https://github.com/liceobanfi/banfi-in-diretta) or
+along with miscellaneous stuff that is not worth its own section like
+this website for [my old high school](https://github.com/liceobanfi/banfi-in-diretta), or
 [my dotfiles](https://github.com/robalb/dotfiles)
 
 
