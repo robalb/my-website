@@ -25,7 +25,7 @@ I recently created [x64.halb.it](https://x64.halb.it), a webapp designed to run,
 debug x86-64 assembly directly from your browser.
 
 The development has been an interesting technical challenge; A whole x86-64 linux environment
-is emulated client-side in a WebAssembly port of the blink emulator.
+is emulated client-side in a WebAssembly port of the [blink](https://github.com/jart/blink/) emulator.
 There is no backend server, everything runs locally in your browser
 in a runtime that weights ~200Kb, less than the screenshot below.
 You can find the source code on [github](https://github.com/robalb/x86-64-playground)
@@ -33,7 +33,7 @@ You can find the source code on [github](https://github.com/robalb/x86-64-playgr
 <img src={x64_src.src} />
 <br />
 
-I created the website during my tutoring for the cyberchallenge course at unimib, where I taught binary exploitation
+I created the website during my tutoring for the cyberchallenge course at UniMib, where I taught binary exploitation
 in weekly training sessions.
 In that course, students with potentially no experience with linux, terminals or debuggers were taught
 core concepts like memory layouts and stack frames, and were then expected to immediately put this
@@ -149,41 +149,9 @@ experimentations in the integration between react and php
 <br/>
 
 
-### Parsers in exotic languages
-
-Back in February 2022, I took a course at my university titled Programming Languages, which I particularly enjoyed.
-A more fitting name for the course would have been Exotic Programming Languages,
-as it focused on relatively obscure programming paradigms.
-
-<Picture src="uri-parser-diagram" height={390} alt="Railroad diagram of the URI ebpf grammar" />
-<br/>
-
-The final project consisted of implementing an URI parser in both Lisp and Prolog.
-There were some extravagant requirements: the code had to be written exclusively in Emacs,
-with a line limit of 80 columns, or it would be disqualified.<br/>
-With that said, it was one of those rare situations in software development where all the project
-requirements were defined in advance;
-we had a detailed description of the grammar to implement
-and an extensive set of tests the professor would use on the code.
-
-You don’t get that many chances in life to practice pure test-driven development:
-I took a couple of days to write a ton of language-agnostic unit tests in Python, including tests for Emacs-like
-code formatting and for the 80-line limit. Then, together with two other classmates,
-we started the actual development.
-It was a pretty satisfying experience to know that when all tests passed,
-we had the certainty of a full grade.
-
-The code for the parsers and the language-agnostic unit tests is 
-[on github](https://github.com/robalb/uri_parser_project)
-
-The emacs [code formatter tests](https://github.com/robalb/uri_parser_project/blob/master/tests/tests_formatting.py)
-could still be of use to some fellow UniMib student 
-looking to develop the project in vim, or some other editor forbidden by the emacs church
-
-
 ### Sailing regattas Android app
 
-This was yet another university group project, that took an unconfortable amount of my time
+This was a university group project, that took an unconfortable amount of my time
 back in 2022.
 The task was to develop an Android app in Java, adhering to Google's recommended best practices.
 
@@ -213,8 +181,9 @@ using a cursed javascript+java scripting language.
 
 Since then, I've created several web projects that got lost in time,
 along with miscellaneous stuff that is not worth its own section like
-this website for [my old high school](https://github.com/liceobanfi/banfi-in-diretta), or
-[my dotfiles](https://github.com/robalb/dotfiles)
+this website for [my old high school](https://github.com/liceobanfi/banfi-in-diretta), my
+[my dotfiles](https://github.com/robalb/dotfiles),
+or some university projects like this [URI parser in lisp and prolog](https://github.com/robalb/uri_parser_project)
 
 
 
