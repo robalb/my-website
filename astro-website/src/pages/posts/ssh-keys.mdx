@@ -9,13 +9,18 @@ permalink: https://halb.it/posts/ssh-keys/
 ---
 
 This is the opinionated way I manage my ssh keys. <br/>
-If you use SSH or Git but aren't familiar with [SSH keys](https://wiki.archlinux.org/title/SSH_keys), learning about them will simplify your workflow.
-This quick recap is all you need to get started:
+If you use SSH or Git but aren't familiar with [SSH keys](https://wiki.archlinux.org/title/SSH_keys),
+I strongly recommend you to learn about them. It's one of those small time investments that
+will make your work significantly easier in the long run.
+This quick recap is probably all you need to know to get started and follow along:
 
 - Ssh keys are a safer alternative to passwords for authenticating to ssh.
-- an ssh key is actually a key pair: The private key stays on your computer. The public key can be shared, and it's comparable to a padlock that can be opened with the private key.
+- What we colloquially call an ssh key is actually a key pair. There is a private key that must remain in your computer, and a public key that can be shared, and its comparable to a padlock that only the private key can open.
+- [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols)
+to connect to remote repositories. This makes ssh keys the recommended (and easiest) way to [authenticate to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or other remote git servers.
 
-- [git supports ssh](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols) to connect to remote repositories. This makes ssh keys the recommended (and the easiest) way to [authenticate to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) or other git servers.
+Oh and in case you are wondering what they physically look like,
+both the private and public key are just a long sequence of letters in a text file.
 
 
 ### Generating a key
@@ -30,7 +35,7 @@ A good description should help you - and whoever you share the key with - to
 understand where the private key is stored, and who is the owner.
 Something like `Alberto Ventafridda work_thinkpad`
 
-- `-f ~/.ssh/test_key` Sets the path where the key pair will be saved. The sensible default is to save all keys in the `.ssh` folder in your home directory.
+- `-f ~/.ssh/test_key` Sets the path where the key pair will be saved, and the filename. The sensible default is to save all keys in the `.ssh` folder in your home directory.
 
 I like to generate a dedicated ssh key for every service that requires it.
 With this practice your ssh folder will grow pretty quickly, which is why 
@@ -65,7 +70,7 @@ Host *
   PubkeyAuthentication no
   IdentitiesOnly yes
   IdentityFile ~/nonexistent
-  User ubuntu
+  User ubuntu   # A popular username
 ```
 
 This practice will also solve another potential issue:
@@ -99,7 +104,7 @@ a convenient tool in all other situations.
 
 ### Using ssh alias
 
-You can create host aliases for the hostnames that are too long to type.
+You can create host aliases for static Ips or hostnames that are too long to type.
 For example:
 
 ```toml
