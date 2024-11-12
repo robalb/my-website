@@ -22,8 +22,8 @@ import x64_src from '../assets/posts/x64.jpg'
 ### Browser-based x86-64 Assembly playground
 
 I recently created [x64.halb.it](https://x64.halb.it), An online assembly editor and debugger for the x86-64 architecture. <br/>
-It's a website currently used by hundrends of users to share and write code snippets for popular assemblers like Fasm 
- Nasm or Gnu Binutils.
+It's a website currently used by hundreds of users to share and write code snippets for popular assemblers, and to inspect the
+result of their work in a feature-rich debugger and emulator.
 
 The development has been an interesting technical challenge; A whole x86-64 linux environment
 is emulated client-side in a WebAssembly port of the [blink](https://github.com/jart/blink/) emulator.
@@ -89,12 +89,12 @@ It's a pretty niche project, which is complex enough to span all main areas of w
 It requires a database, real-time communication, authentication, and some custom ux and frontend functionality
 that makes everything interesting.<br/>
 
-These charateristics and the limited size of the project
-are the reason I use this website as a playground to test various web technologies.
-We learn from our mistakes, and this is where I intentionally make my mistakes.
-
-The website went from being a php + vanilla js web app in 2018 to being a react+redux monstruosity in 2021, 
-running on an equally unnecessary kubernetes cluster. Right now, it's being rewritten 
+These characteristics and the limited size of the project are the reasons I
+use this website as a playground to test various web technologies. We learn from our mistakes,
+and this is where I intentionally make my mistakes.<br/>
+Everything started as a Php + vanilla js web app in 2018 which I then refactored into
+a React+Redux monstruosity in 2021, 
+running on an equally unnecessary Kubernetes cluster. Right now, it's being rewritten 
 as a golang webserver
 
 ### Infrastructure
