@@ -22,8 +22,8 @@ import x64_src from '../assets/posts/x64.jpg'
 ### Browser-based x86-64 Assembly playground
 
 I recently created [x64.halb.it](https://x64.halb.it), An online assembly editor and debugger for the x86-64 architecture. <br/>
-It's a website currently used by hundreds of users to share and write code snippets for popular assemblers, and to inspect the
-result of their work in a feature-rich debugger and emulator.
+There are several online assembly editors, but none of them has a gdb-like debugger interface and offers full control over
+the assemblers being run, which is why I created my own.
 
 The development has been an interesting technical challenge; A whole x86-64 linux environment
 is emulated client-side in a WebAssembly port of the [blink](https://github.com/jart/blink/) emulator.
@@ -34,8 +34,8 @@ You can find the source code on [github](https://github.com/robalb/x86-64-playgr
 <img src={x64_src.src} />
 <br />
 
-I created the website during my tutoring for the cyberchallenge course at UniMib, where I taught binary exploitation
-in weekly training sessions.
+I created the website as a teaching aid during my tutoring for the cyberchallenge course at UniMib,
+where I taught binary exploitation in weekly training sessions.
 In that course, students with potentially no experience with linux, terminals or debuggers were taught
 core concepts like memory layouts and stack frames, and were then expected to immediately put this
 knowledge into practice by exploiting basic buffer overflows.
