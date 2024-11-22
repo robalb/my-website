@@ -55,20 +55,5 @@ function handleChange(e){
     word-wrap:break-word;
     overflow: hidden;
   }
-
-@keyframes cursor-blink {
-  0% {
-    opacity: 0;
-  }
-}
-
-p.description::after {
-  content: "";
-  width: 5px;
-  height: 20px;
-  background: var(--dark-font-color);
-  display: inline-block;
-  animation: cursor-blink 1.5s steps(2) infinite;
-}
 </style>
 
