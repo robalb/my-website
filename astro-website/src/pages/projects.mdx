@@ -21,28 +21,26 @@ import x64_src from '../assets/posts/x64.jpg'
 
 ### Browser-based x86-64 Assembly playground
 
-I recently created [x64.halb.it](https://x64.halb.it), An online assembly editor and debugger for the x86-64 architecture. <br/>
-There are several online assembly editors, but none of them has a gdb-like debugger interface and offers full control over
-the assemblers being run, which is why I created my own.
-
-The development has been an interesting technical challenge; A whole x86-64 linux environment
+I recently created [x64.halb.it](https://x64.halb.it), An online assembly editor and GDB-like debugger for the x86-64 architecture. <br/>
+The development has offered several interesting technical challenges:
+a whole x86-64 Linux environment
 is emulated client-side in a WebAssembly port of the [blink](https://github.com/jart/blink/) emulator.
-There is no backend server, everything runs locally in your browser
+There is no backend server, everything runs locally in the browser
 in a runtime that weights ~200Kb, less than the screenshot below.
-You can find the source code on [github](https://github.com/robalb/x86-64-playground)
+You can find the source code on [github](https://github.com/robalb/x86-64-playground).
 
 <img src={x64_src.src} />
 <br />
 
 I created the website as a teaching aid during my tutoring for the cyberchallenge course at UniMib,
-where I taught binary exploitation in weekly training sessions.
+where I taught the basics of binary exploitation.
 In that course, students with potentially no experience with linux, terminals or debuggers were taught
 core concepts like memory layouts and stack frames, and were then expected to immediately put this
 knowledge into practice by exploiting basic buffer overflows.
 
 I noticed that a lot of people were struggling to map the abstract concepts they learned into the 
-practical tools they were expected to use, fighting both the concepts and the huge learning curve of gdb,
-linux,terminals et all.
+practical tools they were expected to use, fighting both the concepts and the huge learning curve of gdb
+and the surrounding linux environment.
 
 This website is therefore trying to provide a middle ground between abstract explanations of stack layout and
 assembly and the actual tools used on the field. It displays information in the same way as
@@ -93,9 +91,9 @@ These characteristics and the limited size of the project are the reasons I
 use this website as a playground to test various web technologies. We learn from our mistakes,
 and this is where I intentionally make my mistakes.<br/>
 Everything started as a Php + vanilla js web app in 2018 which I then refactored into
-a React+Redux monstruosity in 2021, 
-running on an equally unnecessary Kubernetes cluster. Right now, it's being rewritten 
-as a golang webserver
+a Python and React+Redux monstruosity in 2021, 
+running on an equally unnecessary Kubernetes cluster. Right now it's running as an efficient
+Golang and Sqlite service, designed for long-term maintainability.
 
 ### Infrastructure
 
