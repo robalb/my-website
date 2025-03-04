@@ -1,0 +1,558 @@
+---
+
+layout: '../../layouts/BlogPost.astro'
+title: Solving the challenge in traefik/jobs
+publishDate: 2025-03-02
+description: How I solved the challenge in the traefik careers page
+tags: ['writeup', 'golang', 'reverse-engineering', 'traefik']
+permalink: https://halb.it/posts/traefik-jobs/
+---
+import { Image } from 'astro:assets';
+import screen1 from '../../assets/posts/traefikjobs-screen1.png'
+import scr1 from '../../assets/posts/traefikjobs-scr1.png'
+import scr2 from '../../assets/posts/traefikjobs-scr2.png'
+import scr3 from '../../assets/posts/traefikjobs-scr3.png'
+import scr4 from '../../assets/posts/traefikjobs-scr4.png'
+import Spoiler from '../../components/Spoiler.astro'
+
+Note: this article is private, and not listed on google. Some informations are redacted.
+
+
+The careers page on the Traefik website has an interesting code challenge.
+If you solve it, you will get the contact informations for the job application. 
+
+```
+# Apply here
+docker run -it traefik/jobs
+```
+
+This is an overview of how I solved the challenge, The TL;DR is:
+- I extracted a Golang executable from the container, and reverse-engineered it
+to understand its behaviour.
+- Following the code logic, I then deployed the container in a minikube cluster,
+with cluster admin privileges.
+- When this failed for compatibility reasons (the challenge is very old), I followed the path of least resistance,
+extracting the "secret payload" from the executable and writing
+a custom golang script that decrypted it using the same logic as the
+original challenge.
+
+
+
+### Helmsman, where are you? - Gathering clues
+
+Running the command provided by the challenge, 
+a Docker image is downloaded and run. 
+It seems to be a simple program that prints a cryptic message,
+then quits.
+
+```bash
+$ docker run -it traefik/jobs
+> Helmsman, where are you? 🤔
+```
+
+By reading its [dockerHub page](https://hub.docker.com/r/traefik/jobs
+), we learn that the image is 4 years old, and it's called `helmsman`. Only two other older versions are
+displayed in the tags history.
+
+Now let's have a look at its layers:
+
+```md
+$ docker history traefik/jobs
+IMAGE          CREATED       CREATED BY                                      SIZE      COMMENT
+8fd1aa093b13   4 years ago   ENTRYPOINT ["/start"]                           0B        buildkit.dockerfile.v0
+<missing>      4 years ago   COPY helmsman /start # buildkit                 27.8MB    buildkit.dockerfile.v0
+<missing>      4 years ago   LABEL helmsman=dcc9c530767c1020ad345d621cf29…   0B        buildkit.dockerfile.v0
+
+```
+
+It's a scratch docker image, with a single `27Mb` executable.
+This is very likely a medium-sized Golang application, maybe a modified version of Traefik itself.
+Let's pull it out of the image and find out.
+
+First, we need to get a tarred copy of the image:
+```bash
+docker save traefik/jobs > traefikjobs.tar
+```
+
+These are the contents of the archive:
+```md
+$ tar tfv traefikjobs.tar
+drwxr-xr-x 0/0               0 2020-10-22 15:50 blobs/
+drwxr-xr-x 0/0               0 2025-02-26 17:15 blobs/sha256/
+-rw-r--r-- 0/0             821 2020-10-22 15:50 blobs/sha256/67f07e2ec38f4bafed8fb352fa82a8ce14b2d04b23cf17a88875ae494f1d5dc4
+-rw-r--r-- 0/0        27756032 2020-10-22 15:50 blobs/sha256/852b54c4c0be1f879a3a868bb89119a68fa8a5155cec5d8e37cadba9ac38befb
+-rw-r--r-- 0/0             401 1970-01-01 01:00 blobs/sha256/8d09d828807f0618cc17636a3d91a3c7d8374b89ed398b7a3cd5980e27f203e1
+-rw-r--r-- 0/0             833 2020-10-22 15:50 blobs/sha256/8fd1aa093b13d1ebad4b58ab318f25e9f7d757a6cbc7391acc99518a81b5c144
+-rw-r--r-- 0/0             360 2025-02-26 17:15 index.json
+-rw-r--r-- 0/0             464 1970-01-01 01:00 manifest.json
+-rw-r--r-- 0/0              31 1970-01-01 01:00 oci-layout
+-rw-r--r-- 0/0              95 1970-01-01 01:00 repositories
+
+```
+
+We are only interested in the executable, which can be extracted from the blob with the largest size.
+Let's have a look at it:
+
+```
+$ file start
+start: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), statically linked, Go BuildID=giKpqB_eEQ4pCsw_zwab/HXVXhwhlCd8onwlovFAY/b_HNul8q2i32pIwivh31/vGA8O26tkLqxQW-WXnoN, stripped
+```
+
+As expected, it's a static Golang executable.
+
+### Solving strategies
+
+To recap everything I've listed so far:
+We have a Docker image with a 4-years old Golang executable,
+that expects us to provide some kind of input.
+Additionally, the docker image contains a label `LABEL helmsman=dcc9c530767c1020ad345d621cf29...`
+that looks like some kind of password we need to feed to the application.
+
+So far this feels like a "guessy" CTF challenge, which makes me feel at home.
+I have enough experience to know that these challenges don't follow the typical programming patterns of the technology they use, and
+because of that it's easy to be dragged away into time-consuming dead ends.
+
+The trick to defeat them is to base every assumption on concrete data.
+For example:
+The app prints "helmsman where are you?", then quits. 
+Do we need to provide into its
+standard input the secret label we just found?<br/>
+Instead of blindly trying every idea we have, Let's run the app with `strace`:
+
+<Spoiler text="Show strace dump">
+
+```
+$ strace -f ./start
+...
+snip
+...
+[pid 2689347] openat(AT_FDCWD, "/home/al/sandbox/start", O_RDONLY|O_CLOEXEC) = 6
+[pid 2689347] epoll_ctl(3, EPOLL_CTL_ADD, 6, {events=EPOLLIN|EPOLLOUT|EPOLLRDHUP|EPOLLET, data={u32=621683704, u64=124936925357048}}) = -1 EPERM (Operation not permitted)
+[pid 2689347] epoll_ctl(3, EPOLL_CTL_DEL, 6, 0xc00016dbac) = -1 EPERM (Operation not permitted)
+[pid 2689347] fstat(6, {st_mode=S_IFREG|0755, st_size=27754496, ...}) = 0
+[pid 2689347] pread64(6, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\2\0>\0\1\0\0\0\200\272F\0\0\0\0\0"..., 64, 0) = 64
+[pid 2689347] pread64(6, "<$H\211\\$\10H\211t$\20H\213\234$\210\0\0\0H\211\\$\30\350\2\250\377\377H\213"..., 64, 3469312) = 64
+[pid 2689347] pread64(6, "\350\333\310\234\377H\211\370\350\223\311\234\377L\211\310H\211\331\350\310\310\234\377H\211\331\17\37D\0\0"..., 64, 6938624) = 64
+[pid 2689347] pread64(6, "\213D$\10H\215\r\265\266Q\0H\211\214$(\1\0\0H\211\204$0\1\0\0H\215\5]\17"..., 64, 10407936) = 64
+[pid 2689347] pread64(6, "\34\0H\211\4$\350\265\37-\377H\213D$\10H\213\214$\230\0\0\0H\213\224$\240\0\0\0"..., 64, 13877248) = 64
+[pid 2689347] pread64(6, "`\32\222\0`\32\222\0\36:\0\0\0\200\10\0\340\32\222\0\340\32\222\0Wd\0\0\200\272\10\0"..., 64, 17346560) = 64
+[pid 2689347] pread64(6, "\222\1\2&\3l\6g\5\200\1\10\t\7%\n%\2h\2%\2\261\1\7,\n\266\1\2k\2"..., 64, 20815872) = 64
+[pid 2689347] pread64(6, "$\201\5\4/\2\262\5\20\205\5\4-\2\264\5)\216\1\10\2\23\36\10\225\1\33\236\1\t\301\6"..., 64, 24285184) = 64
+[pid 2689347] close(6)                  = 0
+[pid 2689348] <... nanosleep resumed>NULL) = 0
+[pid 2689347] futex(0xc000088148, FUTEX_WAKE_PRIVATE, 1 <unfinished ...>
+[pid 2689348] getpid( <unfinished ...>
+[pid 2689347] <... futex resumed>)      = 1
+[pid 2689351] <... futex resumed>)      = 0
+[pid 2689347] futex(0x1e83cc8, FUTEX_WAIT_PRIVATE, 0, NULL <unfinished ...>
+[pid 2689351] futex(0x1e83cc8, FUTEX_WAKE_PRIVATE, 1) = 0
+[pid 2689347] <... futex resumed>)      = -1 EAGAIN (Resource temporarily unavailable)
+[pid 2689351] futex(0xc000088148, FUTEX_WAIT_PRIVATE, 0, NULL <unfinished ...>
+[pid 2689348] <... getpid resumed>)     = 2689347
+[pid 2689348] tgkill(2689347, 2689347, SIGURG) = 0
+[pid 2689347] --- SIGURG {si_signo=SIGURG, si_code=SI_TKILL, si_pid=2689347, si_uid=1000} ---
+[pid 2689348] nanosleep({tv_sec=0, tv_nsec=10000000},  <unfinished ...>
+[pid 2689347] rt_sigreturn({mask=[]})   = 31533280
+[pid 2689347] mmap(NULL, 262144, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x71a125080000
+[pid 2689348] <... nanosleep resumed>NULL) = 0
+[pid 2689348] nanosleep({tv_sec=0, tv_nsec=10000000},  <unfinished ...>
+[pid 2689347] write(1, "Helmsman, where are you? \360\237\244\224\n", 30Helmsman, where are you? 🤔
+```
+</Spoiler>
+
+
+Since there is no report of any kind of `read` syscall, we can conclude that the program is not trying to read anything from the stdin,
+and out initial hypothesis was wrong.
+
+### The right path: k8s
+
+Things get much more interesting when we analyze the executable from up close:
+
+Even when compiled into a stripped executable, Golang programs maintain several [internal data
+structures](https://cloud.google.com/blog/topics/threat-intelligence/golang-internals-symbol-recovery/) that expose
+their original symbols.
+Dumping the program into `GoReSym`, a tool that exploits these informations for the static analysis of Golang executables, we 
+get this result:
+
+```
+/Users/emile/go/src/github.com/traefik/jobs/cmd/helmsman/helmsman.go
+    main.main
+      flag.StringVar
+      flag.Parse
+      flag.String
+    main.console
+    main.startServer
+    main.getSecret
+    main.getDeploymentFromPod
+    main.getServiceFromDeployment
+    main.getIngressFromService
+    main.isTraefikDeployed
+    main.decrypt
+    main.startServer.func1
+
+/Users/emile/go/src/github.com/traefik/jobs/vendor/k8s.io/client-go/
+/Users/emile/go/src/github.com/traefik/jobs/vendor/github.com/spf13/
+/Users/emile/go/src/github.com/traefik/jobs/vendor/github.com/davecgh/go-spew/
+/Users/emile/go/src/github.com/traefik/jobs/vendor/golang.org/x/crypto/
+/Users/emile/go/src/github.com/traefik/jobs/vendor/golang.org/x/sys/unix/
+
+```
+
+From the dependencies alone, it's clear that this code interacts with the kubernetes API.
+We also have a very clear overview of the program logic, which seems to be 
+contained in a single file. The program starts a web server, decrypts something, and interacts
+with a k8s cluster, checking if Traefik is deployed.
+
+The hypothesis now is that if we deploy the container on a k8s cluster with the Traefik ingress controller (the best controller),
+we'll somehow get our flag.
+The symbols we found gave us a hint of what to do, but before we spin up our k8s cluster let's 
+perform one extra step, and actually decompile the application.
+
+<Image src={screen1} alt="Screenshot of the IDA decompiler, showing part of the helmsman code."/><br/>
+
+Since the whole application logic is defined linearly in the `main.main` function, with no async channel crazyness,
+The whole app behaviour can be read almost as easily as the original code. For example, 
+this is the logic that prints the message "helmsman, where are you?". The relevant code snippets are highlighted in yellow.
+There is a bit of noise originating from the [Go function call ABI](https://tip.golang.org/src/cmd/compile/abi-internal), but in this specific case we can ignore it.
+
+
+<Image src={scr1} alt="Screenshot of the IDA decompiler, showing the part of the app code."/><br/>
+The message gets printed when the call to `k8s.io/client-go/rest.InClusterConfig` fails.
+Looking at its assembly, we can see the function tries to read the `KUBERNETES_SERVICES_HOST` env.
+This is what failed when we tried to run the container without k8s. It's also worth noting that this behaviour does not generate any
+syscall, we could have never seen it from `strace` alone.
+<Image src={scr2} alt="Screenshot of the IDA decompiler, showing the part of the app code."/><br/>
+
+There is a lot of other program behaviours that can be read from the source code, including a "secret" mode for local development.
+I won't spoiler these details, nor the complete behaviour, you can easily read this yourself if you follow my steps.
+
+### Deploying the container on minikube
+
+Armed with the knowledge I gained from reversing the code, I set up a minikube cluster.
+First, i wrote the manifests that defined a service account with `cluster-admin` privileges:
+```yaml
+---
+# this is a service account with full admin privileges
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefikjobs
+---
+# This cluster role binding gives full admin privileges to the service account named "traefikjobs"
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: traefikjobs-cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: traefikjobs
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+
+```
+
+Then I wrote the manifests for a simple Deployment, with Service and Ingress attached to the port 8888.
+I believe that no one enjoys reading unrequested k8s manifests, so I won't force you to look at them unless you really want to.
+
+<Spoiler text="See the manifests" >
+```yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefikjobs
+  labels:
+    app: traefikjobs
+spec:
+  selector:
+    matchLabels:
+      app: traefikjobs
+  replicas: 1
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      labels:
+        app: traefikjobs
+    spec:
+      containers:
+        - name: traefikjobs
+          image: traefik/jobs
+          env:
+            - name: env
+              value: local
+          ports:
+          - containerPort: 8888
+      serviceAccount: traefikjobs
+      serviceAccountName: traefikjobs
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefikjobs
+spec:
+  selector:
+    app: traefikjobs
+  ports:
+    - port: 8888
+      targetPort: 8888
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefikjobs
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: traefikjobs
+                port:
+                  number: 8888
+
+```
+
+</Spoiler>
+
+When I applied the manifests, I got this result:
+
+```terminal
+# k apply -f deployment.yaml
+deployment.apps/traefikjobs created
+serviceaccount/traefikjobs unchanged
+clusterrolebinding.rbac.authorization.k8s.io/traefikjobs-cluster-admin unchanged
+service/traefikjobs created
+ingress.networking.k8s.io/traefikjobs created
+# k get pods
+NAME                           READY   STATUS             RESTARTS      AGE
+traefikjobs-59b6dd7487-74979   0/1     CrashLoopBackOff   6 (84s ago)   7m13s
+traefikjobs-696bb6fc8f-smxw4   0/1     Error              0             5s
+# k logs -f traefikjobs-696bb6fc8f-smxw4
+It seems I do need more permissions... May I be promoted cluster-admin? 🙏
+Look at me by the 8888 ingress 🚪
+# k get pods
+NAME                           READY   STATUS             RESTARTS       AGE
+traefikjobs-59b6dd7487-74979   0/1     CrashLoopBackOff   6 (118s ago)   7m47s
+traefikjobs-696bb6fc8f-smxw4   0/1     CrashLoopBackOff   2 (18s ago)    39s
+```
+
+The challenge printed the message 
+
+```md
+It seems I do need more permissions... May I be promoted cluster-admin? 🙏
+Look at me by the 8888 ingress 🚪
+```
+
+then went into a dreaded CrashLoopBackOff.
+Thanks to the reversed source code, we can see that the CrashLoop is intentional: the program intentionally calls `sys.exit`
+after printing this message. This is not an invitation to look at it by the ingress, it's a complaint that the `main.getServiceFromDeployment` function somehow failed.
+
+The thing is, the Pod already has the `cluster-admin` permissions. We can confirm it by inspecting the service account, which has full access `[*]` to
+all resources.
+
+```
+# k auth can-i --list --as=system:serviceaccount:default:traefikjobs
+Resources                                       Non-Resource URLs  Resource Names   Verbs
+*.*                                             []                 []               [*]
+                                                [*]                []               [*]
+selfsubjectreviews.authentication.k8s.io        []                 []               [create]
+selfsubjectaccessreviews.authorization.k8s.io   []                 []               [create]
+selfsubjectrulesreviews.authorization.k8s.io    []                 []               [create]
+...
+```
+
+There might be a lot of trivial issues I might have missed, the only way to make
+sure that the pod can access the kubernetes API is to exec into the pod, and manually try
+to acces them. First, we need to replace the `traefik/jobs` image with a different one, that contains a shell.
+
+```yaml
+kind: Deployment
+...
+  - name: traefikjobs
+    image: nicolaka/netshoot
+    command: ["/bin/bash"]
+    args: ["-c", "while true; do ping localhost; sleep 60;done"]
+```
+```
+# k rollout restart deployment traefikjobs
+# k get pods
+NAME                           READY   STATUS    RESTARTS   AGE
+traefikjobs-6bb554c655-9sb9f   1/1     Running   0          77s
+# k exec -it traefikjobs-6bb554c655-9sb9f -- /bin/bash
+traefikjobs-6bb554c655-9sb9f:~#
+```
+
+From inside the pod, we can then try to access the kubernetes API. 
+It's just a matter of installing kubectl, then running `kubectl auth can-i --list`.
+As expected, I got the same results: The Pod has admin permissions.
+
+### Taking a shortcut: static analysis
+
+At this point it was clear that there were some issues with the challenge code,
+I could even see the precise point in the assembly that had the error description I needed,
+which sadly the program discarded before it's stdout print.
+
+Instead of trying to fix the Deployment, I choose to follow the path of least resistance,
+that in this case was the static analysis of the program.
+
+By looking at the code, we can see that when everything is setup in the right way
+the challenge will decrypt a hardcoded blob, and expose it from a web server it launches.<br/>
+The content of that blob is our objective. The function calls before the decryption, roughly speaking, look like this:
+
+```nasm
+...
+call    r_main__getSecret
+call    r_runtime_mapaccess1_faststr ; args: ("helmsman")
+call    r_encoding_base64_encodetostr
+call    r_runtime_stringtoslicebyte
+call    r_runtime_stringtoslicebyte ; args: (0, <SECRET_ENCRYPTED_DATA>, 0x288)
+call    r_encoding_hexdecode
+call    r_main__decrypt ; args: (cyphertext, keyparam)
+```
+
+And looking at the function `main.decrypt` we can see the Complete
+Decrpytion logic: It's using the AES cypher library, in GCM mode.
+
+<Image src={scr3} alt="Screenshot of the IDA decompiler, showing the part of the app code."/><br/>
+
+We already have the encrypted blob, and the key is the one provided in the 
+container label: `LABEL helmsman=dcc9c530767c1020ad345d621cf29...`
+
+In order to Decrypt the content we need to figure out some extra details:
+- what is the nonce? And how long is it?
+- what is the tag size? How long is it?
+- how is the key encoded before its use?
+- how is the encrypted blob encoded before its use?
+
+The GCM parameters exposed in the first function call already answer our first questions:
+```nasm
+mov     [rsp+0A8h+var_A8], rcx ; __int64
+mov     [rsp+0A8h+var_A0], rdx ; __int64
+mov     [rsp+0A8h+var_98], 0Ch ; __int64 (12)
+mov     [rsp+0A8h+var_98+8], 10h ; __int64 (16)
+call    r_crypto_cypher_newGCM
+```
+
+We can see from the documentation of [crypto/cipher.newGCMWithNonceAndTagSize](https://cs.opensource.google/go/go/+/refs/tags/go1.24.0:src/crypto/cipher/gcm.go)
+that the 12 and 16 in the assembly are the nonce size and tag size respectively.
+
+In order to answer the rest of the questions, we necessarily need to follow
+the data flow in reverse, starting from the `main.decrypt` function call.
+
+This is where some knowledge on Golang internals comes useful:
+We know that `aes.NewCipher(key)` expects a slice as its only parameter.
+So why do we see three parameters in the assembly listing?
+
+```nasm
+mov     [rsp+0A8h+var_8], rbp
+lea     rbp, [rsp+0A8h+var_8]
+mov     rax, [rsp+0A8h+rv_keyparam1]
+mov     [rsp+0A8h+var_A8], rax ; __int64
+mov     rax, [rsp+0A8h+rv_keyparam2]
+mov     [rsp+0A8h+var_A0], rax ; __int64
+mov     rax, [rsp+0A8h+rv_keyparam3]
+mov     [rsp+0A8h+var_98], rax ; __int64
+call    r_cryptoAES_newcypher
+```
+The answer is that the parameters `keyparam1, keyparam2, keyparam3` are the slice!
+respectively its pointer, size and capacity.
+
+If we follow them upstream, we'll reach the function arguments, which we can
+then label with the proper informations
+
+```nasm
+mov     rax, [rsp+258h+rv_cypertext]
+mov     [rsp+258h+r_function_args_stack], rax ; rv_ciphertext_1
+mov     rax, [rsp+258h+rv_cyperthext_length]
+mov     [rsp+258h+r_function_args_stack+8], rax ; rv_ciphertext_2
+mov     rax, [rsp+258h+rv_cipertext_capacity]
+mov     [rsp+258h+r_function_args_stack2], rax ; rv_ciphertext_3
+mov     rax, [rsp+258h+rv_extracted_secret]
+mov     [rsp+258h+r_function_args_stack2+8], rax ; rv_keyparam_1
+mov     rcx, [rsp+258h+rv_extracted_secret_length]
+mov     [rsp+258h+r_function_args_stack3], rcx ; rv_keyparam_2
+mov     rdx, [rsp+258h+rv_extracted_secret_capacity]
+mov     [rsp+258h+r_function_args_stack3+8], rdx ; rv_keyparam_3
+call    r_main__decrypt
+```
+
+Following this data upstream, we can see that the ciphertext is read from an hardcoded string,
+then converted into bytes with a call to `encoding/hex.Decode()`.
+Weirdly enough, the key is not passed to `hex.decode()`, even though it looks like hex encoded data.
+Instead, its ascii slice is directly converted into bytes.
+
+<Image src={scr4} alt="Screenshot of the IDA decompiler, showing the part of the app code."/><br/>
+
+
+With all these informations, we can now write our own decryption function
+
+```go
+package main
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/hex"
+	"fmt"
+)
+
+func main() {
+	contentHex := "SECRET_ENCRYPTED_DATA"
+  content, err := hex.DecodeString(contentHex[0: 0x288])
+	if err != nil {
+		panic("failed to decode content: " + err.Error())
+	}
+
+	keyHex := "SECRET_KEY"
+  key := []byte(keyHex)
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic("failed to create AES cipher: " + err.Error())
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		panic("failed to initialize GCM: " + err.Error())
+	}
+
+  nonceSize := //REDACTED
+	nonce := content[:nonceSize]
+	ciphertextWithTag := content[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertextWithTag, nil)
+	if err != nil {
+		panic("decryption failed: " + err.Error())
+	}
+
+	fmt.Printf("Decrypted data: %s\n", plaintext)
+}
+
+```
+
+Running the script I successfully got this HTML code, which
+contained a google form for the submission.<br/>
+Note that I intentionally redacted any information that could lead to
+the google form link, The only way to recover it is to follow the steps I documented.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+<iframe 
+  src="https://docs.google.com/forms/_____REDACTED_____" 
+  width="100%" height="2000" 
+  frameborder="0" marginheight="0" marginwidth="0">
+  Loading...
+</iframe>
+</body>
+</html>
+
+```
+
