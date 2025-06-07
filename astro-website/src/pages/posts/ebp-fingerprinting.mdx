@@ -35,23 +35,14 @@ tcp SYN/ACK of the client. The source code is open-source on Github.
 
 At its essence, an HTTP webserver is extremely simple.  
 This should't be surprising: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
-compatibility reasons they still support the HTTP/1 protocol, and an HTTP/1 
-webserver can be implemented in a few lines of C code.
+compatibility reasons they 
+still support the HTTP/1 protocol, which was [designed to be simple](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP).
+An HTTP/1 web server can be implemented in just a few lines of C code.
 
-As an example, I implemented a simple hello world webserver that we'll use as 
+
+As an example, I implemented a simple hello world webserver in C that we'll use as 
 a starting point for the experiments in this article.
 You don't really have to read the code for now, but keep in mind that its' here:
-
-The following lines of code implement a simple Hello world webserver, that 
-we'll use as a starting point for the experiments in this article:
-
-At its essence, an HTTP webserver is extremely simple.  
-Although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
-compatibility reasons they still support the HTTP/1 protocol.
-
-An HTTP/1 web server can be implemented in a few lines of c code.
-The following snippet for example is a simple Hello world webserver that we'll use 
-as a starting point for the experiments in this article:
 
 <Spoiler text="See code">
 
@@ -78,10 +69,11 @@ int main() {
         .sin_addr.s_addr = INADDR_ANY,
         .sin_port = htons(PORT)
     };
-  socklen_t addrlen = sizeof(address);
+  socklen_t address_length = sizeof(address);
+  struct sockaddr *address_pointer = (struct sockaddr *)&address;
 
   // Bind the socket to the network address and port
-  if (bind(server_fd, (struct sockaddr *)&address, addrlen) < 0) {
+  if (bind(server_fd, address_pointer, address_length) < 0) {
     perror("bind failed");
     exit(EXIT_FAILURE);
   }
@@ -96,7 +88,7 @@ int main() {
 
   while (1) {
     // Accept a new connection
-    int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
+    int new_socket = accept(server_fd, address_pointer, &address_length);
     if (new_socket < 0) {
       perror("accept failed");
       exit(EXIT_FAILURE);
@@ -130,15 +122,12 @@ from any modern browser, we'll be greeted by a hello world.
 Beautiful, isn't it?
 
 This code differs significantly from the hello worlds that you would normally write
-with a modern web framework, wathever is popular nowadays, for an important reason:  
-Instead of using the abstraction that a web framework would provide to easily create a web server,
+with a modern web framework, regardles of what's trending today, for an important reason:  
+Instead of using the abstractions that a web framework would normally provide to easily create a web server,
 we are directly using the abstraction layer provided by the operative system.
 
-[Where modern web frameworks provide an abstraction layer that allow you to easily create a web server,
-here we are directly using the abstraction layer provided by the operative system.]
-
 All the code in this example can be broken down into a few calls of the standard library.
-Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim.net/?table=x86/64/x64/latest) whith a similar name, which are all we need to launch a webserver on a POSIX system:
+Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim.net/?table=x86/64/x64/latest) whith a similar name, which are all we need to implement a webserver on a POSIX system:
 
 - we create a `socket`
 - we `bind` it to a ip and port, and start to `listen`
@@ -165,7 +154,7 @@ start to experiment with tcp traffic.
 
 ### Anatomy of a TCP handshake
 
-Without making it too long, TCP connections start with a famous three-way handhshake,
+Without going too much into details, TCP connections start with a famous three-way handhshake,
 During which both the client and the server exchange some informations that 
 are useful to establish a reliable connection.  
 
@@ -180,65 +169,128 @@ Client                      Server
   |                           |
 ```
 
-By default, wireshark color-codes TCP SYN packets, which mark the beginning
-of a conversation, in grey.
-They are the first packets you will need to inspect. From there,
-you can move between packets with the commands:  
-`ctr+.` (next packet in conversation)  
-`ctr+,` (previous packet in conversation)
-
 Historically, the informations exchanged during the handshake have always provided useful insight into 
 the identity of the client. 
-For example, the value of certain TCP paramenters, or the order in which TCP options are sent are unique 
-per operative systems.  
-Furthermore TCP traffic is usually intercepted and modified in transit by 
-middleboxes that add additional informations, again for the purpose
-of establishing a reliable connection. These in-flight changes can be used to 
-identify the type of connection of the client.
 
-A good overview of these informations is provided by the authors
-of the [ja4t TCP fingerprint](https://medium.com/foxio/ja4t-tcp-fingerprinting-12fb7ce9cb5a)
+Let's have a look at the first TCP SYN in my packet captures:
+
+<Picture src="ebpf-fingerprint-syn-color" alt="" />
+<br/>
+
+Broadly speaking, there are two kinds of informations we can gather from this data:
+- informations about the Device that generated the packet
+- informations about the route the packet travelled trough
+
+A good overview of all these informations is provided by the authors
+of the [ja4t TCP fingerprint](https://medium.com/foxio/ja4t-tcp-fingerprinting-12fb7ce9cb5a),
+in an article I highly recommend. My goal right now is to only provide a brief overview of the 
+data we can gather from a TCP SYN, so I'll just focus on reporting one of the 
+points in that article: the informations about the route.
+
+Informations about the route are leaked by the
+Maximum Segment Size (MSS) TCP option. In the packet we are analyzing, it's the value
+highlighted in purple.  
+This value represents the maximum size of TCP payload data that can be sent per packet,
+and is dependent on the overhead in the network connection, for example:
+The MTU, aka The maximum amount of data that can be sent over a single transaction over Ethernet 
+is usually 1500 bytes.
+
+<Picture src="" alt="mtu diagram" />
+_source: foxIo_
+
+observing an mss of 1450 would indicate a standard connection over ethernet.
+a value smaller than that could indicate a vpn service.
+TODO: ipsec, GRE tunnelling, middlebox clamping
+https://www.cloudflare.com/learning/network-layer/what-is-mss/
+
+Furthermore, TCP traffic is usually intercepted and 
+[modified in transit](https://tma.roc.cnam.fr/Proceedings/TMA_Paper_22.pdf)
+by middleboxes that add additional informations, again for the purpose
+of establishing a reliable connection. 
+
+<Picture src="" alt="mss carrier diagram" />
+_source: foxIo_
 
 
+Now, What about the MSS in the packet we are analyzing? 
+If you look carefully, you'll see that the MSS is `65495`, 
+way higher than what can fit in an Ethernet frame, and way off of 
+any value we talked about so far.  
+In a way, this is telling us something about the route too: 
+`64Kb` is the [MTU of the loopback interface](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0cf833aefaa85bbfce3ff70485e5534e09254773) on Linux.
+This data is telling us that the packet never left the kernel, 
+and lived in captivity without ever travelling the world.
 
+### TCP fingerprinting: An initial attempt
 
+Our goal is to make a webserver that will echo back to the visitor 
+its TCP fingerprinting data. For this to work, we need to access the TCP SYN data
+directly from the webserver.
+How do we do it?
+Can we just get this data from the OS?
+
+As it turns out, not really.
+when our server accepts a new client connection, the `accept()` function returns
+a new file descriptor.
+We can use [getsockopt](https://man.archlinux.org/man/getsockopt.2.en) on that file descriptor
+to receive some useful informations on the ongoing connection:
+```c
+getsockopt(sockfd, IPPROTO_TCP, TCP_INFO, &info, &len)
+```
+
+`IPPROTO_TCP` indicates that we are interested on the tcp-layer of the socket connection
+`TCP_INFO` asks to receive information on the connection, causing the function to return a 
+[tcp_info](https://github.com/torvalds/linux/blob/5b032cac622533631b8f9b7826498b7ce75001c6/include/uapi/linux/tcp.h#L229)
+struct.
+
+Sadly, if you skim at the contents of that struct, you'll see that it contains very limited
+informations, none of which are the original TCP SYN data.
+Some informations are useful: `rtt`, and `rtt variance` for example.
+But that's all we'll get from the POSIX API.
+
+### LibPCAP
+
+If wireshark can capture raw packets, surely we can do the same from our webserver.
+The next logical step would be to just capture tcp SYN packets, and parse them
+in user space, using the same system wireshark uses.
+
+see notes in previous project
 
 ---
 
-Edeline, Korian; Donnet, Benoit (2019). A Bottom-Up Investigation of the Transport-Layer Ossification. 2019 Network Traffic Measurement and Analysis Conference (TMA).
-https://tma.roc.cnam.fr/Proceedings/TMA_Paper_22.pdf
-
-you can click on any of them, then press ctrl+? or ctr? to move
-to the next packet in the TCP conversation.
 
 
-I setup wireshark with a new profile, called packetschema.
-in Edit > Preferences, i set the layout to:
-```
-+--+--+
-|1 | 2|
-+--+--+
-|  3  |
-+-----+
-```
-panel1: packet list 
-panel2: packet diagram
-panel3: packet details
+The easiest, naiive approach to get this data would be to use libpcap in a separate thread
+to capture all syn/ack packets sent to our webserver, and store them in a hasmap
+with a key composed of client_ip+client_port.
 
-in view > coloring rules you can also see how tcp packets (`tcp`) have a color,
-and tcp syn packets (`tcp flags & 0x2`) have another color, which makes it easier
-to follow conversations when experimenting.
+Internally, the tcp stack defines a connection uniquely
+by the tuple  
+`(client_ip, client_port, server_ip, server_port)`  
+I recommend to read this high level overview of 
+[socket lookups in the kernel](https://thermalcircle.de/doku.php?id=blog:linux:sockets_in_the_linux_kernel_2_udp_socket_lookup_on_rx) for more informations.
 
-then i opened a random pcapng from a ctf.
-the first packet can be found by searching: `tcp.flags.syn == 1`. I choose packet 109
-then you can move between packets with the commands
-ctr+. (next packet in conversation)
-ctr+, (previous packet in conversation)
 
-tcp handshake:
-```
-client                                     server
-  |      syn(some preferred options) ->       |
-  | <- syn-ack(some server preferred options) |
-  |               ack ->                      |
-```
+so it's safe to assume that the tuple client_ip, client_port that is returned by the accept() syscall when a client connects to our server uniquely identifies the conection.
+
+After the accept(), our server can easily lookup the packets in the hashmap
+populated by libpcap.
+
+This is where we meet our first issue: 
+-libpcap is not real-time.
+when the server thread will accept() a connection, it will try to lookup
+packet data that hasn't been received yet.
+- even when receiving low-latency data from libpcap, 
+  copying and storing a hashmap of tcp packets client-side is extremely slow.
+
+
+Luckily, there is a different approach that can solve all our issues: eBPF.
+
+We can write an eBPF program that filters all syn/ack packets sent to our server,
+filtering for the server_ip+server_port tuple. the same program
+can then store these packets into a hashmap, https://docs.cilium.io/en/stable/reference-guides/bpf/architecture/#maps which will reside in kernel memory, and which we can
+query from user space by simply referring a file descriptor.
+Pure magic!
+
+
+
