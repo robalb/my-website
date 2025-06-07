@@ -12,6 +12,7 @@ export class Game{
     if(containerId == "container")
       containerId = document.getElementById(containerId);
     this.winCallback = winCallback
+    //old colors
     this.colors = {
       foxColor: "orange",
       starColor: "#fccf00",
@@ -457,7 +458,6 @@ export const games = [
     {x: 4, y: 2},
   ],
   foxes: [
-    // {x: 0, y: 2, isVertical: false},
   ],
   rocks: [
     {x: 3, y: 2},
@@ -469,7 +469,6 @@ export const games = [
     {x: 0, y: 3},
   ],
   foxes: [
-    // {x: 0, y: 2, isVertical: false},
   ],
   rocks: [
     {x: 0, y: 2},
@@ -482,7 +481,6 @@ export const games = [
     {x: 3, y: 2},
   ],
   foxes: [
-    // {x: 0, y: 2, isVertical: false},
   ],
   rocks: [
     {x: 0, y: 1},
@@ -509,36 +507,31 @@ export const games = [
   ],
   foxes: [
     {x: 3, y: 0, isVertical: true},
-    // {x: 0, y: 2, isVertical: false},
   ],
   rocks: [
-    // {x: 0, y: 3},
-    // {x: 1, y: 3},
     {x: 0, y: 1},
     {x: 1, y: 2},
     {x: 2, y: 3},
   ]
 },
 {
-  name: "level 1b",
+  name: "level 2",
   frogs: [
     {x: 2, y: 2},
     {x: 4, y: 2},
   ],
   foxes: [
     {x: 3, y: 0, isVertical: true},
-    // {x: 0, y: 2, isVertical: false},
   ],
   rocks: [
-    // {x: 0, y: 3},
-    // {x: 1, y: 3},
     {x: 1, y: 2},
     {x: 2, y: 3},
   ]
 },
 
 {
-  name: "level 29",
+  /* level 29 */
+  name: "level 3",
   frogs: [
     {x: 3, y: 3},
     {x: 4, y: 4},
@@ -553,7 +546,8 @@ export const games = [
 },
 
 {
-  name: "level 30",
+  /* level 30 */
+  name: "level 4",
   frogs: [
     {x: 1, y: 3},
     {x: 2, y: 4},
@@ -568,7 +562,8 @@ export const games = [
 },
 
 {
-  name: "level 31",
+  /* level 31 */
+  name: "level 5",
   frogs: [
     {x: 4, y: 0},
     {x: 3, y: 2},
@@ -584,7 +579,8 @@ export const games = [
 },
 
 {
-  name: "level 45",
+  /* level 45 */
+  name: "level 6",
   frogs: [
     {x: 0, y: 3},
     {x: 2, y: 3},
@@ -602,7 +598,8 @@ export const games = [
 },
 
 {
-  name: "level 47",
+  /* level 47 */
+  name: "level 7",
   frogs: [
     {x: 4, y: 1},
     {x: 2, y: 4},
@@ -616,6 +613,32 @@ export const games = [
     {x: 2, y: 2},
     {x: 3, y: 2},
     {x: 2, y: 3},
+  ]
+},
+
+{
+  /*
+  The hardest level, 87 moves. 
+  level 80
+    "...*.",
+    "==.1.",
+    "..*.2",
+    "*....",
+    "...3.",
+  */
+  name: "level 8",
+  frogs: [
+    {x: 3, y: 1},
+    {x: 4, y: 2},
+    {x: 3, y: 4},
+  ],
+  foxes: [
+    {x: 0, y: 1, isVertical: false},
+  ],
+  rocks: [
+    {x: 3, y: 0},
+    {x: 2, y: 2},
+    {x: 0, y: 3},
   ]
 },
 

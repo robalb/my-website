@@ -1,6 +1,6 @@
 ---
 layout: '../../layouts/BlogPost.astro'
-title: Solving kid's puzzles with bruteforce and web assembly
+title: Solving kid's puzzles with bruteforce and bloom filters
 publishDate: 2023-09-19
 description: 
 tags: ['programming']
@@ -10,18 +10,126 @@ import Picture from '../../components/Picture.astro'
 import Froggle from '../../components/froggle/Froggle.svelte'
 
 There is a very nice puzzle board game that is designed to teach logic
-to children. It works like this: you win when you drag the star into one of the green holes. You can only drag the star over tiles that are not empty. The game below can be solved in two moves, try it! 
+to children. It works like this: you win when you drag the star into one of the green holes.
+You can only drag the star over one or more consecutive tiles that are not empty. <br/>
+The game below can be solved in two moves, try it! 
 
 <Froggle prevBt={false} nextBt={false} showLevel={false} level={2} client:load />
 
-there are also draggable items, that can help you move the star where you want
+there are also draggable items, that can help you move the star by jumping over them.
 
 <Froggle prevBt={false} nextBt={false} showLevel={false} level={4} client:load />
 
-These are the foundamentals mecahnics of the game, it's pretty simple
+These are the foundamentals mecahnics of the game. They are pretty simple,
 but make no mistake, levels can get extremely difficult very quickly.<br/>
 Can you solve this level?
 
 <Froggle prevBt={false} nextBt={false} showLevel={false} level={10} client:load />
+
+What about this level instead?
+This is where I got stuck, no matter how much effort I got into it, I never figured out a way to 
+solve it. Keep in mind that this is supposed to be a simple logic puzzle for kids.
+
+<Froggle prevBt={false} nextBt={false} showLevel={false} level={11} client:load />
+
+I ended up writing a simple C program that solves the level.
+I don't think there is a clean analytical solution to this, but the 
+possible moves in each board state are pretty limited by the constraints of the game,
+to the point where we can easily bruteforce all possible game states until we reach the winning
+position.
+
+All we need is some way to represent the state of the board.
+We'll start from the initial state, then we'll perform a breadth-first
+walk of each state that generates from that.
+
+An interesting optimization comes from realizing that most of the board state
+is static, and will never change. only the position and amount of stars and 
+draggable items is variable. 
+
+We can therefore define a single game state like this:
+
+```c
+/*
+ * One possible state of the board. This is a node in the BFS tree.
+ * It holds the coordinates of all the moving entities,
+ * and a pointer to the parent node
+ */
+struct state {
+  struct state *parentState; 
+  uint8_t coords[COORDS_LENGTH];  //x,y of all the moving entities
+};
+```
+
+while the rest of the game board will remain defined separately
+
+```c
+/**
+ * Static information about the current game map.
+ * This information does not change during the BFS search.
+ */
+struct map {
+  int frogs_amount;
+  int foxes_amount;
+  uint8_t coords[
+    COORDS_LENGTH
+  ];    
+  uint8_t rocks[BITMAP_SIZE];  // 8x8 bit grid. 0=no rock. 1=rock
+  bool foxIsVertical[2];       // verticality of fox 0 and fox 1
+};
+
+```
+
+Depending on the game, there can be one, two or three stars. There can also be
+a variable number of draggable obstacles.
+Writing our iteration logic around a variable amount of entites will introduce extra
+logic, and extra branches.
+
+There is however another interesting optimization that we can introduce that will remove 
+all this logic: since the board is only
+a 5x5 grid, we can represent it using a larger 8x8 grid. This allows us to put
+unwanted elements that are not part of the current game outside the boundaries of the map,
+where they won't interfere with the calculations.
+
+```c
+    
+    0 0 0 0 0 | 0 0 0
+    0 0 0 0 0 | 0 0 0
+    0 0 0 0 0 | 0 0 0
+    0 0 0 0 0 | 0 0 0
+    0 0 0 0 0 | 0 0 0
+    ----------|
+    0 0 0 0 0   0 0 0
+    0 0 0 0 0   0 0 0
+    0 0 0 0 0   0 0 0
+```
+
+This makes all logic extrememly simple. 
+For example, this is the routine that checks if the current game state
+is winning:
+
+```c
+bool isWinningState(int frogs, uint8_t coords[]){
+  uint8_t win_bitmap[5] = {
+    0b10001,
+    0b00000,
+    0b00100,
+    0b00000,
+    0b10001,
+  };
+#pragma clang loop unroll(full)
+  for(int i=0; i<FROGS; i++){
+    int y = coords[i + Y_OFFSET];
+    int x = coords[i + X_OFFSET];
+    bool inHole = ((win_bitmap[y] & (1<<x)) != 0);
+    // printf("%d : %d,%d %s\n",i,x,y, inHole?"hole": "no");
+    if(!inHole) return false;
+  }
+  return true;
+}
+```
+
+
+
+
 
 

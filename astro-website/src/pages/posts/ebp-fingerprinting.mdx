@@ -1,0 +1,244 @@
+---
+layout: '../../layouts/BlogPost.astro'
+title: Implementing fast TCP fingerprinting with eBPF
+subtitle: 
+publishDate: 2025-06-01
+description: 
+tags: ['ebpf', 'tcp', 'fingerprinting']
+permalink: https://halb.it/posts/ebpf-fingerprinting/
+---
+import Picture from '../../components/Picture.astro'
+import Spoiler from '../../components/Spoiler.astro'
+
+In this article I want to document my journey implementing fast TCP fingerprinting 
+in a golang webserver, using eBPF. 
+This system was developed as part of a larger anti-bot solution I've been
+working on lately.<br/>
+
+The background is that 
+TCP fingerprinting is just one of the many signals that can be used to detect
+unusual or identifying informations about a web request.
+The rising need for human-generated data required to train large language models
+has led to a huge increase in web scraping, accelerating the arms race
+behind scraping and anti-scraping techonologies.
+
+
+
+As a proof-of-concept, I implemented a standalone webserver that echoes back
+a dump of the tc SYN/ACK of the client.
+
+For the TCP side I started by implementing a simple proof-of-concept,
+a standalone webserver that echoes back a dump of the
+tcp SYN/ACK of the client. The source code is open-source on Github.
+
+## http connections, from first principles
+
+At its essence, an HTTP webserver is extremely simple.  
+This should't be surprising: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
+compatibility reasons they still support the HTTP/1 protocol, and an HTTP/1 
+webserver can be implemented in a few lines of C code.
+
+As an example, I implemented a simple hello world webserver that we'll use as 
+a starting point for the experiments in this article.
+You don't really have to read the code for now, but keep in mind that its' here:
+
+The following lines of code implement a simple Hello world webserver, that 
+we'll use as a starting point for the experiments in this article:
+
+At its essence, an HTTP webserver is extremely simple.  
+Although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
+compatibility reasons they still support the HTTP/1 protocol.
+
+An HTTP/1 web server can be implemented in a few lines of c code.
+The following snippet for example is a simple Hello world webserver that we'll use 
+as a starting point for the experiments in this article:
+
+<Spoiler text="See code">
+
+```c
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define PORT 8080
+
+int main() {
+  // Create socket file descriptor
+  int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (server_fd == 0) {
+    perror("socket failed");
+    exit(EXIT_FAILURE);
+  }
+
+  // Create a configuration struct with the network address and port
+  struct sockaddr_in address = {
+        .sin_family = AF_INET,
+        .sin_addr.s_addr = INADDR_ANY,
+        .sin_port = htons(PORT)
+    };
+  socklen_t addrlen = sizeof(address);
+
+  // Bind the socket to the network address and port
+  if (bind(server_fd, (struct sockaddr *)&address, addrlen) < 0) {
+    perror("bind failed");
+    exit(EXIT_FAILURE);
+  }
+
+  // Listen for connections
+  if (listen(server_fd, 1) < 0) {
+    perror("listen failed");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("Server listening on port %d...\n", PORT);
+
+  while (1) {
+    // Accept a new connection
+    int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
+    if (new_socket < 0) {
+      perror("accept failed");
+      exit(EXIT_FAILURE);
+    }
+
+    // Send a response
+    const char *response = "HTTP/1.0 200 OK\r\n"
+                           "Content-Type: text/plain\r\n"
+                           "Content-Length: 12\r\n"
+                           "\r\n"
+                           "Hello world ";
+
+    send(new_socket, response, strlen(response), 0);
+
+    // Close the connection
+    close(new_socket);
+  }
+
+  return 0;
+}
+```
+
+</Spoiler>
+
+If we compile this code, run it, and visit `http://127.0.0.1:8080`.
+from any modern browser, we'll be greeted by a hello world.
+
+<Picture src="ebpf-fingerprint-browser1" height={490} alt="" />
+<br/>
+
+Beautiful, isn't it?
+
+This code differs significantly from the hello worlds that you would normally write
+with a modern web framework, wathever is popular nowadays, for an important reason:  
+Instead of using the abstraction that a web framework would provide to easily create a web server,
+we are directly using the abstraction layer provided by the operative system.
+
+[Where modern web frameworks provide an abstraction layer that allow you to easily create a web server,
+here we are directly using the abstraction layer provided by the operative system.]
+
+All the code in this example can be broken down into a few calls of the standard library.
+Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim.net/?table=x86/64/x64/latest) whith a similar name, which are all we need to launch a webserver on a POSIX system:
+
+- we create a `socket`
+- we `bind` it to a ip and port, and start to `listen`
+- in an infinite loop, we call `accept()`, which blocks the execution
+  until a client connects to our server
+- after a connection is made, accept returns a file descriptor
+  which we can `read` and `write` to like a simple file. At the other end of the
+  line, the client will communicate with us in a similar way.
+
+What's important to notice here is that beyond defining an ip and port we don't 
+have to write any netowrking-related code, the OS is taking care of that for us.  
+Because of that, if we want to understand what's happening at a deeper level we need to
+capture and inspect the network traffic that reaches our webserver, which is something that
+we can easily do with wireshark.
+
+<Picture src="ebpf-fingerprint-wireshark1_crop" alt="" />
+<br/>
+
+To capture the packets shown in this screenshot I launched wireshark on the loopback interface, then I visited
+the hello world website from the browser in order to generate some data.
+
+With this webserver running and with our example traffic capture at hand, we can now
+start to experiment with tcp traffic.
+
+### Anatomy of a TCP handshake
+
+Without making it too long, TCP connections start with a famous three-way handhshake,
+During which both the client and the server exchange some informations that 
+are useful to establish a reliable connection.  
+
+```
+Client                      Server
+  |                           |
+  | --------- SYN ----------> |  Step 1: Client sends SYN
+  |                           |
+  | <----- SYN + ACK -------- |  Step 2: Server responds with SYN + ACK
+  |                           |
+  | --------- ACK ----------> |  Step 3: Client sends ACK
+  |                           |
+```
+
+By default, wireshark color-codes TCP SYN packets, which mark the beginning
+of a conversation, in grey.
+They are the first packets you will need to inspect. From there,
+you can move between packets with the commands:  
+`ctr+.` (next packet in conversation)  
+`ctr+,` (previous packet in conversation)
+
+Historically, the informations exchanged during the handshake have always provided useful insight into 
+the identity of the client. 
+For example, the value of certain TCP paramenters, or the order in which TCP options are sent are unique 
+per operative systems.  
+Furthermore TCP traffic is usually intercepted and modified in transit by 
+middleboxes that add additional informations, again for the purpose
+of establishing a reliable connection. These in-flight changes can be used to 
+identify the type of connection of the client.
+
+A good overview of these informations is provided by the authors
+of the [ja4t TCP fingerprint](https://medium.com/foxio/ja4t-tcp-fingerprinting-12fb7ce9cb5a)
+
+
+
+
+
+---
+
+Edeline, Korian; Donnet, Benoit (2019). A Bottom-Up Investigation of the Transport-Layer Ossification. 2019 Network Traffic Measurement and Analysis Conference (TMA).
+https://tma.roc.cnam.fr/Proceedings/TMA_Paper_22.pdf
+
+you can click on any of them, then press ctrl+? or ctr? to move
+to the next packet in the TCP conversation.
+
+
+I setup wireshark with a new profile, called packetschema.
+in Edit > Preferences, i set the layout to:
+```
++--+--+
+|1 | 2|
++--+--+
+|  3  |
++-----+
+```
+panel1: packet list 
+panel2: packet diagram
+panel3: packet details
+
+in view > coloring rules you can also see how tcp packets (`tcp`) have a color,
+and tcp syn packets (`tcp flags & 0x2`) have another color, which makes it easier
+to follow conversations when experimenting.
+
+then i opened a random pcapng from a ctf.
+the first packet can be found by searching: `tcp.flags.syn == 1`. I choose packet 109
+then you can move between packets with the commands
+ctr+. (next packet in conversation)
+ctr+, (previous packet in conversation)
+
+tcp handshake:
+```
+client                                     server
+  |      syn(some preferred options) ->       |
+  | <- syn-ack(some server preferred options) |
+  |               ack ->                      |
+```

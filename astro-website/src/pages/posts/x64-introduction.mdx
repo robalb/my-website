@@ -34,8 +34,8 @@ This is the first part of a series of interactive articles:
 ### what is data?
 
 Data is just bits, representing information.
-A sequence of bits can encode any kind of information, however this article will only focus
-on text and integers.
+A sequence of bits can encode any kind of information, from simple numbers to even audio and images. 
+This article however will only focus on simple foundamentals: text and integers.
 
 But before we talk about any kind of encoding, we have to introduce a new notation:
 The issue is that while circuits understand sequences of bits very well, humans don't.
@@ -78,17 +78,24 @@ al@thinkpad:~/$ python
 '0x1234'
 ```
 
-One more thing: we call a group of 8 bits a `byte`, but that's not the only 
-group of bits with a name. The following table
-contains all the names that you will encounter while working with the x86-64 architecture:
+In the rest of this article you will see a lot of hexadecimal numbers, mostly usued
+to represent long sequences of bits.
+
+It's common to encounter sequences of specific lengths.
+For example, you probably already know that a sequence of 8 bits is called a `byte`.
+This is an example of byte, in binary: `00100001` and this is the same byte, represented in hexadecimal: `0x21`<br/>
+In the x86-64 assembly / architecture, which is the focus of this article, there are other sequences of specific
+lengths of bits that are used extensively. 
+You can see them summarized in this table:
+
 
 | N. of bits   | example hex value | name                   |
 | ------------ | ----------------- | ---------------------- |
-| 4            | f                 | nibble                 |
-| 8            | ff                | byte                   |
-| 16           | ffff              | word                   |
-| 32           | fffffff           | dword (double word)    |
-| 64           | fffffffffffff     | qword (quadruple word) |
+| 4            | `0xf`                 | nibble                 |
+| 8            | `0xff`                | byte                   |
+| 16           | `0xffff`              | word                   |
+| 32           | `0xfffffff`           | dword (double word)    |
+| 64           | `0xfffffffffffff`     | qword (quadruple word) |
 
 
 
