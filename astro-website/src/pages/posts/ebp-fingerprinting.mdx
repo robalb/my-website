@@ -183,30 +183,30 @@ Broadly speaking, there are two kinds of informations we can gather from this da
 
 A good overview of all these informations is provided by the authors
 of the [ja4t TCP fingerprint](https://medium.com/foxio/ja4t-tcp-fingerprinting-12fb7ce9cb5a),
-in an article I highly recommend. My goal right now is to only provide a brief overview of the 
-data we can gather from a TCP SYN, so I'll just focus on reporting one of the 
-points in that article: the informations about the route.
+in an article I highly recommend. 
+It's not my intention to repeat what's already been written extensively on the topic,
+but in order to provide at least one example on the kind of data we gan gather from a packet,
+i'll talk about one TCP option: MSS.
 
-Informations about the route are leaked by the
-Maximum Segment Size (MSS) TCP option. In the packet we are analyzing, it's the value
+the Maximum Segment Size (MSS) TCP option can provide useful informations on the route of the packet.
+In the packet we are analyzing, it's the value
 highlighted in purple.  
 This value represents the maximum size of TCP payload data that can be sent per packet,
-and is dependent on the overhead in the network connection, for example:
-The MTU, aka The maximum amount of data that can be sent over a single transaction over Ethernet 
-is usually 1500 bytes.
+and is dependent on the overhead in the network connection, for example:  
+Over ethernet we usually cannot send more than 1500 bytes over a single transaction,
+so the MSS will be 1500 minus the size of the TCP and IP headers.
 
 <Picture src="" alt="mtu diagram" />
 _source: foxIo_
 
 observing an mss of 1450 would indicate a standard connection over ethernet.
-a value smaller than that could indicate a vpn service.
-TODO: ipsec, GRE tunnelling, middlebox clamping
-https://www.cloudflare.com/learning/network-layer/what-is-mss/
+a value smaller than that could indicate a vpn service. Or just a mobile network connection,
+or GRE, or MSS clamping caused by [middleboxes](https://tma.roc.cnam.fr/Proceedings/TMA_Paper_22.pdf)...  
+It's clear that network connections can be complicated, and we can't expect to learn 
+everything from a single value. But at least it can provide some insight,
+and some entrpy for a fingerprinting system.
 
-Furthermore, TCP traffic is usually intercepted and 
-[modified in transit](https://tma.roc.cnam.fr/Proceedings/TMA_Paper_22.pdf)
-by middleboxes that add additional informations, again for the purpose
-of establishing a reliable connection. 
+https://www.cloudflare.com/learning/network-layer/what-is-mss/
 
 <Picture src="" alt="mss carrier diagram" />
 _source: foxIo_
@@ -224,8 +224,8 @@ and lived in captivity without ever travelling the world.
 ### TCP fingerprinting: An initial attempt
 
 Our goal is to make a webserver that will echo back to the visitor 
-its TCP fingerprinting data. For this to work, we need to access the TCP SYN data
-directly from the webserver.
+its TCP fingerprinting data. For this to work,
+our webserver needs to directly access the TCP SYN data of the connection it receives.
 How do we do it?
 Can we just get this data from the OS?
 
@@ -240,21 +240,29 @@ getsockopt(sockfd, IPPROTO_TCP, TCP_INFO, &info, &len)
 
 `IPPROTO_TCP` indicates that we are interested on the tcp-layer of the socket connection
 `TCP_INFO` asks to receive information on the connection, causing the function to return a 
-[tcp_info](https://github.com/torvalds/linux/blob/5b032cac622533631b8f9b7826498b7ce75001c6/include/uapi/linux/tcp.h#L229)
-struct.
+[tcp_info struct](https://github.com/torvalds/linux/blob/5b032cac622533631b8f9b7826498b7ce75001c6/include/uapi/linux/tcp.h#L229).
 
-Sadly, if you skim at the contents of that struct, you'll see that it contains very limited
-informations, none of which are the original TCP SYN data.
-Some informations are useful: `rtt`, and `rtt variance` for example.
-But that's all we'll get from the POSIX API.
+Sadly, if you skim at the contents of that struct, you'll see that it only contains 
+informations on the ongoing connection, nothing related to the original TCP SYN data.
+There is a `tcpi_rcv_mss` value for example, but that's the result of a negotiation, 
+not what the client originally sent.  
+That's all we can get from the POSIX APIs.
 
 ### LibPCAP
 
 If wireshark can capture raw packets, surely we can do the same from our webserver.
-The next logical step would be to just capture tcp SYN packets, and parse them
-in user space, using the same system wireshark uses.
+And indeed we can, using the for example the LibPcap library. Out of the box, the library 
+offesr the a very simple system for filtering and capturing network packets into a 
+userspace buffer.
 
-see notes in previous project
+A simple approach to implement our webserver could work like this:
+
+First, we start LibPCAP in a spearate thread, capturing TCP SYN packets that are
+directed to our webserver.  
+When we receive a packet, we store it in a hashmap with a key composed of 
+`client IP + client PORT`.
+Then, when our webserver receives a request, we lookup the 
+
 
 ---
 
