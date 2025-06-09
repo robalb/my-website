@@ -123,7 +123,8 @@ Beautiful, isn't it?
 
 This code differs significantly from the hello worlds that you would normally write
 with a modern web framework, regardles of what's trending today, for an important reason:  
-Instead of using the abstractions that a web framework would normally provide to easily create a web server,
+Instead of using the abstractions that web frameworks provide to simplify the creation
+of a web server,
 we are directly using the abstraction layer provided by the operative system.
 
 All the code in this example can be broken down into a few calls of the standard library.
@@ -137,8 +138,8 @@ Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim
   which we can `read` and `write` to like a simple file. At the other end of the
   line, the client will communicate with us in a similar way.
 
-What's important to notice here is that beyond defining an ip and port we don't 
-have to write any netowrking-related code, the OS is taking care of that for us.  
+It's easy to see that beyond defining an ip and port we don't 
+have to write any networking-related code, the OS is taking care of that for us.  
 Because of that, if we want to understand what's happening at a deeper level we need to
 capture and inspect the network traffic that reaches our webserver, which is something that
 we can easily do with wireshark.
@@ -192,25 +193,22 @@ the Maximum Segment Size (MSS) TCP option can provide useful informations on the
 In the packet we are analyzing, it's the value
 highlighted in purple.  
 This value represents the maximum size of TCP payload data that can be sent per packet,
-and is dependent on the overhead in the network connection, for example:  
-Over ethernet we usually cannot send more than 1500 bytes over a single transaction,
+and is dependent on the overhead in the network connection.  
+For example, over ethernet we usually cannot send more than 1500 bytes over a single transaction,
 so the MSS will be 1500 minus the size of the TCP and IP headers.
 
-<Picture src="" alt="mtu diagram" />
-_source: foxIo_
+<Picture src="ebpf-fingerprint-tcp2z" height={100} alt="" />
+<br/>
 
-observing an mss of 1450 would indicate a standard connection over ethernet.
+Observing an mss of 1460 would indicate a standard connection over ethernet.
 a value smaller than that could indicate a vpn service. Or just a mobile network connection,
 or GRE, or MSS clamping caused by [middleboxes](https://tma.roc.cnam.fr/Proceedings/TMA_Paper_22.pdf)...  
-It's clear that network connections can be complicated, and we can't expect to learn 
+Network connections can be complicated, and we can't expect to learn 
 everything from a single value. But at least it can provide some insight,
-and some entrpy for a fingerprinting system.
+and some entropy for a fingerprinting system.
 
-https://www.cloudflare.com/learning/network-layer/what-is-mss/
-
-<Picture src="" alt="mss carrier diagram" />
-_source: foxIo_
-
+<Picture src="ebpf-fingerprint-tcp3z2" height={110} alt="" />
+<br/>
 
 Now, What about the MSS in the packet we are analyzing? 
 If you look carefully, you'll see that the MSS is `65495`, 
@@ -221,16 +219,15 @@ In a way, this is telling us something about the route too:
 This data is telling us that the packet never left the kernel, 
 and lived in captivity without ever travelling the world.
 
-### TCP fingerprinting: An initial attempt
+### TCP fingerprinting: Making a plan
 
-Our goal is to make a webserver that will echo back to the visitor 
-its TCP fingerprinting data. For this to work,
-our webserver needs to directly access the TCP SYN data of the connection it receives.
-How do we do it?
-Can we just get this data from the OS?
+The goal of this project is to write a webserver that will echo back to the visitor 
+its TCP fingerprinting data. For this to work, the webserver needs to directly 
+access the TCP SYN data of the connections it receives.  
+Is this something that we can do with the existing APIs we are using?
 
 As it turns out, not really.
-when our server accepts a new client connection, the `accept()` function returns
+When our server accepts a new client connection, the `accept()` function returns
 a new file descriptor.
 We can use [getsockopt](https://man.archlinux.org/man/getsockopt.2.en) on that file descriptor
 to receive some useful informations on the ongoing connection:
@@ -242,7 +239,7 @@ getsockopt(sockfd, IPPROTO_TCP, TCP_INFO, &info, &len)
 `TCP_INFO` asks to receive information on the connection, causing the function to return a 
 [tcp_info struct](https://github.com/torvalds/linux/blob/5b032cac622533631b8f9b7826498b7ce75001c6/include/uapi/linux/tcp.h#L229).
 
-Sadly, if you skim at the contents of that struct, you'll see that it only contains 
+Sadly, if you have a quick look at the contents of that struct, you'll see that it only contains 
 informations on the ongoing connection, nothing related to the original TCP SYN data.
 There is a `tcpi_rcv_mss` value for example, but that's the result of a negotiation, 
 not what the client originally sent.  
@@ -250,33 +247,55 @@ That's all we can get from the POSIX APIs.
 
 ### LibPCAP
 
-If wireshark can capture raw packets, surely we can do the same from our webserver.
-And indeed we can, using the for example the LibPcap library. Out of the box, the library 
-offesr the a very simple system for filtering and capturing network packets into a 
-userspace buffer.
+The POSIX APIs don't provide easy access to TCP SYNs, but we can follow the same 
+approach as wireshark, and just capture raw packets in a userspace buffer.
+We can do this very easily with the LibPCAP library, which offers out of the box
+a very simple system for filtering and capturing network packets.
 
 A simple approach to implement our webserver could work like this:
 
-First, we start LibPCAP in a spearate thread, capturing TCP SYN packets that are
+- First, we start LibPCAP in a separate thread, capturing TCP SYN packets that are
 directed to our webserver.  
-When we receive a packet, we store it in a hashmap with a key composed of 
+- When LibPCAP receives a packet, we store it in a hashmap with a key composed of 
 `client IP + client PORT`.
-Then, when our webserver receives a request, we lookup the 
+- Then, when our webserver receives a request, we lookup the `client IP + client PORT` tuple 
+ in the packets hashmap to find the right TCP SYN.
+
+we are choosing that specific tuple for our lookup system because that's how the TCP stack 
+uniquely identifies a connection in the kernel. To be more precise, it uses the tuple:
+`(client_ip, client_port, server_ip, server_port)`.
+There are useful writeups on 
+[socket lookups in the kernel](https://thermalcircle.de/doku.php?id=blog:linux:sockets_in_the_linux_kernel_2_udp_socket_lookup_on_rx) that talk about this more in depth.
+
+<Picture src="ebpf-fingerprint-webpcap" height="300" />
+<br />
+
+Sadly, there is a problem with this architecture:
+- libpcap is not real-time.
+When the server thread will `accept()` a connection, it will try to lookup
+packet data that hasn't been received yet.
+- even when receiving low-latency data from libpcap, 
+  copying and storing TCP packets into a hashmap is a slow operation.
+
+This is where eBPF comes to the resque. What if I told you that with
+eBPF we can generate that same hashmap of TCP SYN packets, but kernel side, with little to no 
+overhead on the system? And we'll maintain the ability to query the map from userspace.
+
+The same diagram would change into something like this:
+
+<Picture src="ebpf-fingerprint-webebpf" height="350" />
+<br />
+
+Querying the map from userspace will be a simple function call,
+something like
+`bpf_map_lookup_elem(map_reference, key)`.
+
+### eBPF
 
 
 ---
 
 
-
-The easiest, naiive approach to get this data would be to use libpcap in a separate thread
-to capture all syn/ack packets sent to our webserver, and store them in a hasmap
-with a key composed of client_ip+client_port.
-
-Internally, the tcp stack defines a connection uniquely
-by the tuple  
-`(client_ip, client_port, server_ip, server_port)`  
-I recommend to read this high level overview of 
-[socket lookups in the kernel](https://thermalcircle.de/doku.php?id=blog:linux:sockets_in_the_linux_kernel_2_udp_socket_lookup_on_rx) for more informations.
 
 
 so it's safe to assume that the tuple client_ip, client_port that is returned by the accept() syscall when a client connects to our server uniquely identifies the conection.
