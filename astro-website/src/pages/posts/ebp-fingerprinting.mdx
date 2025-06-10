@@ -11,33 +11,34 @@ import Picture from '../../components/Picture.astro'
 import Spoiler from '../../components/Spoiler.astro'
 
 In this article I want to document my journey implementing fast TCP fingerprinting 
-in a golang webserver, using eBPF. 
-This system was developed as part of a larger anti-bot solution I've been
-working on lately.<br/>
+in a golang webserver, using eBPF.  
 
-The background is that 
 TCP fingerprinting is just one of the many signals that can be used to detect
-unusual or identifying informations about a web request.
-The rising need for human-generated data required to train large language models
-has led to a huge increase in web scraping, accelerating the arms race
-behind scraping and anti-scraping techonologies.
+unusual or identifying informations about a web request. 
+[This project was developed as part of a larger anti-bot solution I've been
+working on lately, in my attempt to stay ahead on the ever-evolving arms race between scraping and 
+anti-scraping techonologies.]
 
+Implementing such a system offers interesting technical challenges that span different domains, 
+which is why I believe this is an experience worth sharing.  
+I split this article in two parts. In the first one, which you are reading right now,
+I provide a background on TCP fingerprinting, and discuss some implementation strategies.
 
-
+In the second part I describe the actual development and testing of a XDP eBPF program capable
+of handling 1 Million cuncurrent requests.
 As a proof-of-concept, I implemented a standalone webserver that echoes back
-a dump of the tc SYN/ACK of the client.
-
-For the TCP side I started by implementing a simple proof-of-concept,
-a standalone webserver that echoes back a dump of the
-tcp SYN/ACK of the client. The source code is open-source on Github.
+a dump of the TCP SYN of the client.
 
 ## http connections, from first principles
+
+In order to fully understand what we want to do, I believe it's useful to start from what we know about web servers,
+and analize our problem from first principles.
 
 At its essence, an HTTP webserver is extremely simple.  
 This should't be surprising: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
 compatibility reasons they 
 still support the HTTP/1 protocol, which was [designed to be simple](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP).
-An HTTP/1 web server can be implemented in just a few lines of C code.
+An HTTP/1 web server is just a light layer on top of a TCP connection, and can be implemented in just a few lines of C code.
 
 
 As an example, I implemented a simple hello world webserver in C that we'll use as 
@@ -113,7 +114,9 @@ int main() {
 
 </Spoiler>
 
-If we compile this code, run it, and visit `http://127.0.0.1:8080`.
+The code is not even remotely sufficient to run a webserver in production,
+but it servers the purpose of showing the inner working of an HTTP/1 connection.
+If we compile the code, run it, and visit `http://127.0.0.1:8080`.
 from any modern browser, we'll be greeted by a hello world.
 
 <Picture src="ebpf-fingerprint-browser1" height={490} alt="" />
@@ -279,7 +282,8 @@ packet data that hasn't been received yet.
 
 This is where eBPF comes to the resque. What if I told you that with
 eBPF we can generate that same hashmap of TCP SYN packets, but kernel side, with little to no 
-overhead on the system? And we'll maintain the ability to query the map from userspace.
+overhead on the system? The map will resize in kernel memory, but we'll maintain the ability to query 
+it from userspace, by simply referring to a file descriptor.
 
 The same diagram would change into something like this:
 
