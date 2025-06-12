@@ -14,36 +14,34 @@ In this article I want to document my journey implementing fast TCP fingerprinti
 in a golang webserver, using eBPF.  
 
 TCP fingerprinting is just one of the many signals that can be used to detect
-unusual or identifying informations about a web request. 
-[This project was developed as part of a larger anti-bot solution I've been
-working on lately, in my attempt to stay ahead on the ever-evolving arms race between scraping and 
-anti-scraping techonologies.]
-
+unusual or identifying informations about a web request in the context of anti-bot solutions.  
 Implementing such a system offers interesting technical challenges that span different domains, 
-which is why I believe this is an experience worth sharing.  
-I split this article in two parts. In the first one, which you are reading right now,
-I provide a background on TCP fingerprinting, and discuss some implementation strategies.
+which is why I believe it's an experience worth sharing.
 
-In the second part I describe the actual development and testing of a XDP eBPF program capable
-of handling 1 Million cuncurrent requests.
+I split this article in two parts.
+- In the [first part](#), which you are reading right now, I provide a background on TCP fingerprinting, and discuss some implementation strategies.
+- In the [second part](#2) I describe the actual development and testing of an XDP eBPF program capable
+of handling 15.000 requests per second.
 As a proof-of-concept, I implemented a standalone webserver that echoes back
 a dump of the TCP SYN of the client.
 
-## http connections, from first principles
+### HTTP requests, from first principles
 
-In order to fully understand what we want to do, I believe it's useful to start from what we know about web servers,
-and analize our problem from first principles.
+(In order to fully understand what we want to do, I believe it's useful to start from what we know about web servers, and analize our problem from first principles.)
 
-At its essence, an HTTP webserver is extremely simple.  
+In order to fully understand what want to do, I believe it's useful to start analyzing the
+problem from first principles, which in this case means understandig web servers.
+
+Luckily for us, at its essence an HTTP webserver is extremely simple.  
 This should't be surprising: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
 compatibility reasons they 
-still support the HTTP/1 protocol, which was [designed to be simple](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP).
-An HTTP/1 web server is just a light layer on top of a TCP connection, and can be implemented in just a few lines of C code.
+still support the HTTP/1.0 protocol, which was [designed to be simple](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP).
+An HTTP/1.0 web server is just a light layer on top of a TCP connection, and can be implemented in just a few lines of C code.
 
 
 As an example, I implemented a simple hello world webserver in C that we'll use as 
 a starting point for the experiments in this article.
-You don't really have to read the code for now, but keep in mind that its' here:
+You don't really have to read the code for now, but keep in mind that it's here:
 
 <Spoiler text="See code">
 
@@ -114,9 +112,9 @@ int main() {
 
 </Spoiler>
 
-The code is not even remotely sufficient to run a webserver in production,
-but it servers the purpose of showing the inner working of an HTTP/1 connection.
-If we compile the code, run it, and visit `http://127.0.0.1:8080`.
+The code is not even remotely close to implement a real webserver,
+but it serves the purpose of showing the inner working of an HTTP/1 connection.
+If we compile the code, run it, and visit `http://127.0.0.1:8080`
 from any modern browser, we'll be greeted by a hello world.
 
 <Picture src="ebpf-fingerprint-browser1" height={490} alt="" />
@@ -126,9 +124,9 @@ Beautiful, isn't it?
 
 This code differs significantly from the hello worlds that you would normally write
 with a modern web framework, regardles of what's trending today, for an important reason:  
+We are directly using the abstraction layer provided by the operative system,
 Instead of using the abstractions that web frameworks provide to simplify the creation
-of a web server,
-we are directly using the abstraction layer provided by the operative system.
+of a web server.
 
 All the code in this example can be broken down into a few calls of the standard library.
 Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim.net/?table=x86/64/x64/latest) whith a similar name, which are all we need to implement a webserver on a POSIX system:
@@ -224,8 +222,10 @@ and lived in captivity without ever travelling the world.
 
 ### TCP fingerprinting: Making a plan
 
-The goal of this project is to write a webserver that will echo back to the visitor 
-its TCP fingerprinting data. For this to work, the webserver needs to directly 
+Everything I talked about so far was just a big detour from the actual goal of this project,
+which is to write a webserver that will echo back to the visitor 
+its TCP fingerprinting data.  
+For something like this to work, the webserver needs to directly 
 access the TCP SYN data of the connections it receives.  
 Is this something that we can do with the existing APIs we are using?
 
@@ -270,7 +270,7 @@ uniquely identifies a connection in the kernel. To be more precise, it uses the 
 There are useful writeups on 
 [socket lookups in the kernel](https://thermalcircle.de/doku.php?id=blog:linux:sockets_in_the_linux_kernel_2_udp_socket_lookup_on_rx) that talk about this more in depth.
 
-<Picture src="ebpf-fingerprint-webpcap" height="300" />
+<Picture src="ebpf-fingerprint-webpcap2" height="340" />
 <br />
 
 Sadly, there is a problem with this architecture:
@@ -281,47 +281,24 @@ packet data that hasn't been received yet.
   copying and storing TCP packets into a hashmap is a slow operation.
 
 This is where eBPF comes to the resque. What if I told you that with
-eBPF we can generate that same hashmap of TCP SYN packets, but kernel side, with little to no 
+eBPF we can generate that same hashmap of TCP SYN packets, but kernel side, without needing extra libraries and with little to no 
 overhead on the system? The map will resize in kernel memory, but we'll maintain the ability to query 
 it from userspace, by simply referring to a file descriptor.
 
-The same diagram would change into something like this:
+Compared to the previous diagram, this new architecture simply replaces the 
+libpcap thread with an eBPF program running kernel-side.
 
-<Picture src="ebpf-fingerprint-webebpf" height="350" />
+<Picture src="ebpf-fingerprint-webebpf2" height="380" />
 <br />
 
-Querying the map from userspace will be a simple function call,
-something like
-`bpf_map_lookup_elem(map_reference, key)`.
+Querying the map from userspace will simply require a function call,
+something along the lines of `bpf_map_lookup_elem(map_reference, key)`.
+All we'll need to do first is initialize a custom eBPF program.
 
 ### eBPF
 
+The previous paragraph just provided a good introduction of what eBPF is,
+and what can be done with it.
 
----
-
-
-
-
-so it's safe to assume that the tuple client_ip, client_port that is returned by the accept() syscall when a client connects to our server uniquely identifies the conection.
-
-After the accept(), our server can easily lookup the packets in the hashmap
-populated by libpcap.
-
-This is where we meet our first issue: 
--libpcap is not real-time.
-when the server thread will accept() a connection, it will try to lookup
-packet data that hasn't been received yet.
-- even when receiving low-latency data from libpcap, 
-  copying and storing a hashmap of tcp packets client-side is extremely slow.
-
-
-Luckily, there is a different approach that can solve all our issues: eBPF.
-
-We can write an eBPF program that filters all syn/ack packets sent to our server,
-filtering for the server_ip+server_port tuple. the same program
-can then store these packets into a hashmap, https://docs.cilium.io/en/stable/reference-guides/bpf/architecture/#maps which will reside in kernel memory, and which we can
-query from user space by simply referring a file descriptor.
-Pure magic!
-
-
+https://docs.cilium.io/en/stable/reference-guides/bpf/architecture/#maps
 
