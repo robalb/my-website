@@ -13,10 +13,11 @@ import Spoiler from '../../components/Spoiler.astro'
 In this article I want to document my journey implementing fast TCP fingerprinting 
 in a golang webserver, using eBPF.  
 
-TCP fingerprinting is just one of the many signals that can be used to detect
-unusual or identifying informations about a web request in the context of anti-bot solutions.  
+Just to provide some background, TCP fingerprinting is one of the many techniques that can be used to detect
+unusual or identifying informations about a web request when implementing an anti-bot solution.  
+This has been a hot topic lately, caused by the rising need to scrape the internet for human content to feeed to the LLMs.  
 Implementing such a system offers interesting technical challenges that span different domains, 
-which is why I believe it's an experience worth sharing.
+but the main reason I want to share this is that it's a very good first project to learn eBPF.
 
 I split this article in two parts.
 - In the [first part](#), which you are reading right now, I provide a background on TCP fingerprinting, and discuss some implementation strategies.
@@ -27,10 +28,8 @@ a dump of the TCP SYN of the client.
 
 ### HTTP requests, from first principles
 
-(In order to fully understand what we want to do, I believe it's useful to start from what we know about web servers, and analize our problem from first principles.)
-
-In order to fully understand what want to do, I believe it's useful to start analyzing the
-problem from first principles, which in this case means understandig web servers.
+In order to fully understand what want to do, I believe it's useful to approach the
+problem from first principles, which in this case means understanding how web servers work.
 
 Luckily for us, at its essence an HTTP webserver is extremely simple.  
 This should't be surprising: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
@@ -174,7 +173,7 @@ Client                      Server
 Historically, the informations exchanged during the handshake have always provided useful insight into 
 the identity of the client. 
 
-Let's have a look at the first TCP SYN in my packet captures:
+Let's have a look at the first TCP SYN in my packet captures, to start with a concrete example:
 
 <Picture src="ebpf-fingerprint-syn-color" alt="" />
 <br/>
