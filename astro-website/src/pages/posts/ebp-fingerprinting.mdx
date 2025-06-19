@@ -17,7 +17,7 @@ Just to provide some background, TCP fingerprinting is one of the many technique
 unusual or identifying informations about a web request when implementing an anti-bot solution.  
 This has been a hot topic lately, caused by the rising need to scrape the internet for human content to feeed to the LLMs.  
 Implementing such a system offers interesting technical challenges that span different domains, 
-but the main reason I want to share this is that it's a very good first project to learn eBPF.
+but most importantly it's a very good first project to learn eBPF.
 
 I split this article in two parts.
 - In the [first part](#), which you are reading right now, I provide a background on TCP fingerprinting, and discuss some implementation strategies.
@@ -28,21 +28,20 @@ a dump of the TCP SYN of the client.
 
 ### HTTP requests, from first principles
 
-In order to fully understand what want to do, I believe it's useful to approach the
-problem from first principles, which in this case means understanding how web servers work.
+The goal of this project is to implement a web server that echoes back to the client
+its TCP fingperprint.
+It can be useful to approach this problem from first principles, starting from understanding how web servers work 
+under the hood.
 
-Luckily for us, at its essence an HTTP webserver is extremely simple.  
-This should't be surprising: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
+This is not as scary as it might seem: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
 compatibility reasons they 
 still support the HTTP/1.0 protocol, which was [designed to be simple](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Evolution_of_HTTP).
 An HTTP/1.0 web server is just a light layer on top of a TCP connection, and can be implemented in just a few lines of C code.
-
 
 As an example, I implemented a simple hello world webserver in C that we'll use as 
 a starting point for the experiments in this article.
 You don't really have to read the code for now, but keep in mind that it's here:
 
-<Spoiler text="See code">
 
 ```c
 #include <netinet/in.h>
@@ -109,12 +108,10 @@ int main() {
 }
 ```
 
-</Spoiler>
 
-The code is not even remotely close to implement a real webserver,
-but it serves the purpose of showing the inner working of an HTTP/1 connection.
+This is certainly not a production ready webserver, but it servers the purpose of being extremely simple.
 If we compile the code, run it, and visit `http://127.0.0.1:8080`
-from any modern browser, we'll be greeted by a hello world.
+from any modern browser, we'll be greeted by a hello world:
 
 <Picture src="ebpf-fingerprint-browser1" height={490} alt="" />
 <br/>
@@ -123,9 +120,8 @@ Beautiful, isn't it?
 
 This code differs significantly from the hello worlds that you would normally write
 with a modern web framework, regardles of what's trending today, for an important reason:  
-We are directly using the abstraction layer provided by the operative system,
-Instead of using the abstractions that web frameworks provide to simplify the creation
-of a web server.
+We are directly using the abstraction layer provided by the operative system, nothing is 
+hidden away.
 
 All the code in this example can be broken down into a few calls of the standard library.
 Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim.net/?table=x86/64/x64/latest) whith a similar name, which are all we need to implement a webserver on a POSIX system:
@@ -155,7 +151,7 @@ start to experiment with tcp traffic.
 
 ### Anatomy of a TCP handshake
 
-Without going too much into details, TCP connections start with a famous three-way handhshake,
+TCP connections start with a famous three-way handhshake,
 During which both the client and the server exchange some informations that 
 are useful to establish a reliable connection.  
 
@@ -226,7 +222,7 @@ which is to write a webserver that will echo back to the visitor
 its TCP fingerprinting data.  
 For something like this to work, the webserver needs to directly 
 access the TCP SYN data of the connections it receives.  
-Is this something that we can do with the existing APIs we are using?
+Is this something that we can do with the existing POSIX APIs we are using?
 
 As it turns out, not really.
 When our server accepts a new client connection, the `accept()` function returns
@@ -281,7 +277,7 @@ packet data that hasn't been received yet.
 
 This is where eBPF comes to the resque. What if I told you that with
 eBPF we can generate that same hashmap of TCP SYN packets, but kernel side, without needing extra libraries and with little to no 
-overhead on the system? The map will resize in kernel memory, but we'll maintain the ability to query 
+overhead on the system? The map will reside in kernel memory, but we'll maintain the ability to query 
 it from userspace, by simply referring to a file descriptor.
 
 Compared to the previous diagram, this new architecture simply replaces the 
@@ -296,8 +292,14 @@ All we'll need to do first is initialize a custom eBPF program.
 
 ### eBPF
 
-The previous paragraph just provided a good introduction of what eBPF is,
-and what can be done with it.
+The previous paragraph might have provided a good introduction to what eBPF is,
+and what can be done with it:
+It's just a feature of the kernel, which introduces special event-driven programs that can run 
+kernel side,
+and [special data structures](https://docs.cilium.io/en/stable/reference-guides/bpf/architecture/#maps)
+that both epbf and user space programs can access and share.
 
-https://docs.cilium.io/en/stable/reference-guides/bpf/architecture/#maps
+This topic is very well documented, and has several [introductory guides](https://ebpf.io/what-is-ebpf/#introduction-to-ebpf) available.
+
+
 
