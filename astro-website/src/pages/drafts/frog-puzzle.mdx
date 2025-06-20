@@ -32,6 +32,7 @@ solve it. Keep in mind that this is supposed to be a simple logic puzzle for kid
 
 <Froggle prevBt={false} nextBt={false} showLevel={false} level={11} client:load />
 
+I was so frustrated with this game that 
 I ended up writing a simple C program that solves the level.
 I don't think there is a clean analytical solution to this, but the 
 possible moves in each board state are pretty limited by the constraints of the game,
@@ -108,25 +109,32 @@ For example, this is the routine that checks if the current game state
 is winning:
 
 ```c
-bool isWinningState(int frogs, uint8_t coords[]){
-  uint8_t win_bitmap[5] = {
-    0b10001,
-    0b00000,
-    0b00100,
-    0b00000,
-    0b10001,
+bool isWinningState(uint8_t frog_coords[]){
+  uint8_t win_bitmap[8] = {
+    0b10001111,
+    0b00000111,
+    0b00100111,
+    0b00000111,
+    0b10001111,
+    0b11111111,
+    0b11111111,
+    0b11111111,
   };
+  bool allInHole = 1;
 #pragma clang loop unroll(full)
-  for(int i=0; i<FROGS; i++){
-    int y = coords[i + Y_OFFSET];
-    int x = coords[i + X_OFFSET];
-    bool inHole = ((win_bitmap[y] & (1<<x)) != 0);
-    // printf("%d : %d,%d %s\n",i,x,y, inHole?"hole": "no");
-    if(!inHole) return false;
+  for(int i=0; i<MAX_FROGS; i++){
+    int y = frog_coords[i + Y_OFFSET];
+    int x = frog_coords[i + X_OFFSET];
+    bool inHole = win_bitmap[y] & (1<<x);
+    allInHole &= inHole;
   }
-  return true;
+  return allInHole;
 }
 ```
+
+This function works without branches, with any amount of frogs. It just assumes that
+frogs not in the current game will be outside the boundaries of the map, which is considered
+a winning position.
 
 
 
