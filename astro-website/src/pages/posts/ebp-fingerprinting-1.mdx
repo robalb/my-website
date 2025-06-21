@@ -1,11 +1,11 @@
 ---
 layout: '../../layouts/BlogPost.astro'
 title: Implementing fast TCP fingerprinting with eBPF
-subtitle: 
+subtitle:
 publishDate: 2025-06-01
 description: 
 tags: ['ebpf', 'tcp', 'fingerprinting']
-permalink: https://halb.it/posts/ebpf-fingerprinting/
+permalink: https://halb.it/posts/ebpf-fingerprinting-1/
 ---
 import Picture from '../../components/Picture.astro'
 import Spoiler from '../../components/Spoiler.astro'
@@ -20,18 +20,15 @@ Implementing such a system offers interesting technical challenges that span dif
 but most importantly it's a very good first project to learn eBPF.
 
 I split this article in two parts.
-- In the [first part](#), which you are reading right now, I provide a background on TCP fingerprinting, and discuss some implementation strategies.
-- In the [second part](#2) I describe the actual development and testing of an XDP eBPF program capable
+- In the [first part](./ebpf-fingerprinting-1), which you are reading right now, I provide a background on TCP fingerprinting, and discuss some implementation strategies.
+- In the [second part](./ebpf-fingerprinting-2) I describe the actual development and testing of an XDP eBPF program capable
 of handling 15.000 requests per second.
 As a proof-of-concept, I implemented a standalone webserver that echoes back
 a dump of the TCP SYN of the client.
 
 ### HTTP requests, from first principles
 
-The goal of this project is to implement a web server that echoes back to the client
-its TCP fingperprint.
-It can be useful to approach this problem from first principles, starting from understanding how web servers work 
-under the hood.
+It can be useful to approach this problem from first principles, looking at the way web servers work under the hood.
 
 This is not as scary as it might seem: although browsers and the underlying protocols evolved and got [more complex](https://en.wikipedia.org/wiki/HTTP/3) over time, for 
 compatibility reasons they 
@@ -109,7 +106,7 @@ int main() {
 ```
 
 
-This is certainly not a production ready webserver, but it servers the purpose of being extremely simple.
+This is certainly not a production ready webserver, but it does its job.
 If we compile the code, run it, and visit `http://127.0.0.1:8080`
 from any modern browser, we'll be greeted by a hello world:
 
@@ -292,14 +289,267 @@ All we'll need to do first is initialize a custom eBPF program.
 
 ### eBPF
 
-The previous paragraph might have provided a good introduction to what eBPF is,
+The previous paragraph already provided a good introduction to what eBPF is,
 and what can be done with it:
-It's just a feature of the kernel, which introduces special event-driven programs that can run 
+It's just a feature of the linux kernel, which introduces special event-driven programs that can run 
 kernel side,
 and [special data structures](https://docs.cilium.io/en/stable/reference-guides/bpf/architecture/#maps)
 that both epbf and user space programs can access and share.
 
-This topic is very well documented, and has several [introductory guides](https://ebpf.io/what-is-ebpf/#introduction-to-ebpf) available.
+This topic is very well documented, and has several introductory guides available.
+I recommend to check out
+[ebpf.io](https://ebpf.io/what-is-ebpf/#introduction-to-ebpf), 
+the [cilium docs on ebpf](), and the linux docs in particular.
+
+There are also a lot of tooling and libraries that simplify the process of writing and executing 
+eBPF programs. In particular, for integrating eBPF from C programs there is the [ebpf c, lib] which provides a list of [example projects]
+and a template to get started. But there are also Golang projects with a similar usage, like [go cilium]
+
+With these tools, an eBPF program can be written in C, by importing some dedicated libraries. It can then be 
+compiled into an ELF using Clang, together with autogenerate boilerplate code in either C or Go that will
+provide the functions to launch this eBPF program from inside our own program.
+
+Don't be fooled by the ELF format though, and eBPF program is just a sequence of bytes that can only be interpreted 
+by a custom emulator-like construct living inside the kernel. You execute a program by passing its bytes to a dedicated
+`ebpf` syscall, and performing some extra steps after that. 
+
+These tools abstract away all this work, allowing us to focus on C code. The resulting Object files are just a convenient 
+format to store both the program and its metadata, like debug symbols, in a standardized and well-known format.
+
+The end-result of this project needs to be in GO, so i'll focus on [cilium ebpf], for now.
+We can get take care of all the boilerplate simply by following the [cilium ebpf getting started guide](https://ebpf-go.dev/guides/getting-started/#the-go-application), which defines an example eBPF program
+and a Golang program that lauches it.
+
+[[[ (note: this whole block can be removed if we choose to keep a single article)
+
+The development of this code is described in the [second part] of the article.
+
+---
+
+This is the second part of my series documenting my experience implementing fast TCP fingerprinting 
+in a golang webserver, using eBPF.  
+
+In the [previous article] I focused on the theory behind TCP fingerprintng, Introduced the core 
+concepts behind eBPF, and laid out the base architecture we are going to follow.  
+This article is going to focus on the actual development.
+
+### The objective
+
+Just to recap the important informations, our goal is to write a web server that will echo back to the visitor informations 
+taken from its TCP SYN handshake.
+
+[diagram]
+
+We are going to use cilium ebpf, wich provides an easy way to interact with an eBPF program from GO.
+We can take care of all the boilerplate simply by following the [cilium ebpf getting started guide](https://ebpf-go.dev/guides/getting-started/#the-go-application), which defines an example eBPF program
+and a Golang program that launches it.
+
+]]]
+
+### The golang side
+
+There isn't anything particularly interesting in the user space side of our project.
+The introductory template from the cilium eBPF project already shows the usage of a shared [EBPF map](https://docs.ebpf.io/linux/concepts/maps/):
+the map is defined in the C side like this:
+
+```
+// ebpf.c
+
+...
+
+struct {
+    __uint(type, BPF_MAP_TYPE_ARRAY); 
+
+
+    __type(key, __u32);
+    __type(value, __u64);
+    __uint(max_entries, 1);
+} pkt_count SEC(".maps"); 
+
+```
+
+And thanks to the autogenerated boilerplate code it can be easily queried
+from the golang side:
+
+```
+var count uint64
+err := objs.PktCount.Lookup(uint32(0), &count)
+```
+
+Note that the eBPF system offers [several MAP types](https://docs.ebpf.io/linux/map-type/).
+This current example is defining an array, but we can easily change it into 
+a `BPF_MAP_TYPE_HASHAMP`, which is what we actually need for our project.
+
+We can then write a regular golang webserver, and query that hashmap using the 
+`ip+port` of the client when we receive a connection:
+
+```
+
+```
+
+### The eBPF side
+
+The interesting part of the project resides in the eBPF side:
+We need to collect the TCP SYN packets that are directed to the server, and 
+store them in a eBPF hash map.
+
+All eBPF programs can be seen as short-lived function callbacks that get executed 
+after a certain event, depending on the program type.
+There are [several program types](https://docs.ebpf.io/linux/program-type/), 
+and with our current system we can define which one we want to use using the 
+`SEC` macro.
+
+The first question we need to figure out is what program type will give us fast access to the data we need.
+Strictly speaking, there are only three possible candidates:
+
+#### approach 1: Kernel probes
+
+[Kernel probes] allow us to hook into almost all functions inside the kernel.
+In order to get our TCP SYN, we could hook into one of the core functions that handle TCP connections.
+
+There are [detailed guides](https://devops-insider.mygraphql.com/zh-cn/latest/kernel/network/socket/listen-queues/ref/scaling-linux-services-before-accepting-connections.html#from-syn-to-accept) that describe the part of the networking stack we are interested about. 
+Regarding TCP specifically, we know that TCP SYN packets directed to a listening socket are handled by the `tcp_conn_request()` function, and put into a dedicated SYN backlog queue.
+
+[diagrams of SYN BACKLOG and acept queue]
+
+Hooking into `tcp_conn_request` would give us access to both the SYN packet we need and the socket it's directed to, which is exactly what we need:
+
+```
+SEC("kprobe/tcp_conn_request")
+int kprobe_tcp_conn_request(struct pt_regs *ctx)
+{
+    struct sock *sk = (struct sk *)PT_REGS_PARM2(ctx); //listening socket
+    struct sk_buff *skb = (struct sk_buff *)PT_REGS_PARM3(ctx); //syn packet
+
+    // the rest of our program
+    // ...
+}
+```
+
+The issue with this approach is that kernel probes are not intended to be used this way. This hook will introduce overhead,
+and since the function and structs referenced are not part of a stable interface there are no guarantees that they won't change
+across kernel versions.
+We can probably work around both these issues by running our webserver in a dedicated network namespace and by 
+writing our eBPF with [CORE](https://docs.ebpf.io/concepts/core/), which maintains compatibilty across kernel versions. But this is probably 
+not the right path to follow.
+
+#### approach 2: tracepoints
+
+[Tracepoints] are more stable than kernel probes, and more lightweight compared to packet hooks for the simple reason that they get triggered with 
+less frequency if choosen carefully.
+This useful article by Brendan Gregg introduces the [TCP tracepoints](https://www.brendangregg.com/blog/2018-03-22/tcp-tracepoints.html) provided by the 
+linux kernel. 
+
+The problem with this approach is that tracepoints don't provide the data we need.
+We can use `bpfrtrace` to list tracepoints and inspect their signatures. The most relevant one is probably `sock:inet_sock_set_state`, and we 
+can easily see that it does not provide any `sk_buff`:
+
+```
+sudo bpftrace -lv "tracepoint:sock:inet_sock_set_state"
+tracepoint:sock:inet_sock_set_state
+    const void * skaddr
+    int oldstate
+    int newstate
+    __u16 sport
+    __u16 dport
+    __u16 family
+    __u16 protocol
+    __u8 saddr[4]
+    __u8 daddr[4]
+    __u8 saddr_v6[16]
+    __u8 daddr_v6[16]
+```
+
+#### approach 3: XDP
+
+This leaves us with [XDP programs], which are the intended way to handle network packets.
+
+```c
+SEC("xdp")
+int find_tcp_syns(struct xdp_md *ctx) {
+
+  // Pointers to packet data
+  void *data = (void *)(long)ctx->data;
+  void *data_end = (void *)(long)ctx->data_end;
+
+  // The rest of our program
+  // ...
+}
+
+```
+
+This program will run for every packet received by the network interface we'll bind it to,
+which is why it's important that we return from it as soon as we know that a packet is not relevant.
+
+Most of the code will just be responsible for detecting a TCP SYN directed to our server:
+
+```c
+SEC("xdp")
+int find_tcp_syns(struct xdp_md *ctx) {
+
+  // Pointers to packet data
+  void *data = (void *)(long)ctx->data;
+  void *data_end = (void *)(long)ctx->data_end;
+
+  // --- ETH layer
+
+  struct ethhdr *eth = data;
+
+  if ((void *)(eth + 1) > data_end)
+    return XDP_PASS;
+
+  if (bpf_ntohs(eth->h_proto) != ETH_P_IP)
+    return XDP_PASS;
+
+  // --- IP layer
+
+  struct iphdr *ip = (struct iphdr *)(eth + 1);
+
+  if ((void *)(ip + 1) > data_end)
+    return XDP_PASS;
+
+  char is_fragment = __bpf_ntohs(ip->frag_off) & (IP_MF | IP_OFFSET);
+  if (is_fragment)
+    return XDP_PASS;
+
+  if (ip->protocol != IPPROTO_TCP)
+    return XDP_PASS;
+
+  int ip_hdr_len = ip->ihl * 4;
+  if (ip_hdr_len < sizeof(struct iphdr)) {
+    return XDP_PASS;
+  }
+
+  if ((void *)ip + ip_hdr_len > data_end) {
+    return XDP_PASS;
+  }
+
+  // check that the destination addr matches with the address of our server.
+  // dst_ip is provided at execution time by the golang project, already in network byte order.
+  if (ip->daddr != dst_ip)
+    return 0;
+
+  // --- TCP layer
+
+  struct tcphdr *tcp = (struct tcphdr *)((unsigned char *)ip + ip_hdr_len);
+
+  if ((void *)(tcp + 1) > data_end) {
+    return XDP_PASS;
+  }
+
+  if (!(tcp->syn) || tcp->ack) // SYN-only (no SYN-ACK)
+    return XDP_PASS;
+
+  // check that the destination port matches with the listening port of our server.
+  // dst_port is provided at execution time by the golang project, already in network byte order.
+  if (tcp->dest != dst_port)
+    return XDP_PASS;
+
+  // Success! this is a TCP SYN we care about.
+
+}
+
+```
 
 
 
