@@ -13,14 +13,14 @@ import Spoiler from '../../components/Spoiler.astro'
 This is the second part of my series on implementing fast TCP fingerprinting 
 in a golang webserver, using eBPF.  
 
-In the [previous article](/posts/ebpf-fingerprinting-1/) we saw the theory behind TCP fingerprintng, introduced the core 
+In the [previous article](/posts/ebpf-fingerprinting-1/) I focused on the theory behind TCP fingerprintng, introduced the core 
 concepts behind eBPF, and laid out the base architecture we are going to follow.  
 This article is going to focus on the actual development.
 
 ### The goal
 
 Just to recap the important informations, our goal is to write a web server that will echo back to the visitor informations 
-taken from their TCP SYN handshake.
+taken from their TCP handshake.
 
 <Picture src="ebpf-fingerprint-webebpf2" height="380" />
 <br/>
@@ -104,13 +104,10 @@ The interesting part of the project resides in the eBPF side:
 We need to collect the TCP SYN packets that are directed to the server, and 
 store them in a eBPF hash map.
 
-All eBPF programs can be seen as short-lived function callbacks that get executed 
-after a certain event, depending on the program type.
+All eBPF programs can be seen as short-lived function callbacks that get executed
+after a certain event, depending on the program type.  
 There are [several program types](https://docs.ebpf.io/linux/program-type/), 
-and with our current system we can define which one we want to use using the 
-`SEC` macro.
-
-The first question we need to figure out is what program type will give us fast access to the data we need.
+what we need to figure out is what program type will give us fast access to the data we need.
 Strictly speaking, there are only three possible candidates:
 
 ### option 1: Kernel probes
@@ -118,13 +115,11 @@ Strictly speaking, there are only three possible candidates:
 [Kernel probes](https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_KPROBE/) allow us to hook into almost all functions inside the kernel.
 In order to get our TCP SYN, we could hook into one of the core functions that handle TCP connections.
 
-There are [detailed guides](https://devops-insider.mygraphql.com/zh-cn/latest/kernel/network/socket/listen-queues/ref/scaling-linux-services-before-accepting-connections.html#from-syn-to-accept) that describe
-the part of the networking stack we are interested in. 
-Regarding TCP specifically, we know that TCP SYN packets directed to a listening socket are handled by the `tcp_conn_request()` function, and put into a dedicated SYN backlog queue.
-
-[diagrams of SYN BACKLOG and acept queue]
-
-Hooking into `tcp_conn_request` would give us access to both the SYN packet we need and the socket it's directed to, which is exactly what we need:
+There are several [detailed guides](https://devops-insider.mygraphql.com/zh-cn/latest/kernel/network/socket/listen-queues/ref/scaling-linux-services-before-accepting-connections.html#from-syn-to-accept) that describe
+the part of the [networking stack](https://arthurchiao.art/blog/tcp-listen-a-tale-of-two-queues/) we are interested about. 
+Regarding TCP specifically, a good function to hook can be `tcp_conn_request()`, which handles TCP SYN packets directed 
+to a listening socket. That would give us access to 
+both the SYN packet we need and the socket it's directed to, which is exactly what we need:
 
 ```c
 SEC("kprobe/tcp_conn_request")
@@ -142,7 +137,7 @@ The issue with this approach is that kernel probes are not intended to be used t
 and since the function and structs referenced are not part of a stable interface there are no guarantees that they won't change
 across kernel versions.
 We can probably work around both these issues by running our webserver in a dedicated network namespace and by 
-writing our eBPF with [CORE](https://docs.ebpf.io/concepts/core/), which maintains compatibilty across kernel versions. But this is probably 
+writing our eBPF with [CORE](https://docs.ebpf.io/concepts/core/), which maintains compatibilty across kernel versions. But this is clearly 
 not the right path to follow.
 
 ### option 2: tracepoints
@@ -273,11 +268,8 @@ shared hashmap.
 
 The plan is to store and retrieve TCP SYN packets in the eBPF hasmap using the packet `IP + TCP PORT` tuple as a key.
 We need to make sure that the key we generate will have the same binary 
-format in both the C and GO side. This can be an issue especially when dealing with network addresses and data,
-because network packets store numbers in `network byte order`, whici is Big endian.  
-Our eBPF C program will read packet data in big endian format, but the endianness of the program itself 
-will depend on the host architecture.
-The same applies to the golang program, which will have the endiannes of the host.
+format in both the C and GO side.
+On the C side things are easy:
 
 ```c
 //ebpf.c
@@ -287,12 +279,18 @@ inline __u64 makeKey(__u32 ip, __u16 port) {
 }
 ```
 
+On the golang side we must be extra careful:
+network packets store numbers in `network byte order`, which is Big endian.
+The Ip and port we manage in the eBPF side are read straight from a packet, and are therefore 
+Big endian, even thought the endianness of the program itself will depend on the host.  
+The same applies to the golang program, which will have the endianness of the host architecture.
+
 ```go
 // key.go
 func makeKey(ipStr, portStr string) (key uint64, err error) {
 	ipBytes := net.ParseIP(ipStr).To4()
 	if ipBytes == nil {
-		return 0, 0, 0, fmt.Errorf("invalid IPv4 address: %s", ipStr)
+		return 0, fmt.Errorf("invalid IPv4 address: %s", ipStr)
 	}
 
 	// note: ipBytes is already in big endian network order,
@@ -326,12 +324,9 @@ func hostToNet_uint16(i uint16) uint16 {
 ### End result
 
 I combined together the experiments in this article into a webserver
-that is now open source on github. While the projects itself is just a small 
-experiment and is definitely complete, I can't say the same for the article you are
-reading right now, which will probably expand in the future. I still want to talk 
-about load tests and the potential security issues that the deployment of this kind of project can 
-introduce.
-
+that is now open source on github. The projects itself is just a small 
+experiment and is now complete, but this article you are reading right now is still 
+under development, and I will probably improve it over time.
 
 
 
