@@ -9,6 +9,8 @@ permalink: https://halb.it/posts/ebpf-fingerprinting-1/
 ---
 import Picture from '../../components/Picture.astro'
 import Spoiler from '../../components/Spoiler.astro'
+import Testsvg from '../../components/Testsvg.astro'
+
 
 In this article I want to document my journey implementing fast TCP fingerprinting 
 in a golang webserver, using eBPF.  
@@ -21,10 +23,9 @@ but most importantly it's a very good first project to learn eBPF.
 
 I split this article in two parts.
 - In this first part I provide a background on TCP fingerprinting, and discuss some implementation strategies.
-- In the [second part](/posts/ebpf-fingerprinting-2/) I describe the actual development and testing of an XDP eBPF program capable
-of handling 15.000 requests per second.
-As a proof-of-concept, I implemented a standalone webserver that echoes back
-a dump of the TCP SYN of the client.
+- In the [second part](/posts/ebpf-fingerprinting-2/) I describe the actual development
+  of a proof-of-concept Golang webserver that echoes back the TCP fingerprint of the client.
+  The project is [open source on Github](https://github.com/robalb/ebpf-web-fingerprint/tree/main)
 
 ### HTTP requests, from first principles
 
@@ -120,7 +121,7 @@ with a modern web framework, regardles of what's trending today, for an importan
 We are directly using the abstraction layer provided by the operative system, nothing is 
 hidden away.
 
-All the code in this example can be broken down into a few calls of the standard library.
+All the code in this example can be broken down into a few calls of the C standard library.
 Those functions are just thin wrappers around [syscalls](https://syscalls.mebeim.net/?table=x86/64/x64/latest) whith a similar name, which are all we need to implement a webserver on a POSIX system:
 
 - we create a `socket`
@@ -152,16 +153,8 @@ TCP connections start with a famous three-way handhshake,
 During which both the client and the server exchange some informations that 
 are useful to establish a reliable connection.  
 
-```
-Client                      Server
-  |                           |
-  | --------- SYN ----------> |  Step 1: Client sends SYN
-  |                           |
-  | <----- SYN + ACK -------- |  Step 2: Server responds with SYN + ACK
-  |                           |
-  | --------- ACK ----------> |  Step 3: Client sends ACK
-  |                           |
-```
+<Testsvg src="ebpf-fingerprint-tcphandshake" alt="Diagram of a TCP handshake. It shows an exchange between a client and the server. The client sends a SYN packet, the server responds with a SYN+ACK packet, the client concludes by sending an ACK packet." height="200" width="200" />
+<br/>
 
 Historically, the informations exchanged during the handshake have always provided useful insight into 
 the identity of the client. 
